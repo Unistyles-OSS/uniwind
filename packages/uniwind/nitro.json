@@ -1,0 +1,13 @@
+{
+    "$schema": "https://nitro.margelo.com/nitro.schema.json",
+    "cxxNamespace": ["uniwind"],
+    "ios": {
+        "iosModuleName": "Uniwind"
+    },
+    "android": {
+        "androidNamespace": ["uniwind"],
+        "androidCxxLibName": "uniwind"
+    },
+    "autolinking": {},
+    "ignorePaths": ["node_modules", "lib"]
+}

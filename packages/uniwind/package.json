@@ -1,8 +1,10 @@
 {
     "name": "uniwind",
     "version": "0.0.1",
+    "description": "The fastest Tailwind bindings for React Native",
+    "homepage": "https://github.com/Unistyles-OSS/uniwind-pro",
+    "author": "UnistylesOSS",
     "type": "module",
-    "license": "MIT",
     "scripts": {
         "precommit": "bun lint",
         "build": "unbuild",
@@ -28,14 +30,30 @@
     "files": [
         "dist",
         "metro",
-        "uniwind.css"
+        "uniwind.css",
+        "src",
+        "lib",
+        "Uniwind.podspec",
+        "android/build.gradle",
+        "android/gradle.properties",
+        "android/fix-prefab.gradle",
+        "android/CMakeLists.txt",
+        "android/src",
+        "ios/**/*.h",
+        "ios/**/*.m",
+        "ios/**/*.mm",
+        "ios/**/*.cpp",
+        "ios/**/*.swift",
+        "nitrogen",
+        "README.md"
     ],
     "dependencies": {
         "@tailwindcss/cli": "4.1.11",
         "@tailwindcss/node": "4.1.11",
         "chokidar": "4.0.3",
+        "culori": "4.0.2",
         "postcss-js": "4.0.1",
-        "culori": "4.0.2"
+        "react-native-nitro-modules": "0.27.2"
     },
     "peerDependencies": {
         "react": ">=19.0.0",
