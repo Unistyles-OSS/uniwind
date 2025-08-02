@@ -1,3 +1,6 @@
+const path = require('path')
+const pak = require('../../packages/uniwind/package.json')
+
 module.exports = function(api) {
     api.cache(true)
 
@@ -5,6 +8,14 @@ module.exports = function(api) {
         presets: ['babel-preset-expo'],
         plugins: [
             'uniwind/babel',
+            [
+                'module-resolver',
+                {
+                    alias: {
+                        [pak.name]: path.resolve(__dirname, '../../packages/uniwind/src')
+                    }
+                }
+            ]
         ],
     }
 }

@@ -1,8 +1,10 @@
 {
     "name": "uniwind",
     "version": "0.0.1",
+    "description": "The fastest Tailwind bindings for React Native",
+    "homepage": "https://github.com/Unistyles-OSS/uniwind-pro",
+    "author": "UnistylesOSS",
     "type": "module",
-    "license": "MIT",
     "scripts": {
         "precommit": "bun lint",
         "build": "unbuild",
@@ -14,8 +16,15 @@
         "circular:check": "dpdm --no-warning --no-tree -T --exit-code circular:1 src/**/*.ts"
     },
     "style": "./uniwind.css",
+    "source": "src/index",
     "exports": {
-        ".": "./uniwind.css",
+        ".": {
+            "style": "./uniwind.css",
+            "import": "./dist/module/index.js",
+            "require": "./dist/common/index.js",
+            "react-native": "./src/index.ts",
+            "default": "./dist/common/index.js"
+        },
         "./components/*": {
             "import": "./dist/components/module/index.js",
             "require": "./dist/components/common/index.js",
@@ -28,14 +37,30 @@
     "files": [
         "dist",
         "metro",
-        "uniwind.css"
+        "uniwind.css",
+        "src",
+        "cxx",
+        "Uniwind.podspec",
+        "android/build.gradle",
+        "android/gradle.properties",
+        "android/fix-prefab.gradle",
+        "android/CMakeLists.txt",
+        "android/src",
+        "ios/**/*.h",
+        "ios/**/*.m",
+        "ios/**/*.mm",
+        "ios/**/*.cpp",
+        "ios/**/*.swift",
+        "nitrogen",
+        "README.md"
     ],
     "dependencies": {
         "@tailwindcss/cli": "4.1.11",
         "@tailwindcss/node": "4.1.11",
         "chokidar": "4.0.3",
+        "culori": "4.0.2",
         "postcss-js": "4.0.1",
-        "culori": "4.0.2"
+        "react-native-nitro-modules": "0.27.2"
     },
     "peerDependencies": {
         "react": ">=19.0.0",
@@ -52,5 +77,10 @@
         "@babel/types": "7.28.2",
         "dpdm": "3.14.0",
         "unbuild": "3.6.0"
+    },
+    "codegenConfig": {
+        "name": "TurboUniwind",
+        "type": "modules",
+        "jsSrcsDir": "./src/specs"
     }
 }
