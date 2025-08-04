@@ -9,7 +9,7 @@ export const processCSSValue = (value: string) => {
                 case 'vh':
                     return `(${value} * rt.screenHeight / 100)`
                 case 'px':
-                    return value
+                    return `(${value})`
                 case 'rem':
                     return `(${value} * rt.rem)`
                 default:
@@ -41,30 +41,46 @@ const cssToRNKeyMap = {
     marginLeft: 'marginStart',
     paddingRight: 'paddingEnd',
     paddingLeft: 'paddingStart',
-    transform: 'transformMatrix',
     backgroundSize: 'resizeMode',
 } as Record<string, string>
 
-const cssToRNValueMap = {
-    transform: (value: string) => {
-        if (value.startsWith('matrix(')) {
-            return value.slice(7, -1).split(',').map(parseFloat)
-        }
-
-        return value
-    },
+const cssToRNMap: Record<string, (value: any) => unknown> = {
+    ...Object.fromEntries(
+        Object.entries(cssToRNKeyMap).map(([key, transformedKey]) => {
+            return [key, value => ({
+                [transformedKey]: value,
+            })]
+        }),
+    ),
     opacity: (value: string) => {
-        if (value.endsWith('%')) {
-            return parseFloat(value.slice(0, -1)) / 100
+        return {
+            opacity: parseFloat(value.slice(0, -1)) / 100,
         }
-
-        return value
     },
-} as Record<string, (value: any) => any>
+    transform: () => ({}),
+    translate: (value: string) => {
+        const [x, y] = value.split(' ')
+        const yValue = y ?? x
+
+        return {
+            transform: [
+                ...x !== undefined
+                    ? [{
+                        translateX: x,
+                    }]
+                    : [],
+                ...(yValue !== undefined
+                    ? [{
+                        translateY: yValue,
+                    }]
+                    : []),
+            ],
+        }
+    },
+}
 
 export const cssToRN = (property: string, value: any) => {
-    const rnKey = cssToRNKeyMap[property] ?? property
-    const rnValue = cssToRNValueMap[property]?.(value) ?? value
+    const rn = cssToRNMap[property]?.(value) ?? { [property]: value }
 
-    return [rnKey, rnValue] as [string, unknown]
+    return Object.entries(rn)
 }

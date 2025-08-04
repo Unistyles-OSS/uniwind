@@ -19,7 +19,16 @@ export const compileVirtualJS = async (input: string, scanner: Scanner) => {
     const root = postcss.parse(result)
     const cssTree = postcssJS.objectify(root as unknown as Parameters<typeof postcssJS.objectify>[0])
     const theme: Record<string, any> = cssTree['@layer theme'][':root, :host']
-    const varsTemplate = createVarsTemplate(theme)
+    const properties = Object.fromEntries(
+        Object.entries(cssTree)
+            .filter(([key]) => key.startsWith('@property'))
+            .map(([key, value]) => {
+                const numericValue = parseFloat(value.initialValue)
+
+                return [key.slice(10), !isNaN(numericValue) ? numericValue : value.initialValue]
+            }),
+    )
+    const varsTemplate = createVarsTemplate({ ...theme, ...properties })
     const classes: Record<string, any> = cssTree['@layer utilities']
     const stylesheetTemplate = createStylesheetTemplate(classes)
 

@@ -17,7 +17,7 @@ export const createStylesheetTemplate = (classes: Record<string, any>) => {
                             ? processCSSValue(mqStyleValue)
                             : mqStyleValue
 
-                        stylesAcc.entries.push(cssToRN(mqStyleKey, processedMqValue))
+                        stylesAcc.entries.push(...cssToRN(mqStyleKey, processedMqValue))
                     })
 
                     stylesAcc.maxWidth = maxWidth
@@ -35,7 +35,7 @@ export const createStylesheetTemplate = (classes: Record<string, any>) => {
                     ? processCSSValue(styleValue)
                     : styleValue
 
-                stylesAcc.entries.push(cssToRN(styleKey, processedValue))
+                stylesAcc.entries.push(...cssToRN(styleKey, processedValue))
 
                 return stylesAcc
             }, { entries: [], maxWidth: Number.MAX_VALUE, minWidth: 0, orientation: null })

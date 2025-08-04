@@ -25,8 +25,17 @@ export const resolveStyles = (styles: Array<Style | undefined>) => {
                 return
             }
 
-            if (bestBreakpoints[property] === undefined || style.minWidth > bestBreakpoints[property]) {
+            if (bestBreakpoints[property] === undefined || style.minWidth >= bestBreakpoints[property]) {
                 bestBreakpoints[property] = style.minWidth
+
+                // Join transform arrays
+                if (property === 'transform' && Array.isArray(value)) {
+                    result[property] = result[property] ?? []
+                    Array.isArray(result[property]) && result[property].push(...value)
+
+                    return
+                }
+
                 result[property] = value
             }
         })

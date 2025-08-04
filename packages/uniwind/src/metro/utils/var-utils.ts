@@ -90,34 +90,76 @@ export const processVar = (rawValue: string): Array<string> => {
     const defaultValueRaw = unwrapped.slice(splitIndex + 1).trim()
     const defaultValue = defaultValueRaw.startsWith('var(')
         ? processVar(defaultValueRaw)
-        : [toVar(defaultValueRaw)]
+        : []
 
     return [toVar(value), ...defaultValue]
 }
 
+const replaceWithLocalVar = (value: string, localVars: Record<string, unknown>) => {
+    const processedValue = value.replace(/vars\[`(.*?)`\]/g, (match, varName) => {
+        if (varName in localVars) {
+            return String(localVars[varName])
+        }
+
+        return match
+    })
+
+    return processedValue
+}
+
+/*
+Use local variables in styles instead of global ones
+Example:
+.translate-x-2 {
+    --tw-translate-x: 2px;
+    translate: var(--tw-translate-x);
+}
+*/
 export const injectLocalVars = (entries: Array<[string, unknown]>) => {
-    const localVars = Object.fromEntries(entries.filter(([key]) => key.startsWith('--')))
+    const localVarsEntries = entries.filter(([key]) => key.startsWith('--'))
+
+    if (localVarsEntries.length === 0) {
+        return entries
+    }
+
+    const localVars = Object.fromEntries(localVarsEntries)
 
     return entries.reduce<Array<[string, unknown]>>((acc, [key, value]) => {
         if (key.startsWith('--')) {
             return acc
         }
 
-        if (typeof value !== 'string') {
-            acc.push([key, value])
+        if (typeof value === 'string') {
+            const processedValue = replaceWithLocalVar(value, localVars)
+
+            acc.push([key, processedValue])
 
             return acc
         }
 
-        const processedValue = value.replace(/vars\[`(.*?)`\]/g, (match, varName) => {
-            if (varName in localVars) {
-                return String(localVars[varName])
-            }
+        if (Array.isArray(value)) {
+            const processedValue = value.map(item => {
+                if (typeof item === 'object' && item !== null) {
+                    return Object.fromEntries(
+                        Object.entries(item).map(([key, value]) => {
+                            if (typeof value !== 'string') {
+                                return [key, value]
+                            }
 
-            return match
-        })
+                            return [key, replaceWithLocalVar(value, localVars)]
+                        }),
+                    )
+                }
 
-        acc.push([key, processedValue])
+                return item
+            })
+
+            acc.push([key, processedValue])
+
+            return acc
+        }
+
+        acc.push([key, value])
 
         return acc
     }, [])
