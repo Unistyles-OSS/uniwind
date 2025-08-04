@@ -6,6 +6,7 @@ buildscript {
 
   dependencies {
     classpath "com.android.tools.build:gradle:8.11.1"
+    classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.10")
   }
 }
 
@@ -139,3 +140,13 @@ dependencies {
   implementation project(":react-native-nitro-modules")
 }
 
+
+tasks.register("checkNativeTurboUniwindSpec") {
+    doLast {
+        if (!isNewArchitectureEnabled()) {
+            throw new GradleException("Uniwind requires your project to have New Architecture enabled.")
+        }
+    }
+}
+
+preBuild.dependsOn checkNativeTurboUniwindSpec
