@@ -1,5 +1,5 @@
 import { StyleTemplateAcc } from './types'
-import { cssToRN, escapeDynamic, injectLocalVars, processCSSValue, processMediaQuery } from './utils'
+import { cssToRN, escapeDynamic, injectLocalVars, isDefined, pipe, processCSSValue, processMediaQuery } from './utils'
 
 export const createStylesheetTemplate = (classes: Record<string, any>) => {
     const template = Object.fromEntries(
@@ -9,15 +9,7 @@ export const createStylesheetTemplate = (classes: Record<string, any>) => {
                     const { maxWidth, minWidth, orientation } = processMediaQuery(styleKey)
 
                     Object.entries(styleValue).forEach(([mqStyleKey, mqStyleValue]) => {
-                        if (typeof mqStyleValue !== 'string' && typeof mqStyleValue !== 'number') {
-                            return
-                        }
-
-                        const processedMqValue = typeof mqStyleValue === 'string'
-                            ? processCSSValue(mqStyleValue)
-                            : mqStyleValue
-
-                        stylesAcc.entries.push(...cssToRN(mqStyleKey, processedMqValue))
+                        stylesAcc.entries.push([mqStyleKey, mqStyleValue])
                     })
 
                     stylesAcc.maxWidth = maxWidth
@@ -27,15 +19,7 @@ export const createStylesheetTemplate = (classes: Record<string, any>) => {
                     return stylesAcc
                 }
 
-                if (typeof styleValue !== 'string' && typeof styleValue !== 'number') {
-                    return stylesAcc
-                }
-
-                const processedValue = typeof styleValue === 'string'
-                    ? processCSSValue(styleValue)
-                    : styleValue
-
-                stylesAcc.entries.push(...cssToRN(styleKey, processedValue))
+                stylesAcc.entries.push([styleKey, styleValue])
 
                 return stylesAcc
             }, { entries: [], maxWidth: Number.MAX_VALUE, minWidth: 0, orientation: null })
@@ -48,11 +32,29 @@ export const createStylesheetTemplate = (classes: Record<string, any>) => {
     )
     const processedTemplate = Object.fromEntries(
         Object.entries(template).map(([className, styles]) => {
+            const processedEntries = pipe(styles.entries)(
+                entries =>
+                    entries.map(([key, value]) => {
+                        if (typeof value !== 'string' && typeof value !== 'number') {
+                            return null
+                        }
+
+                        const processedValue = typeof value === 'string'
+                            ? processCSSValue(value)
+                            : value
+
+                        return [key, processedValue] as [string, unknown]
+                    }),
+                entries => entries.filter(isDefined),
+                injectLocalVars,
+                entries => entries.flatMap(([key, value]) => cssToRN(key, value)),
+            )
+
             return [
                 className,
                 {
                     ...styles,
-                    entries: injectLocalVars(styles.entries),
+                    entries: processedEntries,
                 },
             ]
         }),

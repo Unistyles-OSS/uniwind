@@ -95,17 +95,7 @@ export const processVar = (rawValue: string): Array<string> => {
     return [toVar(value), ...defaultValue]
 }
 
-const replaceWithLocalVar = (value: string, localVars: Record<string, unknown>) => {
-    const processedValue = value.replace(/vars\[`(.*?)`\]/g, (match, varName) => {
-        if (varName in localVars) {
-            return String(localVars[varName])
-        }
-
-        return match
-    })
-
-    return processedValue
-}
+export const isVarName = (str: string) => str.startsWith('--')
 
 /*
 Use local variables in styles instead of global ones
@@ -116,7 +106,7 @@ Example:
 }
 */
 export const injectLocalVars = (entries: Array<[string, unknown]>) => {
-    const localVarsEntries = entries.filter(([key]) => key.startsWith('--'))
+    const localVarsEntries = entries.filter(([key]) => isVarName(key))
 
     if (localVarsEntries.length === 0) {
         return entries
@@ -125,33 +115,17 @@ export const injectLocalVars = (entries: Array<[string, unknown]>) => {
     const localVars = Object.fromEntries(localVarsEntries)
 
     return entries.reduce<Array<[string, unknown]>>((acc, [key, value]) => {
-        if (key.startsWith('--')) {
+        if (isVarName(key)) {
             return acc
         }
 
         if (typeof value === 'string') {
-            const processedValue = replaceWithLocalVar(value, localVars)
-
-            acc.push([key, processedValue])
-
-            return acc
-        }
-
-        if (Array.isArray(value)) {
-            const processedValue = value.map(item => {
-                if (typeof item === 'object' && item !== null) {
-                    return Object.fromEntries(
-                        Object.entries(item).map(([key, value]) => {
-                            if (typeof value !== 'string') {
-                                return [key, value]
-                            }
-
-                            return [key, replaceWithLocalVar(value, localVars)]
-                        }),
-                    )
+            const processedValue = value.replace(/vars\[`(.*?)`\]/g, (match, varName) => {
+                if (varName in localVars) {
+                    return String(localVars[varName])
                 }
 
-                return item
+                return match
             })
 
             acc.push([key, processedValue])
