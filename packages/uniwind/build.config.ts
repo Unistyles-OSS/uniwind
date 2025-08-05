@@ -1,4 +1,32 @@
-import { defineBuildConfig } from 'unbuild'
+import { BuildConfig, defineBuildConfig } from 'unbuild'
+
+type Config = {
+    input: string
+    outDir: string
+    pattern?: Array<string>
+    declaration?: boolean
+}
+
+const getConfig = (config: Config) =>
+    [
+        {
+            builder: 'mkdist',
+            input: config.input,
+            outDir: `${config.outDir}/common`,
+            ext: 'js',
+            format: 'cjs',
+            pattern: config.pattern,
+        },
+        {
+            builder: 'mkdist',
+            input: config.input,
+            outDir: `${config.outDir}/module`,
+            ext: 'js',
+            format: 'esm',
+            pattern: config.pattern,
+            declaration: config.declaration,
+        },
+    ] satisfies Array<BuildConfig['entries'][number]>
 
 export default defineBuildConfig({
     entries: [
@@ -12,20 +40,21 @@ export default defineBuildConfig({
             input: './src/babel',
             name: 'babel/index',
         },
-        {
-            builder: 'mkdist',
+        ...getConfig({
             input: './src/components',
-            outDir: 'dist/components/common',
-            ext: 'js',
-            format: 'cjs',
-        },
-        {
-            builder: 'mkdist',
-            input: './src/components',
-            outDir: 'dist/components/module',
-            ext: 'js',
-            format: 'esm',
-        },
+            outDir: 'dist/components',
+        }),
+        ...getConfig({
+            input: './src',
+            outDir: 'dist',
+            pattern: [
+                '**/*',
+                '!babel/**',
+                '!components/**',
+                '!metro/**',
+            ],
+            declaration: true,
+        }),
     ],
     outDir: 'dist',
     clean: true,

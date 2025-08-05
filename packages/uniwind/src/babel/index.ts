@@ -1,5 +1,6 @@
 import type { NodePath, PluginObj, types as t } from '@babel/core'
 import type { ImportDeclaration, ImportSpecifier } from '@babel/types'
+import { name } from '../../package.json'
 
 const DEFAULT_RN_COMPONENTS = [
     'ActivityIndicator',
@@ -24,11 +25,11 @@ const DEFAULT_RN_COMPONENTS = [
 ]
 
 export default ({ types }: { types: typeof t }): PluginObj => {
-    const componentModule = 'uniwind/components'
+    const componentModule = `${name}/components`
     const RN_COMPONENTS = new Set(DEFAULT_RN_COMPONENTS)
 
     return {
-        name: 'uniwind',
+        name,
         visitor: {
             ImportDeclaration: (path: NodePath<ImportDeclaration>) => {
                 const { node } = path

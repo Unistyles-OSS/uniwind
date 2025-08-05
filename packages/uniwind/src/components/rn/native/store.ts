@@ -1,6 +1,7 @@
 import { UniwindRuntime } from '../../runtime'
 import { StyleSheets } from '../../types'
-import { RNClassNameProps, RNStyle, RNStylesProps, UniwindComponentProps } from '../props'
+import { styleToClass } from '../../utils'
+import { RNStyle, RNStylesProps, UniwindComponentProps } from '../props'
 import { resolveStyles } from './resolveStyles'
 
 export class UniwindStoreBuilder {
@@ -48,7 +49,7 @@ export class UniwindStoreBuilder {
                     props.style,
                 ],
                 ...additionalStyles?.reduce((acc, styleProp) => {
-                    const className = props[styleProp.replace('Style', 'ClassName') as RNClassNameProps] ?? ''
+                    const className = props[styleToClass(styleProp)] ?? ''
 
                     acc[styleProp] = [
                         this.getStyles(className),

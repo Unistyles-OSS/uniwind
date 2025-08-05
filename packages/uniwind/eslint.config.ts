@@ -18,6 +18,7 @@ export default [
             'eslint.config.ts',
             'build.config.ts',
             'types.d.ts',
+            'dist',
         ],
     },
 ]

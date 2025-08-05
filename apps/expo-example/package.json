@@ -25,7 +25,8 @@
         "postcss": "8.5.6",
         "@babel/core": "7.28.0",
         "@types/react": "19.0.10",
-        "typescript": "5.9.2"
+        "typescript": "5.9.2",
+        "babel-plugin-module-resolver": "5.0.2"
     },
     "private": true
 }
