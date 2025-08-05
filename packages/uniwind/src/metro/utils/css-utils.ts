@@ -1,13 +1,16 @@
+import { isDefined, kebabToCamelCase, pipe } from './common'
 import { processVarsRec } from './var-utils'
 
 export const processCSSValue = (value: string) => {
-    const replacedUnits = value
-        .replace(/(\d+(?:\.\d+)?)(vw|vh|px|rem)/g, (match, value, unit) => {
+    return pipe(value)(
+        // Handle units
+        x => x.replace(/(\d+(?:\.\d+)?)(vw|vh|px|rem)/g, (match, value, unit) => {
             switch (unit) {
                 case 'vw':
                     return `(${value} * rt.screenWidth / 100)`
                 case 'vh':
                     return `(${value} * rt.screenHeight / 100)`
+                // Mark to be evaluated
                 case 'px':
                     return `(${value})`
                 case 'rem':
@@ -15,10 +18,12 @@ export const processCSSValue = (value: string) => {
                 default:
                     return match
             }
-        })
-        .replace('calc', '')
-
-    return processVarsRec(replacedUnits)
+        }),
+        // Convert 1 / 2 to (1 / 2) so it can be evaluated
+        x => /\d+\s*\/\s*\d+/.test(x) ? `(${x})` : x,
+        x => x.replace('calc', ''),
+        processVarsRec,
+    )
 }
 
 const cssToRNKeyMap = {
@@ -57,19 +62,91 @@ const cssToRNMap: Record<string, (value: any) => unknown> = {
             opacity: parseFloat(value.slice(0, -1)) / 100,
         }
     },
-    transform: () => ({}),
+    transform: (value: string) => {
+        const transforms = value.split(' ')
+        const getTransform = (transformName: string) =>
+            transforms
+                .find(transform => transform.startsWith(transformName))
+                ?.replace(transformName, '')
+                .replace('(', '')
+                .replace(')', '')
+
+        const possibleTransforms = {
+            perspective: getTransform('perspective'),
+            rotateX: getTransform('rotateX'),
+            rotateY: getTransform('rotateY'),
+            rotateZ: getTransform('rotateZ'),
+            rotate: getTransform('rotate'),
+            translateX: getTransform('translateX'),
+            translateY: getTransform('translateY'),
+            translateZ: getTransform('translateZ'),
+            scale: getTransform('scale'),
+            scaleX: getTransform('scaleX'),
+            scaleY: getTransform('scaleY'),
+            scaleZ: getTransform('scaleZ'),
+            skewX: getTransform('skewX'),
+            skewY: getTransform('skewY'),
+            matrix: getTransform('matrix'),
+        }
+        const availableTransforms = pipe(Object.entries(possibleTransforms))(
+            entries =>
+                entries.map(([transformName, transformValue]) => {
+                    if (transformValue === undefined) {
+                        return null
+                    }
+
+                    return {
+                        [transformName]: transformValue,
+                    }
+                }),
+            entries => entries.filter(isDefined),
+        )
+
+        return {
+            transform: [
+                ...availableTransforms,
+            ],
+        }
+    },
+    rotate: (value: string) => {
+        return {
+            transform: [
+                {
+                    rotate: value,
+                },
+            ],
+        }
+    },
+    scale: (value: string) => {
+        return {
+            transform: [
+                {
+                    scale: value,
+                },
+            ],
+        }
+    },
+    perspective: (value: string) => {
+        return {
+            transform: [
+                {
+                    perspective: value,
+                },
+            ],
+        }
+    },
     translate: (value: string) => {
         const [x, y] = value.split(' ')
         const yValue = y ?? x
 
         return {
             transform: [
-                ...x !== undefined
+                ...isDefined(x)
                     ? [{
                         translateX: x,
                     }]
                     : [],
-                ...(yValue !== undefined
+                ...(isDefined(yValue)
                     ? [{
                         translateY: yValue,
                     }]
@@ -80,7 +157,8 @@ const cssToRNMap: Record<string, (value: any) => unknown> = {
 }
 
 export const cssToRN = (property: string, value: any) => {
-    const rn = cssToRNMap[property]?.(value) ?? { [property]: value }
+    const camelizeProperty = kebabToCamelCase(property)
+    const rn = cssToRNMap[camelizeProperty]?.(value) ?? { [camelizeProperty]: value }
 
     return Object.entries(rn)
 }

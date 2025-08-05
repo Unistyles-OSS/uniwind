@@ -24,3 +24,5 @@ type PipeFns<T> = {
 
 // eslint-disable-next-line functional/functional-parameters
 export const pipe = <T>(data: T) => ((...fns: Array<any>) => fns.reduce((acc, fn) => fn(acc), data)) as PipeFns<T>
+
+export const kebabToCamelCase = (str: string) => str.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())
