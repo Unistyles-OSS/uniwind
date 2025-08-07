@@ -1,4 +1,5 @@
-import { escapeDynamic, processCSSValue } from './utils'
+import { Processor } from './processor'
+import { escapeDynamic } from './utils'
 
 export const createVarsTemplate = (theme: Record<string, any>) => {
     const template = Object.entries(theme).reduce<Record<string, any>>((varsAcc, [varName, value]) => {
@@ -16,12 +17,12 @@ export const createVarsTemplate = (theme: Record<string, any>) => {
             return varsAcc
         }
 
-        const processedValue = processCSSValue(value)
+        const processedValue = Processor.CSS.processCSSValue(value)
 
         if (varName.endsWith('--line-height')) {
             const fontSize = varsAcc[varName.replace('--line-height', '')]
 
-            varsAcc[varName] = `(${fontSize} * ${processedValue})`
+            varsAcc[varName] = `(${fontSize} * ${String(processedValue)})`
 
             return varsAcc
         }

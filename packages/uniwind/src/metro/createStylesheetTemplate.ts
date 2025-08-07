@@ -1,12 +1,13 @@
+import { Processor } from './processor'
 import { StyleTemplateAcc } from './types'
-import { cssToRN, escapeDynamic, isDefined, pipe, processCSSValue, processMediaQuery } from './utils'
+import { escapeDynamic, isDefined, pipe } from './utils'
 
 export const createStylesheetTemplate = (classes: Record<string, any>) => {
     const template = Object.fromEntries(
         Object.entries(classes).map(([className, styles]) => {
             const parsedStyles = Object.entries(styles).reduce<StyleTemplateAcc>((stylesAcc, [styleKey, styleValue]) => {
                 if (styleKey.startsWith('@media') && typeof styleValue === 'object' && styleValue !== null) {
-                    const { maxWidth, minWidth, orientation } = processMediaQuery(styleKey)
+                    const { maxWidth, minWidth, orientation } = Processor.MQ.processMediaQuery(styleKey)
 
                     Object.entries(styleValue).forEach(([mqStyleKey, mqStyleValue]) => {
                         stylesAcc.entries.push([mqStyleKey, mqStyleValue])
@@ -40,13 +41,13 @@ export const createStylesheetTemplate = (classes: Record<string, any>) => {
                         }
 
                         const processedValue = typeof value === 'string'
-                            ? processCSSValue(value, key)
+                            ? Processor.CSS.processCSSValue(value, key)
                             : value
 
                         return [key, processedValue] as [string, unknown]
                     }),
                 entries => entries.filter(isDefined),
-                entries => entries.flatMap(([key, value]) => cssToRN(key, value)),
+                entries => entries.flatMap(([key, value]) => Processor.RN.cssToRN(key, value)),
             )
 
             return [

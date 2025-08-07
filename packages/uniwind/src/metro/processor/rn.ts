@@ -1,48 +1,5 @@
-import { converter, formatRgb, parse } from 'culori'
-import { isDefined, pipe } from './common'
-import { isShadowKey, processShadow } from './shadow-utils'
-import { processVarsRec } from './var-utils'
-
-const toRgb = converter('rgb')
-
-export const processCSSValue = (value: string, key?: string): unknown => {
-    if (key !== undefined && isShadowKey(key)) {
-        return processShadow(value)
-    }
-
-    const parsedColor = parse(value)
-
-    if (parsedColor !== undefined) {
-        return formatRgb(toRgb(parsedColor))
-    }
-
-    return pipe(value)(
-        // Handle units
-        x => x.replace(/(-?\d+(?:\.\d+)?)(vw|vh|px|rem)/g, (match, value, unit) => {
-            switch (unit) {
-                case 'vw':
-                    return `(${value} * rt.screenWidth / 100)`
-                case 'vh':
-                    return `(${value} * rt.screenHeight / 100)`
-                // Mark to be evaluated
-                case 'px':
-                    return `(${value})`
-                case 'rem':
-                    return `(${value} * rt.rem)`
-                default:
-                    return match
-            }
-        }),
-        // Convert 1 / 2 to (1 / 2) so it can be evaluated
-        x => /\d+\s*\/\s*\d+/.test(x) ? `(${x})` : x,
-        // Convert 0 to (0) so it can be evaluated
-        x => /^\d+$/.test(x) ? `(${x})` : x,
-        // Remove spaces around operators
-        x => x.replace(/\s*([+\-*/])\s*/g, '$1'),
-        x => x.replace('calc', ''),
-        processVarsRec,
-    )
-}
+import { isDefined, pipe } from '../utils'
+import type { ProcessorBuilder } from './processor'
 
 const cssToRNKeyMap = {
     marginInline: 'marginHorizontal',
@@ -179,8 +136,12 @@ const cssToRNMap: Record<string, (value: any) => unknown> = {
     },
 }
 
-export const cssToRN = (property: string, value: any) => {
-    const rn = cssToRNMap[property]?.(value) ?? { [property]: value }
+export class RN {
+    constructor(readonly Processor: ProcessorBuilder) {}
 
-    return Object.entries(rn)
+    cssToRN(property: string, value: any) {
+        const rn = cssToRNMap[property]?.(value) ?? { [property]: value }
+
+        return Object.entries(rn)
+    }
 }
