@@ -1,7 +1,4 @@
-import { converter, formatRgb, parse } from 'culori'
 import { escapeDynamic, processCSSValue } from './utils'
-
-const toRgb = converter('rgb')
 
 export const createVarsTemplate = (theme: Record<string, any>) => {
     const template = Object.entries(theme).reduce<Record<string, any>>((varsAcc, [varName, value]) => {
@@ -15,14 +12,6 @@ export const createVarsTemplate = (theme: Record<string, any>) => {
             const varValue = varsAcc[value.slice(4, -1)]
 
             varsAcc[varName] = varValue
-
-            return varsAcc
-        }
-
-        const parsedColor = parse(value)
-
-        if (parsedColor !== undefined) {
-            varsAcc[varName] = formatRgb(toRgb(parsedColor))
 
             return varsAcc
         }

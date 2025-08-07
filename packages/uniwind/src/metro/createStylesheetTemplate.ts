@@ -1,5 +1,5 @@
 import { StyleTemplateAcc } from './types'
-import { cssToRN, escapeDynamic, injectLocalVars, isDefined, pipe, processCSSValue, processMediaQuery } from './utils'
+import { cssToRN, escapeDynamic, isDefined, pipe, processCSSValue, processMediaQuery } from './utils'
 
 export const createStylesheetTemplate = (classes: Record<string, any>) => {
     const template = Object.fromEntries(
@@ -12,8 +12,8 @@ export const createStylesheetTemplate = (classes: Record<string, any>) => {
                         stylesAcc.entries.push([mqStyleKey, mqStyleValue])
                     })
 
-                    stylesAcc.maxWidth = maxWidth
-                    stylesAcc.minWidth = minWidth
+                    stylesAcc.maxWidth = String(maxWidth)
+                    stylesAcc.minWidth = String(minWidth)
                     stylesAcc.orientation = orientation
 
                     return stylesAcc
@@ -40,13 +40,12 @@ export const createStylesheetTemplate = (classes: Record<string, any>) => {
                         }
 
                         const processedValue = typeof value === 'string'
-                            ? processCSSValue(value)
+                            ? processCSSValue(value, key)
                             : value
 
                         return [key, processedValue] as [string, unknown]
                     }),
                 entries => entries.filter(isDefined),
-                injectLocalVars,
                 entries => entries.flatMap(([key, value]) => cssToRN(key, value)),
             )
 

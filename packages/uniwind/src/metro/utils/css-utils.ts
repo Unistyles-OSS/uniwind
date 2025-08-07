@@ -1,10 +1,24 @@
-import { isDefined, kebabToCamelCase, pipe } from './common'
+import { converter, formatRgb, parse } from 'culori'
+import { isDefined, pipe } from './common'
+import { isShadowKey, processShadow } from './shadow-utils'
 import { processVarsRec } from './var-utils'
 
-export const processCSSValue = (value: string) => {
+const toRgb = converter('rgb')
+
+export const processCSSValue = (value: string, key?: string): unknown => {
+    if (key !== undefined && isShadowKey(key)) {
+        return processShadow(value)
+    }
+
+    const parsedColor = parse(value)
+
+    if (parsedColor !== undefined) {
+        return formatRgb(toRgb(parsedColor))
+    }
+
     return pipe(value)(
         // Handle units
-        x => x.replace(/(\d+(?:\.\d+)?)(vw|vh|px|rem)/g, (match, value, unit) => {
+        x => x.replace(/(-?\d+(?:\.\d+)?)(vw|vh|px|rem)/g, (match, value, unit) => {
             switch (unit) {
                 case 'vw':
                     return `(${value} * rt.screenWidth / 100)`
@@ -21,6 +35,10 @@ export const processCSSValue = (value: string) => {
         }),
         // Convert 1 / 2 to (1 / 2) so it can be evaluated
         x => /\d+\s*\/\s*\d+/.test(x) ? `(${x})` : x,
+        // Convert 0 to (0) so it can be evaluated
+        x => /^\d+$/.test(x) ? `(${x})` : x,
+        // Remove spaces around operators
+        x => x.replace(/\s*([+\-*/])\s*/g, '$1'),
         x => x.replace('calc', ''),
         processVarsRec,
     )
@@ -154,11 +172,15 @@ const cssToRNMap: Record<string, (value: any) => unknown> = {
             ],
         }
     },
+    boxShadow: (value: string) => {
+        return {
+            boxShadow: value.match(/vars\[`(.*?)`\]/g) ?? [],
+        }
+    },
 }
 
 export const cssToRN = (property: string, value: any) => {
-    const camelizeProperty = kebabToCamelCase(property)
-    const rn = cssToRNMap[camelizeProperty]?.(value) ?? { [camelizeProperty]: value }
+    const rn = cssToRNMap[property]?.(value) ?? { [property]: value }
 
     return Object.entries(rn)
 }

@@ -1,4 +1,5 @@
-import { toSafeString } from './common'
+import { pipe, toSafeString } from './common'
+import { processCSSValue } from './css-utils'
 
 const toVar = (value: string) => `vars[${toSafeString(value)}]`
 
@@ -47,7 +48,7 @@ export const processVarsRec = (str: string): string => {
     )
 }
 
-export const processVar = (rawValue: string): Array<string> => {
+export const processVar = (rawValue: string): Array<unknown> => {
     // Strip `var(` prefix and trailing `)`
     const unwrapped = rawValue.slice(4, -1)
     const { index: splitIndex } = unwrapped
@@ -86,55 +87,33 @@ export const processVar = (rawValue: string): Array<string> => {
         return [toVar(unwrapped)]
     }
 
+    const getDefaultValue = () => {
+        if (defaultValueRaw.startsWith('var(')) {
+            return processVar(defaultValueRaw)
+        }
+
+        const processedDefaultValue = pipe(defaultValueRaw)(
+            processCSSValue,
+            value => {
+                if (typeof value !== 'string') {
+                    return value
+                }
+
+                if (value.startsWith('(')) {
+                    return value
+                }
+
+                return toSafeString(value)
+            },
+        )
+
+        return [processedDefaultValue]
+    }
+
     const value = unwrapped.slice(0, splitIndex).trim()
     const defaultValueRaw = unwrapped.slice(splitIndex + 1).trim()
-    const defaultValue = defaultValueRaw.startsWith('var(')
-        ? processVar(defaultValueRaw)
-        : []
 
-    return [toVar(value), ...defaultValue]
+    return [toVar(value), ...getDefaultValue()]
 }
 
 export const isVarName = (str: string) => str.startsWith('--')
-
-/*
-Use local variables in styles instead of global ones
-Example:
-.translate-x-2 {
-    --tw-translate-x: 2px;
-    translate: var(--tw-translate-x);
-}
-*/
-export const injectLocalVars = (entries: Array<[string, unknown]>) => {
-    const localVarsEntries = entries.filter(([key]) => isVarName(key))
-
-    if (localVarsEntries.length === 0) {
-        return entries
-    }
-
-    const localVars = Object.fromEntries(localVarsEntries)
-
-    return entries.reduce<Array<[string, unknown]>>((acc, [key, value]) => {
-        if (isVarName(key)) {
-            return acc
-        }
-
-        if (typeof value === 'string') {
-            const processedValue = value.replace(/vars\[`(.*?)`\]/g, (match, varName) => {
-                if (varName in localVars) {
-                    return String(localVars[varName])
-                }
-
-                return match
-            })
-
-            acc.push([key, processedValue])
-
-            return acc
-        }
-
-        acc.push([key, value])
-
-        return acc
-    }, [])
-}
