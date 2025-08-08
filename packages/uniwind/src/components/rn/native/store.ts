@@ -59,8 +59,8 @@ export class UniwindStoreBuilder {
         styles.forEach(style => {
             if (
                 style === undefined
-                || style.minWidth > UniwindRuntime.screenWidth
-                || style.maxWidth < UniwindRuntime.screenWidth
+                || style.minWidth > UniwindRuntime.screen.width
+                || style.maxWidth < UniwindRuntime.screen.height
             ) {
                 return
             }
