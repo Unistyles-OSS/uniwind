@@ -35,6 +35,7 @@ export class CSS {
                         return match
                 }
             }),
+            x => x.replace('currentcolor', `(this.vars['currentColor'])`),
             // Convert 1 / 2 to (1 / 2) so it can be evaluated
             x => /\d+\s*\/\s*\d+/.test(x) ? `(${x})` : x,
             // Convert 0 to (0) so it can be evaluated

@@ -34,7 +34,7 @@ const cssToRNMap: Record<string, (value: any) => unknown> = {
     ),
     opacity: (value: string) => {
         return {
-            opacity: parseFloat(value.slice(0, -1)) / 100,
+            opacity: Number(value.slice(0, -1)) / 100,
         }
     },
     transform: (value: string) => {
@@ -131,7 +131,7 @@ const cssToRNMap: Record<string, (value: any) => unknown> = {
     },
     boxShadow: (value: string) => {
         return {
-            boxShadow: value.match(/vars\[`(.*?)`\]/g) ?? [],
+            boxShadow: value.match(/this\.vars\[`(.*?)`\]/g) ?? [],
         }
     },
 }

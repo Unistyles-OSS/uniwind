@@ -3,9 +3,13 @@ export const toSafeString = (value: string) => `\`${value}\``
 export const isDefined = <T>(value: T): value is NonNullable<T> => value !== null && value !== undefined
 
 export const escapeDynamic = (str: string) =>
-    str.replace(/"(vars|\()([^"]+)"/g, (match, type) => {
+    str.replace(/"(this\.vars|\()([^"]+)"/g, (match, type) => {
+        if (match.startsWith('"() =>')) {
+            return match.slice(1)
+        }
+
         switch (type) {
-            case 'vars':
+            case 'this.vars':
             case '(':
                 return match.slice(1, -1)
             default:

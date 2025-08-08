@@ -31,35 +31,72 @@ export const createStylesheetTemplate = (classes: Record<string, any>) => {
             ]
         }),
     )
-    const processedTemplate = Object.fromEntries(
-        Object.entries(template).map(([className, styles]) => {
-            const processedEntries = pipe(styles.entries)(
-                entries =>
-                    entries.map(([key, value]) => {
-                        if (typeof value !== 'string' && typeof value !== 'number') {
-                            return null
-                        }
+    const processedTemplateEntries = Object.entries(template).map(([className, styles]) => {
+        const stylesUsingVariables: Record<string, string> = {}
+        const inlineVariables: Array<[string, unknown]> = []
 
-                        const processedValue = typeof value === 'string'
-                            ? Processor.CSS.processCSSValue(value, key)
-                            : value
+        const processedEntries = pipe(styles.entries)(
+            entries =>
+                entries.map(([key, value]) => {
+                    if (typeof value !== 'string' && typeof value !== 'number') {
+                        return null
+                    }
 
-                        return [key, processedValue] as [string, unknown]
-                    }),
-                entries => entries.filter(isDefined),
-                entries => entries.flatMap(([key, value]) => Processor.RN.cssToRN(key, value)),
-            )
+                    const processedValue = typeof value === 'string'
+                        ? Processor.CSS.processCSSValue(value, key)
+                        : value
 
-            return [
-                className,
-                {
-                    ...styles,
-                    entries: processedEntries,
-                },
-            ]
-        }),
-    )
-    const stringifiedTemplate = escapeDynamic(JSON.stringify(processedTemplate))
+                    return [key, processedValue] as [string, unknown]
+                }),
+            entries => entries.filter(isDefined),
+            entries => entries.flatMap(([key, value]) => Processor.RN.cssToRN(key, value)),
+            entries =>
+                entries.filter(([key, value]) => {
+                    if (Processor.Var.isVarName(key)) {
+                        inlineVariables.push([key, value])
 
-    return `globalThis.__uniwind__computeStylesheet = (rt, vars) => (${stringifiedTemplate})`
+                        return false
+                    }
+
+                    const stringifiedValue = JSON.stringify(value)
+
+                    if (stringifiedValue.includes('vars[')) {
+                        stylesUsingVariables[key] = className
+                    }
+
+                    return true
+                }),
+        )
+
+        return [
+            className,
+            {
+                ...styles,
+                entries: processedEntries,
+                inlineVariables,
+                stylesUsingVariables,
+            },
+        ] as const
+    })
+
+    return processedTemplateEntries.reduce((acc, [className, style]) => {
+        const stringifiedValue = Object.entries(style).reduce((acc, [key, value]) => {
+            if (key === 'inlineVariables' && Array.isArray(value)) {
+                const stringifiedInlineVariable = value.map(([varName, varValue]) =>
+                    `["${varName}", () => (${escapeDynamic(JSON.stringify(varValue))})]`
+                ).join(',')
+
+                return `${acc}"${key}":[${stringifiedInlineVariable}],`
+            }
+
+            return `${acc}"${key}":${escapeDynamic(JSON.stringify(value))},`
+        }, '')
+        const isComputed = JSON.stringify(style).includes('vars[')
+
+        if (isComputed) {
+            return `${acc}get "${className}"() { return { ${stringifiedValue} } },`
+        }
+
+        return `${acc}"${className}":{ ${stringifiedValue} },`
+    }, '')
 }

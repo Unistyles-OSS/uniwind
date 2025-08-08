@@ -23,7 +23,7 @@ export const compileVirtualJS = async (input: string, scanner: Scanner) => {
         Object.entries(cssTree)
             .filter(([key]) => key.startsWith('@property'))
             .map(([key, value]) => {
-                const numericValue = parseFloat(value.initialValue)
+                const numericValue = Number(value.initialValue)
 
                 return [key.slice(10), !isNaN(numericValue) ? numericValue : value.initialValue]
             }),
@@ -31,6 +31,8 @@ export const compileVirtualJS = async (input: string, scanner: Scanner) => {
     const varsTemplate = createVarsTemplate({ ...theme, ...properties })
     const classes: Record<string, any> = cssTree['@layer utilities']
     const stylesheetTemplate = createStylesheetTemplate(classes)
+    const hotReloadFN = 'globalThis.__uniwind__hot_reload?.()'
+    const currentColor = `get currentColor() { return rt.colorScheme === 'dark' ? '#ffffff' : '#000000' },`
 
-    return `${varsTemplate};${stylesheetTemplate};globalThis.__uniwind__hot_reload?.()`
+    return `globalThis.__uniwind__computeStylesheet = rt => ({ vars: { ${currentColor} ${varsTemplate} }, ${stylesheetTemplate} });${hotReloadFN}`
 }

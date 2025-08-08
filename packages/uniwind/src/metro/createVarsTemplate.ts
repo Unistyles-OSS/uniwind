@@ -2,7 +2,7 @@ import { Processor } from './processor'
 import { escapeDynamic } from './utils'
 
 export const createVarsTemplate = (theme: Record<string, any>) => {
-    const template = Object.entries(theme).reduce<Record<string, any>>((varsAcc, [varName, value]) => {
+    const vars = Object.entries(theme).reduce<Record<string, any>>((varsAcc, [varName, value]) => {
         if (typeof value !== 'string') {
             varsAcc[varName] = value
 
@@ -17,7 +17,7 @@ export const createVarsTemplate = (theme: Record<string, any>) => {
             return varsAcc
         }
 
-        const processedValue = Processor.CSS.processCSSValue(value)
+        const processedValue = Processor.CSS.processCSSValue(value, varName)
 
         if (varName.endsWith('--line-height')) {
             const fontSize = varsAcc[varName.replace('--line-height', '')]
@@ -31,7 +31,16 @@ export const createVarsTemplate = (theme: Record<string, any>) => {
 
         return varsAcc
     }, {})
-    const stringifiedTemplate = escapeDynamic(JSON.stringify(template))
 
-    return `globalThis.__uniwind__getVars = rt => (${stringifiedTemplate})`
+    return Object.entries(vars).reduce((acc, [key, value]) => {
+        const stringifiedValue = value === undefined
+            ? 'undefined'
+            : escapeDynamic(JSON.stringify(value))
+
+        if (stringifiedValue.includes('vars[')) {
+            return `${acc}get "${key}"() { return ${stringifiedValue} },`
+        }
+
+        return `${acc}"${key}":${stringifiedValue},`
+    }, '')
 }

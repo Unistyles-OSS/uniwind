@@ -5,7 +5,7 @@ export class Var {
     constructor(readonly Processor: ProcessorBuilder) {}
 
     toVar(value: string) {
-        return `vars[${toSafeString(value)}]`
+        return `this.vars[${toSafeString(value)}]`
     }
 
     findMatch(
@@ -93,6 +93,10 @@ export class Var {
         }
 
         const getDefaultValue = () => {
+            if (defaultValueRaw === '') {
+                return []
+            }
+
             if (defaultValueRaw.startsWith('var(')) {
                 return this.processVar(defaultValueRaw)
             }

@@ -1,14 +1,11 @@
 import { UniwindRuntime } from '../../runtime'
-import { StyleSheets } from '../../types'
+import { Style, StyleSheets } from '../../types'
 import { styleToClass } from '../../utils'
 import { RNStyle, RNStylesProps, UniwindComponentProps } from '../props'
-import { resolveStyles } from './resolveStyles'
 
 export class UniwindStoreBuilder {
-    vars = {} as Record<string, unknown>
     stylesheets = {} as StyleSheets
     listeners = new Set<() => void>()
-    styleCache = new Map<string, RNStyle>()
     initialized = false
 
     subscribe(onStoreChange: () => void) {
@@ -25,20 +22,11 @@ export class UniwindStoreBuilder {
     }
 
     getStyles(className: string) {
-        const cached = this.styleCache.get(className)
-
-        if (cached) {
-            return cached
-        }
-
         const styles = className
             .split(' ')
             .map(className => this.stylesheets[className])
-        const style = resolveStyles(styles)
 
-        this.styleCache.set(className, style)
-
-        return style
+        return this.resolveStyles(styles)
     }
 
     getSnapshot(props: UniwindComponentProps, additionalStyles?: Array<RNStylesProps>) {
@@ -62,11 +50,75 @@ export class UniwindStoreBuilder {
         }
     }
 
+    resolveStyles(styles: Array<Style | undefined>) {
+        const result = {} as Record<string, unknown>
+        const bestBreakpoints = {} as Record<string, number>
+        const stylesUsingVariables = [] as Array<[string, string]>
+        const inlineVariables = [] as Array<[string, () => unknown]>
+
+        styles.forEach(style => {
+            if (
+                style === undefined
+                || style.minWidth > UniwindRuntime.screenWidth
+                || style.maxWidth < UniwindRuntime.screenWidth
+            ) {
+                return
+            }
+
+            inlineVariables.push(...style.inlineVariables)
+
+            style.entries.forEach(([property, value]) => {
+                if (
+                    style.orientation !== null
+                    && UniwindRuntime.orientation === style.orientation
+                ) {
+                    if (style.stylesUsingVariables[property] !== undefined) {
+                        stylesUsingVariables.push([property, style.stylesUsingVariables[property]])
+                    }
+
+                    result[property] = value
+                    bestBreakpoints[property] = Infinity
+
+                    return
+                }
+
+                if (bestBreakpoints[property] === undefined || style.minWidth >= bestBreakpoints[property]) {
+                    if (style.stylesUsingVariables[property] !== undefined) {
+                        stylesUsingVariables.push([property, style.stylesUsingVariables[property]])
+                    }
+
+                    bestBreakpoints[property] = style.minWidth
+                    result[property] = value
+                }
+            })
+        })
+
+        if (inlineVariables.length > 0) {
+            const originalVars = [] as Array<[string, PropertyDescriptor | undefined]>
+
+            inlineVariables.forEach(([varName, varValue]) => {
+                originalVars.push([varName, Object.getOwnPropertyDescriptor(this.stylesheets.vars, varName)])
+                Object.defineProperty(this.stylesheets.vars, varName, {
+                    get: varValue,
+                })
+            })
+
+            stylesUsingVariables.forEach(([style, className]) => {
+                const allEntries = Object.fromEntries(this.stylesheets[className]!.entries)
+                result[style] = allEntries[style]
+            })
+
+            originalVars.forEach(([varName, descriptor]) => {
+                descriptor && Object.defineProperty(this.stylesheets.vars, varName, descriptor)
+            })
+        }
+
+        return result
+    }
+
     reload = () => {
-        this.vars = globalThis.__uniwind__getVars(UniwindRuntime)
-        this.stylesheets = globalThis.__uniwind__computeStylesheet(UniwindRuntime, this.vars)
+        this.stylesheets = globalThis.__uniwind__computeStylesheet(UniwindRuntime)
         this.listeners.forEach(listener => listener())
-        this.styleCache.clear()
     }
 }
 
