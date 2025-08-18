@@ -1,3 +1,4 @@
+import { Color } from './color'
 import { CSS } from './css'
 import { MQ } from './mq'
 import { RN } from './rn'
@@ -10,6 +11,7 @@ export class ProcessorBuilder {
     Shadow = new Shadow(this)
     Var = new Var(this)
     MQ = new MQ(this)
+    Color = new Color(this)
 }
 
 export const Processor = new ProcessorBuilder()

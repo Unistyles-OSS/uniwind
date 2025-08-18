@@ -1,10 +1,7 @@
-import { converter, formatRgb, parse } from 'culori'
-import { pipe, replaceParentheses } from '../utils'
+import { pipe } from '../utils'
 import type { ProcessorBuilder } from './processor'
 
 export class CSS {
-    toRgb = converter('rgb')
-
     constructor(readonly Processor: ProcessorBuilder) {}
 
     processCSSValue(value: string, key?: string): unknown {
@@ -12,39 +9,15 @@ export class CSS {
             return this.Processor.Shadow.processShadow(value)
         }
 
-        const parsedColor = parse(value)
+        if (this.Processor.Color.isColor(value)) {
+            return this.Processor.Color.processColor(value)
+        }
 
-        if (parsedColor !== undefined) {
-            return formatRgb(this.toRgb(parsedColor))
+        if (this.Processor.Color.isColorMix(value)) {
+            return this.Processor.Color.processColorMix(value)
         }
 
         return pipe(value)(
-            // Resolve color-mix alpha
-            replaceParentheses('color-mix', match => {
-                const [, colorsToMix] = match.split(',')
-
-                if (colorsToMix === undefined) {
-                    return match
-                }
-
-                const [, alphaMatch] = colorsToMix.match(/(\d+(?:\.\d+)?%)\s*$/) ?? []
-
-                if (alphaMatch === undefined) {
-                    return match
-                }
-
-                const alpha = Number(alphaMatch.replace('%', '')) / 100
-                const color = colorsToMix.replace(alphaMatch, '').trim()
-                const parsedColor = parse(color)
-
-                if (parsedColor === undefined) {
-                    return match
-                }
-
-                parsedColor.alpha = alpha
-
-                return formatRgb(this.toRgb(parsedColor))
-            }),
             // Handle units
             x => x.replace(/(-?\d+(?:\.\d+)?)(vw|vh|px|rem)/g, (match, value, unit) => {
                 switch (unit) {
