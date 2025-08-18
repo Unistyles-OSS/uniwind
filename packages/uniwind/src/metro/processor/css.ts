@@ -1,5 +1,5 @@
 import { converter, formatRgb, parse } from 'culori'
-import { pipe } from '../utils'
+import { pipe, replaceParentheses } from '../utils'
 import type { ProcessorBuilder } from './processor'
 
 export class CSS {
@@ -19,6 +19,32 @@ export class CSS {
         }
 
         return pipe(value)(
+            // Resolve color-mix alpha
+            replaceParentheses('color-mix', match => {
+                const [, colorsToMix] = match.split(',')
+
+                if (colorsToMix === undefined) {
+                    return match
+                }
+
+                const [, alphaMatch] = colorsToMix.match(/(\d+(?:\.\d+)?%)\s*$/) ?? []
+
+                if (alphaMatch === undefined) {
+                    return match
+                }
+
+                const alpha = Number(alphaMatch.replace('%', '')) / 100
+                const color = colorsToMix.replace(alphaMatch, '').trim()
+                const parsedColor = parse(color)
+
+                if (parsedColor === undefined) {
+                    return match
+                }
+
+                parsedColor.alpha = alpha
+
+                return formatRgb(this.toRgb(parsedColor))
+            }),
             // Handle units
             x => x.replace(/(-?\d+(?:\.\d+)?)(vw|vh|px|rem)/g, (match, value, unit) => {
                 switch (unit) {

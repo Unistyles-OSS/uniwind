@@ -11,6 +11,9 @@ export default [
             '@typescript-eslint/no-unsafe-argument': 'off',
             'camelcase': 'off',
             'no-param-reassign': 'off',
+            'functional/functional-parameters': 'off',
+            'functional/no-let': 'off',
+            'functional/no-loop-statements': 'off',
         },
     },
     {
