@@ -1,4 +1,4 @@
-import * as RN from 'react-native'
+import RN from 'react-native'
 import { createUniwindComponent } from './rn'
 
 export const ActivityIndicator = createUniwindComponent(RN.ActivityIndicator)

@@ -28,7 +28,7 @@ export class Color {
     }
 
     processColorMix(value: string) {
-        replaceParentheses('color-mix', match => {
+        return replaceParentheses('color-mix', match => {
             const [, colorsToMix] = match.split(',')
 
             if (colorsToMix === undefined) {

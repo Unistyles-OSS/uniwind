@@ -47,15 +47,14 @@
         "README.md"
     ],
     "dependencies": {
-        "@tailwindcss/cli": "4.1.11",
-        "@tailwindcss/node": "4.1.11",
+        "@tailwindcss/node": "4.1.12",
         "chokidar": "4.0.3",
         "culori": "4.0.2",
         "postcss-js": "4.0.1"
     },
     "peerDependencies": {
         "react": ">=19.0.0",
-        "react-native": "*",
+        "react-native": ">=0.81.0",
         "tailwindcss": ">=4",
         "postcss": ">=8"
     },
@@ -64,7 +63,7 @@
         "@types/culori": "4.0.0",
         "typescript": "5.9.2",
         "metro-config": "0.82.5",
-        "@babel/core": "7.28.0",
+        "@babel/core": "7.28.3",
         "@babel/types": "7.28.2",
         "dpdm": "3.14.0",
         "unbuild": "3.6.0"

@@ -9,11 +9,6 @@ export class UniwindStoreBuilder {
     initialized = false
 
     subscribe(onStoreChange: () => void) {
-        if (!this.initialized) {
-            this.initialized = true
-            this.reload()
-        }
-
         const listener = () => {
             onStoreChange()
         }
@@ -22,6 +17,11 @@ export class UniwindStoreBuilder {
     }
 
     getStyles(className: string) {
+        if (!this.initialized) {
+            this.initialized = true
+            this.reload()
+        }
+
         const styles = className
             .split(' ')
             .map(className => this.stylesheets[className])
