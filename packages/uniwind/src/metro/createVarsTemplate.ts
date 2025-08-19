@@ -32,15 +32,18 @@ export const createVarsTemplate = (theme: Record<string, any>) => {
         return varsAcc
     }, {})
 
-    return Object.entries(vars).reduce((acc, [key, value]) => {
-        const stringifiedValue = value === undefined
-            ? 'undefined'
-            : escapeDynamic(JSON.stringify(value))
+    return {
+        vars,
+        varsTemplate: Object.entries(vars).reduce((acc, [key, value]) => {
+            const stringifiedValue = value === undefined
+                ? 'undefined'
+                : escapeDynamic(JSON.stringify(value))
 
-        if (stringifiedValue.includes('vars[')) {
-            return `${acc}get "${key}"() { return ${stringifiedValue} },`
-        }
+            if (stringifiedValue.includes('vars[')) {
+                return `${acc}get "${key}"() { return ${stringifiedValue} },`
+            }
 
-        return `${acc}"${key}":${stringifiedValue},`
-    }, '')
+            return `${acc}"${key}":${stringifiedValue},`
+        }, ''),
+    }
 }

@@ -28,9 +28,9 @@ export const compileVirtualJS = async (input: string, scanner: Scanner) => {
                 return [key.slice(10), !isNaN(numericValue) ? numericValue : value.initialValue]
             }),
     )
-    const varsTemplate = createVarsTemplate({ ...theme, ...properties })
+    const { vars, varsTemplate } = createVarsTemplate({ ...theme, ...properties })
     const classes: Record<string, any> = cssTree['@layer utilities']
-    const stylesheetTemplate = createStylesheetTemplate(classes)
+    const stylesheetTemplate = createStylesheetTemplate(classes, vars)
     const hotReloadFN = 'globalThis.__uniwind__hot_reload?.()'
     const currentColor = `get currentColor() { return rt.colorScheme === 'dark' ? '#ffffff' : '#000000' },`
 

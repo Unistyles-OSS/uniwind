@@ -1,3 +1,5 @@
+import { StyleDependency } from '../types'
+
 export type Orientation = 'portrait' | 'landscape'
 export type ColorScheme = 'light' | 'dark'
 
@@ -8,6 +10,7 @@ export type Style = {
     stylesUsingVariables: Record<string, string>
     inlineVariables: Array<[string, () => unknown]>
     orientation: Orientation | null
+    dependencies: Array<StyleDependency>
 }
 
 export type StyleSheets = {
