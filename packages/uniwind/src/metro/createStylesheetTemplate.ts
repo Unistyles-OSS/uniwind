@@ -7,8 +7,14 @@ export const createStylesheetTemplate = (classes: Record<string, any>, vars: Rec
     const template = Object.fromEntries(
         Object.entries(classes).map(([className, styles]) => {
             const parsedStyles = Object.entries(styles).reduce<StyleTemplateAcc>((stylesAcc, [styleKey, styleValue]) => {
-                if (styleKey.startsWith('@media') && typeof styleValue === 'object' && styleValue !== null) {
-                    const { maxWidth, minWidth, orientation } = Processor.MQ.processMediaQuery(styleKey)
+                const { orientation, colorScheme, dir } = Processor.MQ.extractResolvers(className)
+
+                stylesAcc.orientation = orientation
+                stylesAcc.colorScheme = colorScheme
+                stylesAcc.dir = dir
+
+                if (typeof styleValue === 'object' && styleValue !== null) {
+                    const { maxWidth, minWidth } = Processor.MQ.processMediaQuery(styleKey)
 
                     Object.entries(styleValue).forEach(([mqStyleKey, mqStyleValue]) => {
                         stylesAcc.entries.push([mqStyleKey, mqStyleValue])
@@ -16,7 +22,6 @@ export const createStylesheetTemplate = (classes: Record<string, any>, vars: Rec
 
                     stylesAcc.maxWidth = String(maxWidth)
                     stylesAcc.minWidth = String(minWidth)
-                    stylesAcc.orientation = orientation
 
                     return stylesAcc
                 }
@@ -24,7 +29,14 @@ export const createStylesheetTemplate = (classes: Record<string, any>, vars: Rec
                 stylesAcc.entries.push([styleKey, styleValue])
 
                 return stylesAcc
-            }, { entries: [], maxWidth: Number.MAX_VALUE, minWidth: 0, orientation: null })
+            }, {
+                entries: [],
+                maxWidth: Number.MAX_VALUE,
+                minWidth: 0,
+                orientation: null,
+                colorScheme: null,
+                dir: null,
+            })
 
             return [
                 className.replace('.', '').replace(/\\/g, ''),
@@ -80,7 +92,7 @@ export const createStylesheetTemplate = (classes: Record<string, any>, vars: Rec
                 dependencies.push(StyleDependency.Dimensions)
             }
 
-            if (className.startsWith('dark:') || className.startsWith('light:')) {
+            if (styles.colorScheme !== null) {
                 dependencies.push(StyleDependency.ColorScheme)
             }
 
@@ -102,7 +114,7 @@ export const createStylesheetTemplate = (classes: Record<string, any>, vars: Rec
                 })
             }
 
-            if (className.startsWith('rtl:') || className.startsWith('ltr:')) {
+            if (styles.dir !== null) {
                 dependencies.push(StyleDependency.Rtl)
             }
 

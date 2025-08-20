@@ -1,9 +1,27 @@
-import { Orientation } from '../types'
+import { ColorScheme, Orientation, WritingDirection } from '../../types'
 import { isDefined } from '../utils'
 import type { ProcessorBuilder } from './processor'
 
 export class MQ {
     constructor(readonly Processor: ProcessorBuilder) {}
+
+    extractResolvers(className: string) {
+        const lower = className.toLowerCase()
+
+        return {
+            orientation: this.getFromClassName(lower, {
+                portrait: Orientation.Portrait,
+                landscape: Orientation.Landscape,
+            }),
+            colorScheme: this.getFromClassName(lower, {
+                dark: ColorScheme.Dark,
+            }) ?? ColorScheme.Light,
+            dir: this.getFromClassName(lower, {
+                ltr: WritingDirection.Ltr,
+                rtl: WritingDirection.Rtl,
+            }),
+        }
+    }
 
     processMediaQuery(mq: string) {
         const lower = mq.toLowerCase()
@@ -37,15 +55,15 @@ export class MQ {
                 null,
             )
 
-        const orientation = (
-            lower.match(/orientation\s*:\s*(portrait|landscape)/)?.[1]
-                ?? null
-        ) as Orientation | null
-
         return {
             minWidth: isDefined(minWidth) ? this.Processor.CSS.processCSSValue(minWidth) : 0,
             maxWidth: isDefined(maxWidth) ? this.Processor.CSS.processCSSValue(maxWidth) : Number.MAX_VALUE,
-            orientation,
         }
+    }
+
+    private getFromClassName<T extends Record<string, any>>(className: string, resolver: T) {
+        const [, value] = Object.entries(resolver).find(([name]) => className.includes(name)) ?? []
+
+        return (value ?? null) as T[keyof T] | null
     }
 }

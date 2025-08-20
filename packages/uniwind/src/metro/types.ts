@@ -1,4 +1,5 @@
 import type Bundler from 'metro/private/Bundler'
+import { ColorScheme, Orientation, WritingDirection } from '../types'
 
 type HasteEventMetadata = {
     modifiedTime: number
@@ -40,11 +41,11 @@ export type UniwindConfig = {
     input?: string
 }
 
-export type Orientation = 'portrait' | 'landscape'
-
 export type StyleTemplateAcc = {
     entries: Array<[string, unknown]>
     maxWidth: string | number
     minWidth: string | number
     orientation: Orientation | null
+    colorScheme: ColorScheme | null
+    dir: WritingDirection | null
 }

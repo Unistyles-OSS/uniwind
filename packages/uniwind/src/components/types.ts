@@ -1,7 +1,4 @@
-import { StyleDependency } from '../types'
-
-export type Orientation = 'portrait' | 'landscape'
-export type ColorScheme = 'light' | 'dark'
+import { ColorScheme, Orientation, StyleDependency, WritingDirection } from '../types'
 
 export type Style = {
     entries: Array<[string, unknown]>
@@ -10,6 +7,8 @@ export type Style = {
     stylesUsingVariables: Record<string, string>
     inlineVariables: Array<[string, () => unknown]>
     orientation: Orientation | null
+    colorScheme: ColorScheme | null
+    dir: WritingDirection | null
     dependencies: Array<StyleDependency>
 }
 
@@ -24,6 +23,7 @@ export type UniwindRuntime = {
     }
     orientation: Orientation
     colorScheme: ColorScheme
+    dir: WritingDirection
     rem: number
 }
 

@@ -7,6 +7,7 @@ export class UniwindStoreBuilder {
     stylesheets = {} as StyleSheets
     listeners = new Set<() => void>()
     initialized = false
+    runtime = UniwindRuntime
 
     subscribe(onStoreChange: () => void) {
         const listener = () => {
@@ -59,8 +60,8 @@ export class UniwindStoreBuilder {
         styles.forEach(style => {
             if (
                 style === undefined
-                || style.minWidth > UniwindRuntime.screen.width
-                || style.maxWidth < UniwindRuntime.screen.height
+                || style.minWidth > this.runtime.screen.width
+                || style.maxWidth < this.runtime.screen.height
             ) {
                 return
             }
@@ -69,8 +70,9 @@ export class UniwindStoreBuilder {
 
             style.entries.forEach(([property, value]) => {
                 if (
-                    style.orientation !== null
-                    && UniwindRuntime.orientation === style.orientation
+                    this.runtime.orientation === style.orientation
+                    || this.runtime.colorScheme === style.colorScheme
+                    || this.runtime.dir === style.dir
                 ) {
                     if (style.stylesUsingVariables[property] !== undefined) {
                         stylesUsingVariables.push([property, style.stylesUsingVariables[property]])
@@ -117,7 +119,8 @@ export class UniwindStoreBuilder {
     }
 
     reload = () => {
-        this.stylesheets = globalThis.__uniwind__computeStylesheet(UniwindRuntime)
+        this.runtime = UniwindRuntime
+        this.stylesheets = globalThis.__uniwind__computeStylesheet(this.runtime)
         this.listeners.forEach(listener => listener())
     }
 }
