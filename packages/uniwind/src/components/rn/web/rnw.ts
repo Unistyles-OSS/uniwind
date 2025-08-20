@@ -5,7 +5,6 @@ const moveCssRulesToUtilitiesLayer = (sourceSheet: CSSStyleSheet) => {
     )
     const layerRule = sourceSheet.cssRules[layerRuleIndex] as CSSGroupingRule
 
-    // eslint-disable-next-line functional/no-loop-statements
     while (sourceSheet.cssRules.length > 1) {
         const nextRule = sourceSheet.cssRules[1]!
 
