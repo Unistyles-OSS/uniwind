@@ -13,20 +13,26 @@ export const createStylesheetTemplate = (classes: Record<string, any>, vars: Rec
                 stylesAcc.colorScheme = colorScheme
                 stylesAcc.rtl = rtl
 
-                if (typeof styleValue === 'object' && styleValue !== null) {
-                    const { maxWidth, minWidth } = Processor.MQ.processMediaQuery(styleKey)
+                const extractNestedStyles = (styleKey: string, styleValue: unknown) => {
+                    if (typeof styleValue === 'object' && styleValue !== null) {
+                        const { maxWidth, minWidth } = Processor.MQ.processMediaQuery(styleKey)
+                        const [firstEntry] = Object.entries(styleValue)
+                        const [mqStyleKey, mqStyleValue] = firstEntry ?? []
 
-                    Object.entries(styleValue).forEach(([mqStyleKey, mqStyleValue]) => {
-                        stylesAcc.entries.push([mqStyleKey, mqStyleValue])
-                    })
+                        stylesAcc.maxWidth = String(maxWidth)
+                        stylesAcc.minWidth = String(minWidth)
 
-                    stylesAcc.maxWidth = String(maxWidth)
-                    stylesAcc.minWidth = String(minWidth)
+                        if (mqStyleKey === undefined) {
+                            return
+                        }
 
-                    return stylesAcc
+                        return extractNestedStyles(mqStyleKey, mqStyleValue)
+                    }
+
+                    stylesAcc.entries.push([styleKey, styleValue])
                 }
 
-                stylesAcc.entries.push([styleKey, styleValue])
+                extractNestedStyles(styleKey, styleValue)
 
                 return stylesAcc
             }, {
