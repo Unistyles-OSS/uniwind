@@ -13,4 +13,10 @@ export const UniwindRuntime = {
     orientation: window.width > window.height ? Orientation.Landscape : Orientation.Portrait,
     rem: PixelRatio.getFontScale() * 16,
     rtl: I18nManager.isRTL,
+    insets: {
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0,
+    },
 } as UniwindRuntimeType

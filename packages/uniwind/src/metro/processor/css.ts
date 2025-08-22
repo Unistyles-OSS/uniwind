@@ -18,6 +18,11 @@ export class CSS {
         }
 
         return pipe(value)(
+            x => x.replace(/env\((.*?)\)/g, (_, env) => {
+                const inset = env.replace('safe-area-inset-', '')
+
+                return `(rt.insets.${inset})`
+            }),
             // Handle units
             x => x.replace(/(-?\d+(?:\.\d+)?)(vw|vh|px|rem)/g, (match, value, unit) => {
                 switch (unit) {
