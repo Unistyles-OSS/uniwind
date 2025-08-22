@@ -1,4 +1,4 @@
-import { pipe } from '../utils'
+import { pipe, replaceParentheses } from '../utils'
 import type { ProcessorBuilder } from './processor'
 
 export class CSS {
@@ -18,6 +18,14 @@ export class CSS {
         }
 
         return pipe(value)(
+            // Replace env() with rt.insets
+            x => x.replace(/env\((.*?)\)/g, (_, env) => {
+                const inset = env.replace('safe-area-inset-', '')
+
+                return `(rt.insets.${inset})`
+            }),
+            // Replace max() with Math.max()
+            replaceParentheses('max', match => `(Math.max(${match}))`),
             // Handle units
             x => x.replace(/(-?\d+(?:\.\d+)?)(vw|vh|px|rem)/g, (match, value, unit) => {
                 switch (unit) {
@@ -35,11 +43,11 @@ export class CSS {
                 }
             }),
             x => x.replace('currentcolor', `(this.vars['currentColor'])`),
-            // Convert 1 / 2 to (1 / 2) so it can be evaluated
+            // Convert *Number* / *Number* to (*Number* / *Number*) so it can be evaluated
             x => /\d+\s*\/\s*\d+/.test(x) ? `(${x})` : x,
-            // Convert 0 to (0) so it can be evaluated
+            // Convert *Number* to (*Number*) so it can be evaluated
             x => /^\d+$/.test(x) ? `(${x})` : x,
-            // Remove spaces around operators
+            // Remove spaces around operators (e.g. "1 + 1" -> "1+1")
             x => x.replace(/\s*([+\-*/])\s*/g, '$1'),
             x => x.replace('calc', ''),
             x => this.Processor.Var.processVarsRec(x),

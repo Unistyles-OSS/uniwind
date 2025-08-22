@@ -25,6 +25,12 @@ export type UniwindRuntime = {
     colorScheme: ColorScheme
     rtl: boolean
     rem: number
+    insets: {
+        top: number
+        bottom: number
+        left: number
+        right: number
+    }
 }
 
 declare global {

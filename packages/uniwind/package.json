@@ -9,13 +9,14 @@
     "repository": "https://github.com/Unistyles-OSS/uniwind",
     "scripts": {
         "precommit": "bun lint",
-        "build": "unbuild",
+        "build": "unbuild && bun build:css",
         "check:typescript": "tsc --noEmit",
         "lint": "eslint src && dprint check",
         "lint:fix": "eslint src --fix",
         "format": "dprint fmt",
         "prepublishOnly": "bun run build",
-        "circular:check": "dpdm --no-warning --no-tree -T --exit-code circular:1 src/**/*.ts"
+        "circular:check": "dpdm --no-warning --no-tree -T --exit-code circular:1 src/**/*.ts",
+        "build:css": "bun run src/css/index.ts"
     },
     "style": "./uniwind.css",
     "source": "src/index",
@@ -59,6 +60,7 @@
         "postcss": ">=8"
     },
     "devDependencies": {
+        "@types/bun": "1.2.20",
         "@types/postcss-js": "4.0.4",
         "@types/culori": "4.0.0",
         "typescript": "5.9.2",

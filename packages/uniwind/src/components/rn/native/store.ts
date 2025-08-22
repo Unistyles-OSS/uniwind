@@ -70,27 +70,19 @@ export class UniwindStoreBuilder {
 
             style.entries.forEach(([property, value]) => {
                 if (
-                    this.runtime.orientation === style.orientation
-                    || this.runtime.colorScheme === style.colorScheme
-                    || this.runtime.rtl === style.rtl
+                    style.minWidth >= (bestBreakpoints[property] ?? 0)
+                    && (style.colorScheme === null || this.runtime.colorScheme === style.colorScheme)
+                    && (style.orientation === null || this.runtime.orientation === style.orientation)
+                    && (style.rtl === null || this.runtime.rtl === style.rtl)
                 ) {
                     if (style.stylesUsingVariables[property] !== undefined) {
                         stylesUsingVariables.push([property, style.stylesUsingVariables[property]])
                     }
 
                     result[property] = value
-                    bestBreakpoints[property] = Infinity
-
-                    return
-                }
-
-                if (bestBreakpoints[property] === undefined || style.minWidth >= bestBreakpoints[property]) {
-                    if (style.stylesUsingVariables[property] !== undefined) {
-                        stylesUsingVariables.push([property, style.stylesUsingVariables[property]])
-                    }
-
-                    bestBreakpoints[property] = style.minWidth
-                    result[property] = value
+                    bestBreakpoints[property] = style.colorScheme !== null || style.orientation !== null || style.rtl !== null
+                        ? Infinity
+                        : style.minWidth
                 }
             })
         })

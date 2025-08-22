@@ -124,7 +124,9 @@ export const createStylesheetTemplate = (classes: Record<string, any>, vars: Rec
                 dependencies.push(StyleDependency.Rtl)
             }
 
-            // TODO: Insets dependency
+            if (stringifiedEntries.includes('rt.insets')) {
+                dependencies.push(StyleDependency.Insets)
+            }
 
             return dependencies
         }
