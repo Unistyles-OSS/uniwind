@@ -1,6 +1,6 @@
-import { Processor } from './processor'
-import { Platform, StylesTemplate } from './types'
-import { isDefined } from './utils'
+import { Processor } from '../processor'
+import { Platform, StylesTemplate } from '../types'
+import { isDefined } from '../utils'
 
 export const addMetaToStylesTemplate = (styles: StylesTemplate, currentPlatform: Platform) => {
     const stylesheetsEntries = Object.entries(styles)

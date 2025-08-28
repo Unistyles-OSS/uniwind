@@ -1,5 +1,5 @@
 import { Declaration, MediaQuery, Rule } from 'lightningcss'
-import { Processor } from './processor'
+import { Processor } from '../processor'
 
 export const createVarsTemplate = (rules: Array<Rule<Declaration, MediaQuery>>) => {
     const vars: Record<string, string> = {}

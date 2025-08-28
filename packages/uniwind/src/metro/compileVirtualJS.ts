@@ -3,9 +3,8 @@ import { Scanner } from '@tailwindcss/oxide'
 import fs from 'fs'
 import { transform } from 'lightningcss'
 import path from 'path'
-import { createStylesheetTemplate } from './createStylesheetTemplate'
-import { createVarsTemplate } from './createVarsTemplate'
 import { Processor } from './processor'
+import { createStylesheetTemplate, createVarsTemplate } from './stylesheet'
 import { Platform } from './types'
 
 export const compileVirtualJS = async (input: string, scanner: Scanner, platform: Platform) => {

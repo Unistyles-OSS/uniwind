@@ -1,7 +1,7 @@
 import { Declaration, DeclarationBlock, MediaQuery, Rule } from 'lightningcss'
+import { Processor } from '../processor'
+import { MediaQueryResolver, Platform, StylesTemplate } from '../types'
 import { addMetaToStylesTemplate } from './addMetaToStylesTemplate'
-import { Processor } from './processor'
-import { MediaQueryResolver, Platform, StylesTemplate } from './types'
 
 export const createStylesheetTemplate = (rules: Array<Rule<Declaration, MediaQuery>>, currentPlatform: Platform) => {
     const styles: StylesTemplate = {}
