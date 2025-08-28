@@ -1,9 +1,17 @@
+import { MediaQuery } from 'lightningcss'
 import { ColorScheme, Orientation } from '../../types'
-import { Platform } from '../types'
+import { MediaQueryResolver, Platform } from '../types'
 import type { ProcessorBuilder } from './processor'
 
 export class MQ {
-    constructor(readonly Processor: ProcessorBuilder) {}
+    constructor(private readonly Processor: ProcessorBuilder) {}
+
+    getInitialMediaQueryResolver(): MediaQueryResolver {
+        return {
+            minWidth: 0,
+            maxWidth: Number.MAX_VALUE,
+        }
+    }
 
     extractResolvers(className: string) {
         const lower = className.toLowerCase()
@@ -27,6 +35,32 @@ export class MQ {
                 web: Platform.Web,
             }),
         }
+    }
+
+    processMediaQueries(mediaQueries: Array<MediaQuery>) {
+        const mq = this.getInitialMediaQueryResolver()
+
+        mediaQueries.forEach(mediaQuery => {
+            const { condition } = mediaQuery
+
+            if (condition?.type !== 'feature' || condition.value.type !== 'range' || condition.value.name !== 'width') {
+                return
+            }
+
+            const { operator, value } = condition.value
+
+            const result = this.Processor.CSS.processValue(value)
+
+            if (operator === 'greater-than-equal' || operator === 'greater-than') {
+                mq.minWidth = result
+            }
+
+            if (operator === 'less-than-equal' || operator === 'less-than') {
+                mq.maxWidth = result
+            }
+        })
+
+        return mq
     }
 
     private getFromClassName<T extends Record<string, any>>(className: string, resolver: T) {

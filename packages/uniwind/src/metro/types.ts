@@ -1,4 +1,4 @@
-import type { Declaration, ParsedComponent, Token, TokenOrValue } from 'lightningcss'
+import type { Declaration, MediaFeatureValue, ParsedComponent, Token, TokenOrValue } from 'lightningcss'
 import type Bundler from 'metro/private/Bundler'
 
 type HasteEventMetadata = {
@@ -41,10 +41,9 @@ export type UniwindConfig = {
     input?: string
 }
 
-export type StyleTemplateAcc = {
-    entries: Array<[string, unknown]>
-    maxWidth: string | number
-    minWidth: string | number
+export type MediaQueryResolver = {
+    maxWidth: any
+    minWidth: any
 }
 
 export const enum Platform {
@@ -63,8 +62,13 @@ export type DeclarationValues =
     | Token
     | ParsedComponent
     | Array<TokenOrValue>
+    | MediaFeatureValue
 
 export type ProcessMetaValues = {
     propertyName?: string
     className?: string
+}
+
+export type StylesTemplate = {
+    [K: string]: MediaQueryResolver & Record<string, unknown>
 }

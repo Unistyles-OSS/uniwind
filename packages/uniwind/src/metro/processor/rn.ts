@@ -174,13 +174,13 @@ export class RN {
 
     cssToRN(property: string, value: any) {
         if (property.startsWith('--')) {
-            return [property, value]
+            return [[property, value]] as [[string, any]]
         }
 
         const camelizedProperty = toCamelCase(property)
 
         const rn = cssToRNMap[camelizedProperty]?.(value) ?? { [camelizedProperty]: value }
 
-        return Object.entries(rn)
+        return Object.entries(rn) as Array<[string, any]>
     }
 }

@@ -1,12 +1,14 @@
 import { Declaration, DeclarationBlock, MediaQuery, Rule } from 'lightningcss'
+import { addMetaToStylesTemplate } from './addMetaToStylesTemplate'
 import { Processor } from './processor'
+import { MediaQueryResolver, Platform, StylesTemplate } from './types'
 
-export const createStylesheetTemplate = (rules: Array<Rule<Declaration, MediaQuery>>) => {
-    const styles: Record<string, Record<string, unknown>> = {}
+export const createStylesheetTemplate = (rules: Array<Rule<Declaration, MediaQuery>>, currentPlatform: Platform) => {
+    const styles: StylesTemplate = {}
 
-    const parseClass = (className: string, declarations: DeclarationBlock<Declaration>) => {
+    const parseClass = (className: string, declarations: DeclarationBlock<Declaration>, mq: MediaQueryResolver) => {
         declarations.declarations?.forEach(declaration => {
-            styles[className] ??= {}
+            styles[className] ??= { ...mq }
 
             const { property, value } = Processor.CSS.processDeclaration(declaration, className)
 
@@ -14,14 +16,14 @@ export const createStylesheetTemplate = (rules: Array<Rule<Declaration, MediaQue
         })
     }
 
-    const parseMediaRec = (className: string, nestedRules: Array<Rule<Declaration, MediaQuery>>) => {
+    const parseMediaRec = (className: string, nestedRules: Array<Rule<Declaration, MediaQuery>>, mq: MediaQueryResolver) => {
         nestedRules.forEach(rule => {
             if (rule.type === 'media') {
-                parseMediaRec(className, rule.value.rules)
+                parseMediaRec(className, rule.value.rules, Processor.MQ.processMediaQueries(rule.value.query.mediaQueries))
             }
 
             if (rule.type === 'nested-declarations') {
-                parseClass(className, rule.value.declarations)
+                parseClass(className, rule.value.declarations, mq)
             }
         })
     }
@@ -41,40 +43,15 @@ export const createStylesheetTemplate = (rules: Array<Rule<Declaration, MediaQue
                 }
 
                 if (rule.value.rules) {
-                    parseMediaRec(firstSelector.name, rule.value.rules)
+                    parseMediaRec(firstSelector.name, rule.value.rules, Processor.MQ.getInitialMediaQueryResolver())
                 }
 
                 if (rule.value.declarations) {
-                    parseClass(firstSelector.name, rule.value.declarations)
+                    parseClass(firstSelector.name, rule.value.declarations, Processor.MQ.getInitialMediaQueryResolver())
                 }
             })
         }
     })
 
-    const stylesheetsEntries = Object.entries(styles).map(([className, styles]) => {
-        const entries = Object.entries(styles).map(([property, value]) => Processor.RN.cssToRN(property, value))
-
-        return [
-            className,
-            {
-                entries,
-            },
-        ]
-    })
-    const stylesheets = Object.fromEntries(stylesheetsEntries) as Record<string, any>
-
-    return stylesheets
+    return addMetaToStylesTemplate(styles, currentPlatform)
 }
-
-// export type Style = {
-//     entries: Array<[string, unknown]>
-//     minWidth: number
-//     maxWidth: number
-//     stylesUsingVariables: Record<string, string>
-//     inlineVariables: Array<[string, () => unknown]>
-//     orientation: Orientation | null
-//     colorScheme: ColorScheme | null
-//     rtl: boolean | null
-//     dependencies: Array<StyleDependency>
-//     native: boolean
-// }

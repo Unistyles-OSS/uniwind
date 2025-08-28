@@ -6,8 +6,9 @@ import path from 'path'
 import { createStylesheetTemplate } from './createStylesheetTemplate'
 import { createVarsTemplate } from './createVarsTemplate'
 import { Processor } from './processor'
+import { Platform } from './types'
 
-export const compileVirtualJS = async (input: string, scanner: Scanner) => {
+export const compileVirtualJS = async (input: string, scanner: Scanner, platform: Platform) => {
     const cssPath = path.join(process.cwd(), input)
     const css = fs.readFileSync(cssPath, 'utf8')
     const candidates = scanner.scan()
@@ -40,7 +41,7 @@ export const compileVirtualJS = async (input: string, scanner: Scanner) => {
                             break
                         }
                         case layer.value.name?.includes('utilities'): {
-                            Object.assign(template, createStylesheetTemplate(layer.value.rules))
+                            Object.assign(template, createStylesheetTemplate(layer.value.rules, platform))
 
                             break
                         }

@@ -159,7 +159,7 @@ export const withUniwind = (
             return
         }
 
-        const newJS = await compileVirtualJS(uniwind.input, uniwind.scanner)
+        const newJS = await compileVirtualJS(uniwind.input, uniwind.scanner, platform)
         const virtualPath = getVirtualPath(platform)
 
         if (uniwind.virtualModules.get(virtualPath) === newJS) {

@@ -2,5 +2,5 @@ import './global.css'
 import { View } from 'react-native'
 
 export default function App() {
-    return <View className="flex-1 dark:bg-red-500 bg-blue-500"></View>
+    return <View className="min-sm:bg-red-500 shadow-red-500"></View>
 }
