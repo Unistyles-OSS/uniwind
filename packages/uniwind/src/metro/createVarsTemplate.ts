@@ -1,49 +1,20 @@
+import { Declaration, MediaQuery, Rule } from 'lightningcss'
 import { Processor } from './processor'
-import { escapeDynamic } from './utils'
 
-export const createVarsTemplate = (theme: Record<string, any>) => {
-    const vars = Object.entries(theme).reduce<Record<string, any>>((varsAcc, [varName, value]) => {
-        if (typeof value !== 'string') {
-            varsAcc[varName] = value
+export const createVarsTemplate = (rules: Array<Rule<Declaration, MediaQuery>>) => {
+    const vars: Record<string, string> = {}
 
-            return varsAcc
+    const parseDeclaration = (declaration: Declaration) => {
+        if (declaration.property === 'custom' && declaration.value.name.startsWith('--')) {
+            vars[declaration.value.name] = Processor.CSS.processValue(declaration.value.value)
         }
-
-        if (value.startsWith('var(--')) {
-            const varValue = varsAcc[value.slice(4, -1)]
-
-            varsAcc[varName] = varValue
-
-            return varsAcc
-        }
-
-        const processedValue = Processor.CSS.processCSSValue(value, varName)
-
-        if (varName.endsWith('--line-height')) {
-            const fontSize = varsAcc[varName.replace('--line-height', '')]
-
-            varsAcc[varName] = `(${fontSize} * ${String(processedValue)})`
-
-            return varsAcc
-        }
-
-        varsAcc[varName] = processedValue
-
-        return varsAcc
-    }, {})
-
-    return {
-        vars,
-        varsTemplate: Object.entries(vars).reduce((acc, [key, value]) => {
-            const stringifiedValue = value === undefined
-                ? 'undefined'
-                : escapeDynamic(JSON.stringify(value))
-
-            if (stringifiedValue.includes('this')) {
-                return `${acc}get "${key}"() { return ${stringifiedValue} },`
-            }
-
-            return `${acc}"${key}":${stringifiedValue},`
-        }, ''),
     }
+
+    rules.forEach(rule => {
+        if (rule.type === 'style') {
+            rule.value.declarations?.declarations?.forEach(parseDeclaration)
+        }
+    })
+
+    return vars
 }

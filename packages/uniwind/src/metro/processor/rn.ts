@@ -1,4 +1,4 @@
-import { isDefined, pipe } from '../utils'
+import { isDefined, pipe, toCamelCase } from '../utils'
 import type { ProcessorBuilder } from './processor'
 
 const cssToRNKeyMap = {
@@ -32,7 +32,13 @@ const cssToRNMap: Record<string, (value: any) => unknown> = {
             })]
         }),
     ),
-    opacity: (value: string) => {
+    opacity: (value: string | number) => {
+        if (typeof value === 'number') {
+            return {
+                opacity: value,
+            }
+        }
+
         return {
             opacity: Number(value.slice(0, -1)) / 100,
         }
@@ -139,18 +145,41 @@ const cssToRNMap: Record<string, (value: any) => unknown> = {
             ],
         }
     },
-    boxShadow: (value: string) => {
+    boxShadow: () => {
         return {
-            boxShadow: value.match(/this\[`(.*?)`\]/g) ?? [],
+            boxShadow:
+                '[this[`--tw-inset-shadow`], this[`--tw-inset-ring-shadow`], this[`--tw-ring-offset-shadow`], this[`--tw-ring-shadow`], this[`--tw-shadow)]',
+        }
+    },
+    borderWidth: (value: { top: any; right: any; bottom: any; left: any }) => {
+        return {
+            borderTopWidth: value.top,
+            borderRightWidth: value.right,
+            borderBottomWidth: value.bottom,
+            borderLeftWidth: value.left,
+        }
+    },
+    borderRadius: (value: { topLeft: any; topRight: any; bottomLeft: any; bottomRight: any }) => {
+        return {
+            borderTopLeftRadius: value.topLeft,
+            borderTopRightRadius: value.topRight,
+            borderBottomLeftRadius: value.bottomLeft,
+            borderBottomRightRadius: value.bottomRight,
         }
     },
 }
 
 export class RN {
-    constructor(readonly Processor: ProcessorBuilder) {}
+    constructor(private readonly Processor: ProcessorBuilder) {}
 
     cssToRN(property: string, value: any) {
-        const rn = cssToRNMap[property]?.(value) ?? { [property]: value }
+        if (property.startsWith('--')) {
+            return [property, value]
+        }
+
+        const camelizedProperty = toCamelCase(property)
+
+        const rn = cssToRNMap[camelizedProperty]?.(value) ?? { [camelizedProperty]: value }
 
         return Object.entries(rn)
     }

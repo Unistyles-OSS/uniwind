@@ -1,55 +1,34 @@
-import { converter, formatRgb, parse } from 'culori'
-import { replaceParentheses } from '../utils'
+import { Color as ColorType, converter, formatRgb } from 'culori'
+import { CssColor } from 'lightningcss'
+import { Logger } from './logger'
 import type { ProcessorBuilder } from './processor'
 
 export class Color {
-    toRgb = converter('rgb')
+    private toRgb = converter('rgb')
 
-    constructor(readonly Processor: ProcessorBuilder) {}
+    private readonly black = 'rgb(0,0,0)'
 
-    isColor(value: string) {
-        // If value is a number, it's not a color
-        if (!isNaN(Number(value))) {
-            return false
+    private readonly logger = new Logger('Color')
+
+    constructor(private readonly Processor: ProcessorBuilder) {}
+
+    processColor(color: CssColor) {
+        // System colors
+        if (typeof color === 'string') {
+            return this.black
         }
 
-        return parse(value) !== undefined
-    }
+        try {
+            const result = this.toRgb({
+                mode: color.type,
+                ...color,
+            } as ColorType)
 
-    isColorMix(value: string) {
-        return value.startsWith('color-mix')
-    }
+            return formatRgb(result)
+        } catch {
+            this.logger.error(`Failed to convert color ${JSON.stringify(color)}`)
 
-    processColor(value: string, alpha?: number) {
-        const parsedColor = parse(value)
-
-        if (parsedColor === undefined) {
-            return value
+            return this.black
         }
-
-        parsedColor.alpha = alpha ?? parsedColor.alpha
-
-        return formatRgb(this.toRgb(parsedColor))
-    }
-
-    processColorMix(value: string) {
-        return replaceParentheses('color-mix', match => {
-            const [, colorsToMix] = match.split(',')
-
-            if (colorsToMix === undefined) {
-                return match
-            }
-
-            const [, alphaMatch] = colorsToMix.match(/(\d+(?:\.\d+)?%)\s*$/) ?? []
-
-            if (alphaMatch === undefined) {
-                return match
-            }
-
-            const alpha = Number(alphaMatch.replace('%', '')) / 100
-            const color = colorsToMix.replace(alphaMatch, '').trim()
-
-            return this.processColor(color, alpha)
-        })(value)
     }
 }

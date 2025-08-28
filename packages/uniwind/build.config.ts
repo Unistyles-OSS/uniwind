@@ -60,6 +60,7 @@ export default defineBuildConfig({
     clean: true,
     externals: [
         /@tailwindcss/,
+        'lightningcss',
     ],
     rollup: {
         emitCJS: true,

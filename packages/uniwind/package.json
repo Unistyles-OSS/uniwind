@@ -57,10 +57,11 @@
         "react": ">=19.0.0",
         "react-native": ">=0.81.0",
         "tailwindcss": ">=4",
-        "postcss": ">=8"
+        "postcss": ">=8",
+        "chalk": ">=2"
     },
     "devDependencies": {
-        "@types/bun": "1.2.20",
+        "@types/bun": "1.2.21",
         "@types/postcss-js": "4.0.4",
         "@types/culori": "4.0.0",
         "typescript": "5.9.2",
@@ -68,6 +69,7 @@
         "@babel/core": "7.28.3",
         "@babel/types": "7.28.2",
         "dpdm": "3.14.0",
-        "unbuild": "3.6.0"
+        "unbuild": "3.6.1",
+        "lightningcss": "1.30.1"
     }
 }

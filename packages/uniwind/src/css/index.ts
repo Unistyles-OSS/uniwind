@@ -1,3 +1,4 @@
+import chalk from 'chalk'
 import { generateCSSForInsets } from './insets'
 import { generateCSSForVariants } from './variants'
 
@@ -11,4 +12,4 @@ uniwindCSS.write([
 ].join('\n'))
 
 // eslint-disable-next-line no-console
-console.log('CSS generated successfully')
+console.log(chalk.green('CSS generated successfully'))

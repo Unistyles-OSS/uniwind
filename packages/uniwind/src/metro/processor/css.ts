@@ -1,58 +1,154 @@
-import { pipe, replaceParentheses } from '../utils'
+import { Declaration } from 'lightningcss'
+import { DeclarationValues, ProcessMetaValues } from '../types'
+import { Logger } from './logger'
 import type { ProcessorBuilder } from './processor'
 
 export class CSS {
-    constructor(readonly Processor: ProcessorBuilder) {}
+    private readonly logger = new Logger('CSS')
 
-    processCSSValue(value: string, key?: string): unknown {
-        if (key !== undefined && this.Processor.Shadow.isShadowKey(key)) {
-            return this.Processor.Shadow.processShadow(value)
+    constructor(private readonly Processor: ProcessorBuilder) {}
+
+    processDeclaration(declaration: Declaration, className: string) {
+        if (declaration.property === 'unparsed') {
+            return {
+                property: declaration.value.propertyId.property,
+                value: this.processValue(declaration.value.value, {
+                    propertyName: declaration.value.propertyId.property,
+                    className,
+                }),
+            }
         }
 
-        if (this.Processor.Color.isColor(value)) {
-            return this.Processor.Color.processColor(value)
+        if (declaration.property === 'custom') {
+            return {
+                property: declaration.value.name,
+                value: this.processValue(declaration.value.value, {
+                    propertyName: declaration.value.name,
+                    className,
+                }),
+            }
         }
 
-        if (this.Processor.Color.isColorMix(value)) {
-            return this.Processor.Color.processColorMix(value)
-        }
-
-        return pipe(value)(
-            // Replace env() with rt.insets
-            x => x.replace(/env\((.*?)\)/g, (_, env) => {
-                const inset = env.replace('safe-area-inset-', '')
-
-                return `(rt.insets.${inset})`
+        return {
+            property: declaration.property,
+            value: this.processValue(declaration.value, {
+                propertyName: declaration.property,
+                className,
             }),
-            // Replace css infinity with 999999999, because it's not possible to use Infinity in RN styles
-            x => x.replace('infinity', '(999999999)'),
-            // Replace max() with Math.max()
-            replaceParentheses('max', match => `(Math.max(${match}))`),
-            // Handle units
-            x => x.replace(/(-?\d+(?:\.\d+)?)(vw|vh|px|rem)/g, (match, value, unit) => {
-                switch (unit) {
-                    case 'vw':
-                        return `(${value} * rt.screen.width / 100)`
-                    case 'vh':
-                        return `(${value} * rt.screen.height / 100)`
-                    // Mark to be evaluated
-                    case 'px':
-                        return `(${value})`
-                    case 'rem':
-                        return `(${value} * rt.rem)`
-                    default:
-                        return match
+        }
+    }
+
+    processValue(declarationValue: DeclarationValues, meta = {} as ProcessMetaValues): any {
+        if (meta.propertyName !== undefined && this.Processor.Shadow.isShadowKey(meta.propertyName)) {
+            return this.Processor.Shadow.processShadow(declarationValue, meta)
+        }
+
+        if (typeof declarationValue !== 'object') {
+            return declarationValue
+        }
+
+        if (('type' in declarationValue)) {
+            switch (declarationValue.type) {
+                case 'function':
+                    if (typeof declarationValue.value !== 'object') {
+                        this.logger.error(`Unsupported function - ${declarationValue.value}`)
+
+                        return declarationValue.type
+                    }
+
+                    if (declarationValue.value.name === 'calc') {
+                        return this.processValue(declarationValue.value.arguments)
+                    }
+
+                    this.logger.error(`Unsupported function - ${declarationValue.value.name}`)
+
+                    return declarationValue.type
+                case 'var':
+                    return this.Processor.Var.processVar(declarationValue.value)
+                case 'number':
+                    return declarationValue.value
+                case 'token':
+                    return this.processValue(declarationValue.value)
+                case 'length':
+                    return this.Processor.Units.processAnyLength(declarationValue.value)
+                case 'color':
+                    return this.Processor.Color.processColor(declarationValue.value)
+                case 'integer':
+                    return declarationValue.value
+                case 'comma':
+                    return ', '
+                case 'dimension':
+                case 'value':
+                case 'length-percentage':
+                    return this.Processor.Units.processLength(declarationValue.value)
+                case 'percentage':
+                    return `${declarationValue.value * 100}%`
+                case 'token-list':
+                    return declarationValue.value.reduce((acc, token) => {
+                        const tokenValue = this.processValue(token)
+
+                        return acc + tokenValue
+                    }, '')
+                case 'rgb':
+                    return this.Processor.Color.processColor(declarationValue)
+                case 'white-space':
+                case 'string':
+                case 'delim':
+                case 'ident':
+                case 'self-position':
+                case 'content-distribution':
+                case 'content-position':
+                    return declarationValue.value
+                default:
+                    // CSS string properties like absolute, relative, italic, etc.
+                    if (Object.keys(declarationValue).length === 1) {
+                        return declarationValue.type
+                    }
+
+                    this.logger.error(`Unsupported value type - ${declarationValue.type}`)
+
+                    return declarationValue.type
+            }
+        }
+
+        if ('top' in declarationValue) {
+            return {
+                top: this.processValue(declarationValue.top),
+                right: this.processValue(declarationValue.right),
+                bottom: this.processValue(declarationValue.bottom),
+                left: this.processValue(declarationValue.left),
+            }
+        }
+
+        if ('topLeft' in declarationValue) {
+            return {
+                topLeft: this.processValue(declarationValue.topLeft),
+                topRight: this.processValue(declarationValue.topRight),
+                bottomLeft: this.processValue(declarationValue.bottomLeft),
+                bottomRight: this.processValue(declarationValue.bottomRight),
+            }
+        }
+
+        if ('grow' in declarationValue) {
+            return {
+                flexGrow: declarationValue.grow,
+                flexShrink: declarationValue.shrink,
+                flexBasis: this.processValue(declarationValue.basis),
+            }
+        }
+
+        if (Array.isArray(declarationValue)) {
+            return declarationValue.reduce<string>((acc, value) => {
+                if (typeof value === 'object') {
+                    return acc + this.processValue(value)
                 }
-            }),
-            x => x.replace('currentcolor', `(this['currentColor'])`),
-            // Convert *Number* / *Number* to (*Number* / *Number*) so it can be evaluated
-            x => /\d+\s*\/\s*\d+/.test(x) ? `(${x})` : x,
-            // Convert *Number* to (*Number*) so it can be evaluated
-            x => /^\d+$/.test(x) ? `(${x})` : x,
-            // Remove spaces around operators (e.g. "1 + 1" -> "1+1")
-            x => x.replace(/\s*([+\-*/])\s*/g, '$1'),
-            x => x.replace('calc', ''),
-            x => this.Processor.Var.processVarsRec(x),
-        )
+
+                return acc + value
+            }, '')
+        }
+
+        this.logger.error(`Unsupported value type - ${JSON.stringify(declarationValue)}`)
+
+        return declarationValue
     }
 }

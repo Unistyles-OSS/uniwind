@@ -7,7 +7,7 @@ import { DeepMutable, ExtendedBundler, ExtendedFileSystem, Haste, Platform, Uniw
 
 const getVirtualPath = (platform: string) => `${platform}.uniwind.js`
 
-const platforms = [Platform.Android, Platform.iOS]
+const platforms = [Platform.Android]
 
 export const withUniwind = (
     config: DeepMutable<MetroConfig>,
@@ -159,7 +159,7 @@ export const withUniwind = (
             return
         }
 
-        const newJS = await compileVirtualJS(uniwind.input, uniwind.scanner, platform)
+        const newJS = await compileVirtualJS(uniwind.input, uniwind.scanner)
         const virtualPath = getVirtualPath(platform)
 
         if (uniwind.virtualModules.get(virtualPath) === newJS) {

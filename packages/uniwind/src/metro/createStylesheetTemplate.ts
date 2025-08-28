@@ -1,169 +1,80 @@
-import { StyleDependency } from '../types'
+import { Declaration, DeclarationBlock, MediaQuery, Rule } from 'lightningcss'
 import { Processor } from './processor'
-import { Platform, StyleTemplateAcc } from './types'
-import { escapeDynamic, isDefined, pipe } from './utils'
 
-export const createStylesheetTemplate = (classes: Record<string, any>, vars: Record<string, any>, forPlatform: Platform) => {
-    const template = Object.fromEntries(
-        Object.entries(classes).map(([className, styles]) => {
-            const { orientation, colorScheme, rtl, platform } = Processor.MQ.extractResolvers(className)
+export const createStylesheetTemplate = (rules: Array<Rule<Declaration, MediaQuery>>) => {
+    const styles: Record<string, Record<string, unknown>> = {}
 
-            if (platform && platform !== Platform.Native && platform !== forPlatform) {
-                return null
+    const parseClass = (className: string, declarations: DeclarationBlock<Declaration>) => {
+        declarations.declarations?.forEach(declaration => {
+            styles[className] ??= {}
+
+            const { property, value } = Processor.CSS.processDeclaration(declaration, className)
+
+            styles[className][property] = value
+        })
+    }
+
+    const parseMediaRec = (className: string, nestedRules: Array<Rule<Declaration, MediaQuery>>) => {
+        nestedRules.forEach(rule => {
+            if (rule.type === 'media') {
+                parseMediaRec(className, rule.value.rules)
             }
 
-            const parsedStyles = Object.entries(styles).reduce<StyleTemplateAcc>((stylesAcc, [styleKey, styleValue]) => {
-                const extractNestedStyles = (styleKey: string, styleValue: unknown) => {
-                    if (typeof styleValue === 'object' && styleValue !== null) {
-                        const { maxWidth, minWidth } = Processor.MQ.processMediaQuery(styleKey)
-                        const [firstEntry] = Object.entries(styleValue)
-                        const [mqStyleKey, mqStyleValue] = firstEntry ?? []
+            if (rule.type === 'nested-declarations') {
+                parseClass(className, rule.value.declarations)
+            }
+        })
+    }
 
-                        stylesAcc.maxWidth = String(maxWidth)
-                        stylesAcc.minWidth = String(minWidth)
+    rules.forEach(rule => {
+        if (rule.type === 'style') {
+            rule.value.selectors.forEach(selector => {
+                const [firstSelector, ...rest] = selector
 
-                        if (mqStyleKey === undefined) {
-                            return
-                        }
-
-                        return extractNestedStyles(mqStyleKey, mqStyleValue)
-                    }
-
-                    stylesAcc.entries.push([styleKey, styleValue])
+                // TODO: Remove this check if not applied, used only for debugging
+                if (rest.length > 0) {
+                    throw new Error('More than one selector in createStylesheetTemplate')
                 }
 
-                extractNestedStyles(styleKey, styleValue)
+                if (firstSelector?.type !== 'class') {
+                    return
+                }
 
-                return stylesAcc
-            }, {
-                entries: [],
-                maxWidth: Number.MAX_VALUE,
-                minWidth: 0,
+                if (rule.value.rules) {
+                    parseMediaRec(firstSelector.name, rule.value.rules)
+                }
+
+                if (rule.value.declarations) {
+                    parseClass(firstSelector.name, rule.value.declarations)
+                }
             })
-
-            return [
-                className.replace('.', '').replace(/\\/g, ''),
-                {
-                    ...parsedStyles,
-                    orientation,
-                    colorScheme,
-                    rtl,
-                    native: platform !== null,
-                },
-            ] as const
-        }).filter(isDefined),
-    )
-    const processedTemplateEntries = Object.entries(template).map(([className, styles]) => {
-        const stylesUsingVariables: Record<string, string> = {}
-        const inlineVariables: Array<[string, unknown]> = []
-
-        const processedEntries = pipe(styles.entries)(
-            entries =>
-                entries.map(([key, value]) => {
-                    if (typeof value !== 'string' && typeof value !== 'number') {
-                        return null
-                    }
-
-                    const processedValue = typeof value === 'string'
-                        ? Processor.CSS.processCSSValue(value, key)
-                        : value
-
-                    return [key, processedValue] as [string, unknown]
-                }),
-            entries => entries.filter(isDefined),
-            entries => entries.flatMap(([key, value]) => Processor.RN.cssToRN(key, value)),
-            entries =>
-                entries.filter(([key, value]) => {
-                    if (Processor.Var.isVarName(key)) {
-                        inlineVariables.push([key, value])
-
-                        return false
-                    }
-
-                    const stringifiedValue = JSON.stringify(value)
-
-                    if (stringifiedValue.includes('this[')) {
-                        stylesUsingVariables[key] = className
-                    }
-
-                    return true
-                }),
-        )
-        const getDependencies = () => {
-            const dependencies = [] as Array<StyleDependency>
-            const stringifiedEntries = JSON.stringify(processedEntries)
-
-            if (styles.orientation !== null) {
-                dependencies.push(StyleDependency.Orientation)
-            }
-
-            if (Number(styles.minWidth) !== 0 || Number(styles.maxWidth) !== Number.MAX_VALUE) {
-                dependencies.push(StyleDependency.Dimensions)
-            }
-
-            if (styles.colorScheme !== null) {
-                dependencies.push(StyleDependency.ColorScheme)
-            }
-
-            const varsRegex = /this\[`([^`]+)`\]/g
-            const varsMatches = stringifiedEntries.match(varsRegex)
-
-            if (varsMatches) {
-                varsMatches.forEach(match => {
-                    // Remove `this[` and `]`
-                    const varName = match.slice(6, -2)
-
-                    if (varName in vars) {
-                        const varValue = vars[varName]
-
-                        if (typeof varValue === 'string' && varValue.includes('rt.rem') && !dependencies.includes(StyleDependency.FontScale)) {
-                            dependencies.push(StyleDependency.FontScale)
-                        }
-                    }
-                })
-            }
-
-            if (styles.rtl !== null) {
-                dependencies.push(StyleDependency.Rtl)
-            }
-
-            if (stringifiedEntries.includes('rt.insets')) {
-                dependencies.push(StyleDependency.Insets)
-            }
-
-            return dependencies
         }
+    })
+
+    const stylesheetsEntries = Object.entries(styles).map(([className, styles]) => {
+        const entries = Object.entries(styles).map(([property, value]) => Processor.RN.cssToRN(property, value))
 
         return [
             className,
             {
-                ...styles,
-                entries: processedEntries,
-                inlineVariables,
-                stylesUsingVariables,
-                dependencies: getDependencies(),
+                entries,
             },
-        ] as const
+        ]
     })
+    const stylesheets = Object.fromEntries(stylesheetsEntries) as Record<string, any>
 
-    return processedTemplateEntries.reduce((acc, [className, style]) => {
-        const stringifiedValue = Object.entries(style).reduce((acc, [key, value]) => {
-            if (key === 'inlineVariables' && Array.isArray(value)) {
-                const stringifiedInlineVariable = (value as Array<[string, unknown]>)
-                    .map(([varName, varValue]) => `["${varName}", () => (${escapeDynamic(JSON.stringify(varValue))})]`)
-                    .join(',')
-
-                return `${acc}"${key}":[${stringifiedInlineVariable}],`
-            }
-
-            return `${acc}"${key}":${escapeDynamic(JSON.stringify(value))},`
-        }, '')
-        const isComputed = JSON.stringify(style).includes('this')
-
-        if (isComputed) {
-            return `${acc}get "${className}"() { return { ${stringifiedValue} } },`
-        }
-
-        return `${acc}"${className}":{ ${stringifiedValue} },`
-    }, '')
+    return stylesheets
 }
+
+// export type Style = {
+//     entries: Array<[string, unknown]>
+//     minWidth: number
+//     maxWidth: number
+//     stylesUsingVariables: Record<string, string>
+//     inlineVariables: Array<[string, () => unknown]>
+//     orientation: Orientation | null
+//     colorScheme: ColorScheme | null
+//     rtl: boolean | null
+//     dependencies: Array<StyleDependency>
+//     native: boolean
+// }

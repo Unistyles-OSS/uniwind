@@ -1,80 +1,41 @@
-import { parse } from 'culori'
+import { BoxShadow, transform } from 'lightningcss'
+import { DeclarationValues, ProcessMetaValues } from '../types'
+import { pipe, replaceParentheses } from '../utils'
+import { Logger } from './logger'
 import type { ProcessorBuilder } from './processor'
 
-const isColor = (value: string) => parse(value) !== undefined || value.includes('color')
+type ShadowVar = {
+    varName: string
+    varValue: string
+}
 
-const tokenize = (str: string) => {
-    const { tokens, current } = Array.from(str).reduce(
-        (acc, char) => {
-            const { tokens, current, parenDepth } = acc
-
-            if (char === ' ' && parenDepth === 0) {
-                return current.trim() !== ''
-                    ? {
-                        tokens: [...tokens, current.trim()],
-                        current: '',
-                        parenDepth,
-                    }
-                    : acc
-            }
-
-            const getNewParenDepth = () => {
-                if (char === '(') {
-                    return parenDepth + 1
-                }
-
-                return char === ')'
-                    ? parenDepth - 1
-                    : parenDepth
-            }
-
-            return {
-                tokens,
-                current: current + char,
-                parenDepth: getNewParenDepth(),
-            }
+const SHADOW_COLOR_VAR = {
+    type: 'var',
+    value: {
+        name: {
+            ident: '--tw-shadow-color',
         },
-        {
-            tokens: [] as Array<string>,
-            current: '',
-            parenDepth: 0,
-        },
-    )
-
-    return current.trim() !== ''
-        ? [...tokens, current.trim()]
-        : tokens
-}
-
-const toNum = (value: string): string | number => {
-    const n = parseFloat(value)
-    return (value === '0' || /px$/.test(value)) && !isNaN(n)
-        ? n
-        : value
-}
-
-const parseValue = (str: string) => {
-    const parts = tokenize(str)
-    const inset = parts.includes('inset') || parts.find(p => p.includes('inset'))
-    const filtered = parts.filter(p => p !== 'inset')
-    const color = filtered.find(isColor)
-    const nums = filtered
-        .filter((p) => p !== color && p !== inset)
-        .map(toNum)
-    const [offsetX, offsetY, blurRadius, spreadDistance] = nums
-
-    return {
-        inset,
-        offsetX,
-        offsetY,
-        blurRadius,
-        spreadDistance,
-        color,
-    }
-}
+        fallback: [
+            {
+                type: 'color',
+                value: {
+                    r: 0,
+                    g: 0,
+                    b: 0,
+                    alpha: 0.25,
+                    type: 'rgb',
+                },
+            },
+        ],
+    },
+} satisfies DeclarationValues
 
 export class Shadow {
-    constructor(readonly Processor: ProcessorBuilder) {}
+    private readonly logger = new Logger('Shadow')
+
+    private shadows = new Map<string, ShadowVar>()
+
+    constructor(private readonly Processor: ProcessorBuilder) {}
 
     isShadowKey(key: string) {
         return [
@@ -86,25 +47,91 @@ export class Shadow {
         ].includes(key)
     }
 
-    processShadow(shadow: string) {
-        const shadowValues = parseValue(shadow)
+    registerShadowsFromCSS(css: string) {
+        const classBlockRegex = /(?<selectors>\.[^{]+)\{(?<body>[\s\S]*?)\}/g
+        const twShadowDeclRegex = /(--tw-shadow|--tw-inset-shadow|--tw-inset-ring-shadow|--tw-ring-offset-shadow|--tw-ring-shadow)\s*:\s*([^;]+);/
+        const ruleMatches = Array.from(css.matchAll(classBlockRegex))
 
-        return Object.fromEntries(
-            Object.entries(shadowValues).map(([key, value]) => {
-                const getValue = () => {
-                    if (key === 'color' && typeof value !== 'number' && typeof value !== 'boolean') {
-                        return value === undefined ? 'rgb(0,0,0)' : this.Processor.CSS.processCSSValue(value)
+        ruleMatches.forEach(match => {
+            const selectors = (match.groups?.selectors ?? '')
+                .split(',')
+                .map(s => s.trim())
+                .filter(Boolean)
+                .filter(s => /^\.[A-Za-z0-9_-]+$/.test(s))
+
+            const body = match.groups?.body ?? ''
+            const decl = body.match(twShadowDeclRegex)
+
+            if (!decl) {
+                return
+            }
+
+            const [, varName, varValue] = decl
+
+            selectors.forEach(className => {
+                // Remove the dot from className
+                this.shadows.set(className.slice(1), {
+                    varName: varName ?? '',
+                    varValue: varValue?.trim() ?? '',
+                })
+            })
+        }, [])
+    }
+
+    processShadow(value: DeclarationValues, meta: ProcessMetaValues) {
+        const result = this.getShadowCSS(value, meta)
+        const shadows: Array<BoxShadow> = []
+
+        transform({
+            code: Buffer.from(`.shadow { box-shadow: ${result}; }`),
+            filename: 'shadow.css',
+            visitor: {
+                Declaration: declaration => {
+                    if (declaration.property === 'box-shadow') {
+                        shadows.push(...declaration.value)
                     }
+                },
+            },
+        })
 
-                    if (typeof value === 'string') {
-                        return this.Processor.CSS.processCSSValue(value)
-                    }
+        if (shadows.length === 0) {
+            this.logger.error(`No shadows were found`)
+        }
 
-                    return value
-                }
+        return shadows.map(shadow => {
+            const color = typeof shadow.color === 'object' && shadow.color.type === 'currentcolor'
+                ? SHADOW_COLOR_VAR
+                : shadow.color
 
-                return [key, getValue()]
-            }),
-        )
+            return {
+                offsetX: this.Processor.CSS.processValue(shadow.xOffset),
+                offsetY: this.Processor.CSS.processValue(shadow.yOffset),
+                blurRadius: this.Processor.CSS.processValue(shadow.blur),
+                spreadDistance: this.Processor.CSS.processValue(shadow.spread),
+                color: this.Processor.CSS.processValue(color),
+                inset: shadow.inset,
+            }
+        })
+    }
+
+    private getShadowCSS(value: DeclarationValues, meta: ProcessMetaValues) {
+        // Flow for inline shadow variables (shadow-2xl -> --tw-shadow)
+        if (meta.className !== undefined) {
+            const shadow = this.shadows.get(meta.className)
+
+            if (!shadow) {
+                this.logger.error(`No shadow variable was found for ${meta.className}`)
+
+                return ''
+            }
+
+            return pipe(shadow.varValue)(
+                replaceParentheses('var', () => 'currentColor'),
+                x => x.replace('(currentColor)', 'currentColor'),
+            )
+        }
+
+        // Flow for global shadow variables
+        return this.Processor.CSS.processValue(value)
     }
 }

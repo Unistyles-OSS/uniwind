@@ -2,6 +2,8 @@ export const toSafeString = (value: string) => `\`${value}\``
 
 export const isDefined = <T>(value: T): value is NonNullable<T> => value !== null && value !== undefined
 
+export const toCamelCase = (str: string) => str.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())
+
 export const escapeDynamic = (str: string) =>
     str.replace(/"(this|\()([^"]+)"/g, (match, type) => {
         if (match.startsWith('"() =>')) {

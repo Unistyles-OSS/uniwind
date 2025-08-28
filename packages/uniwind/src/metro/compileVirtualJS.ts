@@ -1,14 +1,13 @@
 import { compile } from '@tailwindcss/node'
 import { Scanner } from '@tailwindcss/oxide'
 import fs from 'fs'
+import { transform } from 'lightningcss'
 import path from 'path'
-import postcss from 'postcss'
-import postcssJS from 'postcss-js'
 import { createStylesheetTemplate } from './createStylesheetTemplate'
 import { createVarsTemplate } from './createVarsTemplate'
-import { Platform } from './types'
+import { Processor } from './processor'
 
-export const compileVirtualJS = async (input: string, scanner: Scanner, platform: Platform) => {
+export const compileVirtualJS = async (input: string, scanner: Scanner) => {
     const cssPath = path.join(process.cwd(), input)
     const css = fs.readFileSync(cssPath, 'utf8')
     const candidates = scanner.scan()
@@ -16,24 +15,42 @@ export const compileVirtualJS = async (input: string, scanner: Scanner, platform
         base: cssPath,
         onDependency: () => void 0,
     })
-    const result = compiler.build(candidates)
-    const root = postcss.parse(result)
-    const cssTree = postcssJS.objectify(root as unknown as Parameters<typeof postcssJS.objectify>[0])
-    const theme: Record<string, any> = cssTree['@layer theme'][':root, :host']
-    const properties = Object.fromEntries(
-        Object.entries(cssTree)
-            .filter(([key]) => key.startsWith('@property'))
-            .map(([key, value]) => {
-                const numericValue = Number(value.initialValue)
+    const tailwindCSS = compiler.build(candidates)
+    const template = {}
 
-                return [key.slice(10), !isNaN(numericValue) ? numericValue : value.initialValue]
-            }),
-    )
-    const { vars, varsTemplate } = createVarsTemplate({ ...theme, ...properties })
-    const classes: Record<string, any> = cssTree['@layer utilities']
-    const stylesheetTemplate = createStylesheetTemplate(classes, vars, platform)
-    const hotReloadFN = 'globalThis.__uniwind__hot_reload?.()'
-    const currentColor = `get currentColor() { return rt.colorScheme === 'dark' ? '#ffffff' : '#000000' },`
+    Processor.Shadow.registerShadowsFromCSS(tailwindCSS)
 
-    return `globalThis.__uniwind__computeStylesheet = rt => ({ ${currentColor} ${varsTemplate} ${stylesheetTemplate} });${hotReloadFN}`
+    transform({
+        filename: 'tailwind.css',
+        code: Buffer.from(tailwindCSS),
+        visitor: {
+            Rule: {
+                'property': property => {
+                    if (property.value.initialValue) {
+                        Object.assign(template, {
+                            [property.value.name]: Processor.CSS.processValue(property.value.initialValue, { propertyName: property.value.name }),
+                        })
+                    }
+                },
+                'layer-block': layer => {
+                    switch (true) {
+                        case layer.value.name?.includes('theme'): {
+                            Object.assign(template, createVarsTemplate(layer.value.rules))
+
+                            break
+                        }
+                        case layer.value.name?.includes('utilities'): {
+                            Object.assign(template, createStylesheetTemplate(layer.value.rules))
+
+                            break
+                        }
+                        default:
+                            break
+                    }
+                },
+            },
+        },
+    })
+
+    return ''
 }
