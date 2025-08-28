@@ -1,23 +1,6 @@
-export const toSafeString = (value: string) => `\`${value}\``
-
 export const isDefined = <T>(value: T): value is NonNullable<T> => value !== null && value !== undefined
 
 export const toCamelCase = (str: string) => str.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())
-
-export const escapeDynamic = (str: string) =>
-    str.replace(/"(this|\()([^"]+)"/g, (match, type) => {
-        if (match.startsWith('"() =>')) {
-            return match.slice(1)
-        }
-
-        switch (type) {
-            case 'this':
-            case '(':
-                return match.slice(1, -1)
-            default:
-                return match
-        }
-    })
 
 type P<I, O> = (data: I) => O
 type PipeFns<T> = {
