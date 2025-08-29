@@ -23,15 +23,16 @@ export const withUniwind = (
         virtualModulesPossible: new Promise<void>(() => void 0),
         globalWatcher: null as FSWatcher | null,
         virtualModules: new Map<string, string>(),
-        scanner: new Scanner({
-            sources: [
-                {
-                    base: process.cwd(),
-                    pattern: '**/*',
-                    negated: false,
-                },
-            ],
-        }),
+        getCandidates: () =>
+            new Scanner({
+                sources: [
+                    {
+                        base: process.cwd(),
+                        pattern: '**/*',
+                        negated: false,
+                    },
+                ],
+            }).scan(),
     }
 
     config.resolver ??= {}
@@ -159,7 +160,7 @@ export const withUniwind = (
             return
         }
 
-        const newJS = await compileVirtualJS(uniwind.input, uniwind.scanner, platform)
+        const newJS = await compileVirtualJS(uniwind.input, uniwind.getCandidates, platform)
         const virtualPath = getVirtualPath(platform)
 
         if (uniwind.virtualModules.get(virtualPath) === newJS) {

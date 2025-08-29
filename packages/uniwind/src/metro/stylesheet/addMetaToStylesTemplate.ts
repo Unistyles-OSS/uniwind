@@ -18,12 +18,12 @@ export const addMetaToStylesTemplate = (styles: StylesTemplate, currentPlatform:
             }
 
             const stylesUsingVariables: Record<string, string> = {}
-            const inlineVariables: Array<[string, unknown]> = []
+            const inlineVariables: Array<[string, string]> = []
 
             const filteredEntries = entries
                 .filter(([property, value]) => {
                     if (property.startsWith('--')) {
-                        inlineVariables.push([property, value])
+                        inlineVariables.push([property, `() => ${typeof value === 'object' ? JSON.stringify(value) : value}`])
 
                         return false
                     }
@@ -31,7 +31,7 @@ export const addMetaToStylesTemplate = (styles: StylesTemplate, currentPlatform:
                     const stringifiedValue = JSON.stringify(value)
 
                     if (stringifiedValue.includes('this')) {
-                        stylesUsingVariables[className] = property
+                        stylesUsingVariables[property] = className
                     }
 
                     return true

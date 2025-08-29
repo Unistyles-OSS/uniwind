@@ -1,5 +1,4 @@
 import { compile } from '@tailwindcss/node'
-import { Scanner } from '@tailwindcss/oxide'
 import fs from 'fs'
 import { transform } from 'lightningcss'
 import path from 'path'
@@ -7,15 +6,14 @@ import { Processor } from './processor'
 import { createStylesheetTemplate, createVarsTemplate, serializeStylesheet } from './stylesheet'
 import { Platform } from './types'
 
-export const compileVirtualJS = async (input: string, scanner: Scanner, platform: Platform) => {
+export const compileVirtualJS = async (input: string, getCandidates: () => Array<string>, platform: Platform) => {
     const cssPath = path.join(process.cwd(), input)
     const css = fs.readFileSync(cssPath, 'utf8')
-    const candidates = scanner.scan()
     const compiler = await compile(css, {
         base: cssPath,
         onDependency: () => void 0,
     })
-    const tailwindCSS = compiler.build(candidates)
+    const tailwindCSS = compiler.build(getCandidates())
     const stylesheets = {}
 
     Processor.Shadow.registerShadowsFromCSS(tailwindCSS)

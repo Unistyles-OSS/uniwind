@@ -52,7 +52,7 @@ export class UniwindStoreBuilder {
     }
 
     resolveStyles(styles: Array<Style | undefined>) {
-        const result = {} as Record<string, unknown>
+        const result = {} as Record<string, any>
         const bestBreakpoints = {} as Record<string, number>
         const stylesUsingVariables = [] as Array<[string, string]>
         const inlineVariables = [] as Array<[string, () => unknown]>
@@ -94,17 +94,23 @@ export class UniwindStoreBuilder {
                 originalVars.push([varName, Object.getOwnPropertyDescriptor(this.stylesheets, varName)])
                 Object.defineProperty(this.stylesheets, varName, {
                     get: varValue,
+                    configurable: true,
                 })
             })
 
             stylesUsingVariables.forEach(([style, className]) => {
                 const allEntries = Object.fromEntries(this.stylesheets[className]!.entries)
+
                 result[style] = allEntries[style]
             })
 
             originalVars.forEach(([varName, descriptor]) => {
                 descriptor && Object.defineProperty(this.stylesheets, varName, descriptor)
             })
+        }
+
+        if (result.lineHeight !== undefined) {
+            result.lineHeight = result.lineHeight * (result.fontSize ?? 1)
         }
 
         return result

@@ -1,3 +1,4 @@
+/* eslint-disable prefer-template */
 import { isDefined, pipe, toCamelCase } from '../utils'
 import type { ProcessorBuilder } from './processor'
 
@@ -24,6 +25,20 @@ const cssToRNKeyMap = {
     backgroundSize: 'resizeMode',
 } as Record<string, string>
 
+type PositionValues = {
+    top: string
+    right: string
+    bottom: string
+    left: string
+}
+
+type CornerValues = {
+    topLeft: string
+    topRight: string
+    bottomLeft: string
+    bottomRight: string
+}
+
 const cssToRNMap: Record<string, (value: any) => unknown> = {
     ...Object.fromEntries(
         Object.entries(cssToRNKeyMap).map(([key, transformedKey]) => {
@@ -32,17 +47,6 @@ const cssToRNMap: Record<string, (value: any) => unknown> = {
             })]
         }),
     ),
-    opacity: (value: string | number) => {
-        if (typeof value === 'number') {
-            return {
-                opacity: value,
-            }
-        }
-
-        return {
-            opacity: Number(value.slice(0, -1)) / 100,
-        }
-    },
     transform: (value: string) => {
         const transforms = value.split(' ')
         const getTransform = (transformName: string) =>
@@ -147,11 +151,26 @@ const cssToRNMap: Record<string, (value: any) => unknown> = {
     },
     boxShadow: () => {
         return {
-            boxShadow:
-                '[this[`--tw-inset-shadow`], this[`--tw-inset-ring-shadow`], this[`--tw-ring-offset-shadow`], this[`--tw-ring-shadow`], this[`--tw-shadow)]',
+            boxShadow: '['
+                + [
+                    '--tw-inset-shadow',
+                    '--tw-inset-ring-shadow',
+                    '--tw-ring-offset-shadow',
+                    '--tw-ring-shadow',
+                    '--tw-shadow',
+                ]
+                    .map(key => `this[\`${key}\`]`)
+                    .join(', ')
+                + ']',
         }
     },
-    borderWidth: (value: { top: any; right: any; bottom: any; left: any }) => {
+    border: (value: string | PositionValues) => {
+        if (typeof value === 'string') {
+            return {
+                border: value,
+            }
+        }
+
         return {
             borderTopWidth: value.top,
             borderRightWidth: value.right,
@@ -159,7 +178,13 @@ const cssToRNMap: Record<string, (value: any) => unknown> = {
             borderLeftWidth: value.left,
         }
     },
-    borderRadius: (value: { topLeft: any; topRight: any; bottomLeft: any; bottomRight: any }) => {
+    borderRadius: (value: string | CornerValues) => {
+        if (typeof value === 'string') {
+            return {
+                borderRadius: value,
+            }
+        }
+
         return {
             borderTopLeftRadius: value.topLeft,
             borderTopRightRadius: value.topRight,

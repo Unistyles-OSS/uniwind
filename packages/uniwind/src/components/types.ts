@@ -1,4 +1,4 @@
-import { ColorScheme, Orientation, StyleDependency } from '../types'
+import { ColorScheme, Orientation } from '../types'
 
 export type Style = {
     entries: Array<[string, unknown]>
@@ -9,7 +9,6 @@ export type Style = {
     orientation: Orientation | null
     colorScheme: ColorScheme | null
     rtl: boolean | null
-    dependencies: Array<StyleDependency>
     native: boolean
 }
 

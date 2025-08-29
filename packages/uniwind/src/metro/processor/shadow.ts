@@ -1,7 +1,7 @@
 import { BoxShadow, transform } from 'lightningcss'
+import { Logger } from '../logger'
 import { DeclarationValues, ProcessMetaValues } from '../types'
 import { pipe, replaceParentheses } from '../utils'
-import { Logger } from './logger'
 import type { ProcessorBuilder } from './processor'
 
 type ShadowVar = {

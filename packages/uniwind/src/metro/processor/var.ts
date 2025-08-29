@@ -13,6 +13,6 @@ export class Var {
 
         const fallback = this.Processor.CSS.processValue(variable.fallback)
 
-        return `${value} ?? ${JSON.stringify(fallback)}`
+        return `${value} ?? ${fallback}`
     }
 }

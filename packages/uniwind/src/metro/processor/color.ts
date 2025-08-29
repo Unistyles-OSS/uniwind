@@ -1,6 +1,6 @@
 import { Color as ColorType, converter, formatRgb } from 'culori'
 import { CssColor } from 'lightningcss'
-import { Logger } from './logger'
+import { Logger } from '../logger'
 import type { ProcessorBuilder } from './processor'
 
 export class Color {

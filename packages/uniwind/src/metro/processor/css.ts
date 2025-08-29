@@ -1,6 +1,6 @@
 import { Declaration } from 'lightningcss'
+import { Logger } from '../logger'
 import { DeclarationValues, ProcessMetaValues } from '../types'
-import { Logger } from './logger'
 import type { ProcessorBuilder } from './processor'
 
 export class CSS {
@@ -91,9 +91,10 @@ export class CSS {
                     }, '')
                 case 'rgb':
                     return this.Processor.Color.processColor(declarationValue)
+                case 'delim':
+                    return ` ${declarationValue.value} `
                 case 'white-space':
                 case 'string':
-                case 'delim':
                 case 'ident':
                 case 'self-position':
                 case 'content-distribution':
@@ -138,8 +139,13 @@ export class CSS {
         }
 
         if (Array.isArray(declarationValue)) {
-            return declarationValue.reduce<string>((acc, value) => {
+            return declarationValue.reduce<string>((acc, value, index, array) => {
                 if (typeof value === 'object') {
+                    // Dimensions might be duplicated
+                    if (this.isDimension(value) && this.isDimension(array.at(index + 1))) {
+                        return acc
+                    }
+
                     return acc + this.processValue(value)
                 }
 
@@ -150,5 +156,9 @@ export class CSS {
         this.logger.error(`Unsupported value type - ${JSON.stringify(declarationValue)}`)
 
         return declarationValue
+    }
+
+    private isDimension(value: any): value is { type: 'dimension' } {
+        return typeof value === 'object' && 'type' in value && value.type === 'dimension'
     }
 }

@@ -1,6 +1,6 @@
 import './global.css'
-import { View } from 'react-native'
+import { Pressable, ScrollView, Text, TextInput, View } from 'react-native'
 
 export default function App() {
-    return <View className="min-sm:bg-red-500 shadow-red-500"></View>
+    return <View className="w-32 h-32 shadow-2xl" />
 }
