@@ -19,6 +19,16 @@ export class Color {
         }
 
         try {
+            if (color.type === 'rgb') {
+                return formatRgb({
+                    r: color.r / 255,
+                    g: color.g / 255,
+                    b: color.b / 255,
+                    alpha: color.alpha,
+                    mode: 'rgb',
+                })
+            }
+
             const result = this.toRgb({
                 mode: color.type,
                 ...color,
