@@ -148,14 +148,18 @@ export class CSS {
         }
 
         if (Array.isArray(declarationValue)) {
-            return declarationValue.reduce<string>((acc, value, index, array) => {
+            return declarationValue.reduce<string | number>((acc, value, index, array) => {
                 if (typeof value === 'object') {
                     // Dimensions might be duplicated
                     if (this.isDimension(value) && this.isDimension(array.at(index + 1))) {
                         return acc
                     }
 
-                    return acc + this.processValue(value)
+                    const result = this.processValue(value)
+
+                    return acc === '' && typeof result === 'number'
+                        ? result
+                        : acc + result
                 }
 
                 return acc + value

@@ -15,7 +15,7 @@ export class Units {
         if ('unit' in length) {
             switch (length.unit) {
                 case 'px':
-                    return length.value
+                    return this.replaceInfinity(length.value)
                 case 'vw':
                     return `rt.screen.width * ${length.value / 100}`
                 case 'vh':
@@ -46,5 +46,9 @@ export class Units {
         }
 
         return this.processLength(length)
+    }
+
+    replaceInfinity(value: any) {
+        return value === Infinity ? 99999 : value
     }
 }

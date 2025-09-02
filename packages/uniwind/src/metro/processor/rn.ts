@@ -164,10 +164,10 @@ const cssToRNMap: Record<string, (value: any) => unknown> = {
                 + ']',
         }
     },
-    border: (value: string | PositionValues) => {
+    borderWidth: (value: string | PositionValues) => {
         if (typeof value === 'string') {
             return {
-                border: value,
+                borderWidth: value,
             }
         }
 
