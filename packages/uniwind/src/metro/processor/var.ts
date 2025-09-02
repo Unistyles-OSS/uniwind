@@ -7,7 +7,7 @@ export class Var {
     processVar(variable: Variable): string {
         const value = `this[\`${variable.name.ident}\`]`
 
-        if (!variable.fallback) {
+        if (!variable.fallback || variable.fallback.length === 0) {
             return value
         }
 

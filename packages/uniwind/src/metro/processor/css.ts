@@ -40,7 +40,7 @@ export class CSS {
 
     processValue(declarationValue: DeclarationValues, meta = {} as ProcessMetaValues): any {
         if (meta.propertyName !== undefined && this.Processor.Shadow.isShadowKey(meta.propertyName)) {
-            return this.Processor.Shadow.processShadow(declarationValue, meta)
+            return this.Processor.Shadow.processShadow(declarationValue)
         }
 
         if (typeof declarationValue !== 'object') {
@@ -93,9 +93,14 @@ export class CSS {
                     return this.Processor.Color.processColor(declarationValue)
                 case 'delim':
                     return ` ${declarationValue.value} `
+                case 'ident':
+                    if (declarationValue.value === 'currentcolor') {
+                        return 'this["currentColor"]'
+                    }
+
+                    return declarationValue.value
                 case 'white-space':
                 case 'string':
-                case 'ident':
                 case 'self-position':
                 case 'content-distribution':
                 case 'content-position':

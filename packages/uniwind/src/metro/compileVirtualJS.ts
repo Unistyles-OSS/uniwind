@@ -16,8 +16,6 @@ export const compileVirtualJS = async (input: string, getCandidates: () => Array
     const tailwindCSS = compiler.build(getCandidates())
     const stylesheets = {}
 
-    Processor.Shadow.registerShadowsFromCSS(tailwindCSS)
-
     transform({
         filename: 'tailwind.css',
         code: Buffer.from(tailwindCSS),
