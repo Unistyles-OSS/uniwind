@@ -119,6 +119,10 @@ export class UniwindStoreBuilder {
             result.lineHeight = result.lineHeight * (result.fontSize ?? 1)
         }
 
+        if (result.boxShadow !== undefined) {
+            result.boxShadow = result.boxShadow.flat()
+        }
+
         return result
     }
 

@@ -1,4 +1,4 @@
-import { Color as ColorType, converter, formatRgb } from 'culori'
+import { Color as ColorType, converter, formatHex, formatHex8 } from 'culori'
 import { CssColor } from 'lightningcss'
 import { Logger } from '../logger'
 import type { ProcessorBuilder } from './processor'
@@ -6,7 +6,7 @@ import type { ProcessorBuilder } from './processor'
 export class Color {
     private toRgb = converter('rgb')
 
-    private readonly black = 'rgb(0,0,0)'
+    private readonly black = '#000000'
 
     private readonly logger = new Logger('Color')
 
@@ -20,7 +20,7 @@ export class Color {
 
         try {
             if (color.type === 'rgb') {
-                return formatRgb({
+                return this.format({
                     r: color.r / 255,
                     g: color.g / 255,
                     b: color.b / 255,
@@ -34,11 +34,19 @@ export class Color {
                 ...color,
             } as ColorType)
 
-            return formatRgb(result)
+            return this.format(result)
         } catch {
             this.logger.error(`Failed to convert color ${JSON.stringify(color)}`)
 
             return this.black
         }
+    }
+
+    private format(color: ColorType) {
+        if (color.alpha === 1) {
+            return formatHex(color)
+        }
+
+        return formatHex8(color)
     }
 }

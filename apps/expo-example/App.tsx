@@ -4,7 +4,7 @@ import { Pressable, ScrollView, Text, TextInput, View } from 'react-native'
 
 const TailwindTestUI = () => {
     return (
-        <ScrollView className="p-4 bg-gray-100">
+        <ScrollView className="px-4 py-20 bg-gray-100">
             {/* Background Colors */}
             <View className="mb-6">
                 <Text className="text-xl font-bold mb-2">Background Colors</Text>

@@ -1,6 +1,6 @@
 import { Logger } from '../logger'
 import { DeclarationValues } from '../types'
-import { pipe } from '../utils'
+import { isDefined, pipe } from '../utils'
 import type { ProcessorBuilder } from './processor'
 
 type ShadowType = {
@@ -34,36 +34,41 @@ export class Shadow {
             return ''
         }
 
-        const tokens = pipe(result)(
+        const shadows = pipe(result)(
             x => x.replace(/\](?!\s)/g, '] '),
-            x => x.replace(/,\s/g, ','),
             x => x.trim(),
-            x => this.smartSplit(x),
-            x => x.filter(token => token.length > 0),
+            x => x.split(','),
         )
 
-        const inset = tokens.find(token => token.includes('inset'))
-        const color = tokens.find(token => token.startsWith('rgba') || token.toLowerCase().includes('color'))
-        const [offsetX, offsetY, blurRadius, spreadDistance] = tokens
-            .filter(token => token !== inset && token !== color)
-            .map(x => {
-                const numeric = Number(x)
+        return shadows.map(shadow => {
+            const tokens = pipe(shadow)(
+                x => this.smartSplit(x),
+                x => x.filter(token => token.length > 0),
+            )
 
-                return isNaN(numeric) ? x : numeric
-            })
+            const inset = tokens.find(token => token.includes('inset'))
+            const color = tokens.find(token => token.startsWith('#') || token.toLowerCase().includes('color'))
+            const [offsetX, offsetY, blurRadius, spreadDistance] = tokens
+                .filter(token => token !== inset && token !== color)
+                .map(x => {
+                    const numeric = Number(x)
 
-        if (this.isEmptyShadow({ offsetX, offsetY, blurRadius, spreadDistance })) {
-            return null
-        }
+                    return isNaN(numeric) ? x : numeric
+                })
 
-        return {
-            offsetX,
-            offsetY,
-            color,
-            blurRadius,
-            spreadDistance,
-            inset: inset?.trim().toLowerCase() === 'inset' ? true : inset,
-        }
+            if (this.isEmptyShadow({ offsetX, offsetY, blurRadius, spreadDistance })) {
+                return null
+            }
+
+            return {
+                offsetX,
+                offsetY,
+                color,
+                blurRadius,
+                spreadDistance,
+                inset: inset?.trim().toLowerCase() === 'inset' ? true : inset,
+            }
+        }).filter(isDefined)
     }
 
     private isEmptyShadow(shadow: ShadowType) {

@@ -12,7 +12,7 @@ const isJSExpression = (value: string) =>
 
 const toJSExpression = (value: string): string => {
     if (!isJSExpression(value)) {
-        return `"${value}"`
+        return `"${value.trim()}"`
     }
 
     if (!value.includes('() =>')) {
@@ -74,7 +74,7 @@ const serialize = (value: any): string => {
 
 export const serializeStylesheet = (stylesheet: Stylesheet) => {
     const hotReloadFN = 'globalThis.__uniwind__hot_reload?.()'
-    const currentColor = `get currentColor() { return rt.colorScheme === 'dark' ? 'rgb(255,255,255)' : 'rgb(0,0,0)' },`
+    const currentColor = `get currentColor() { return rt.colorScheme === 'dark' ? '#ffffff' : '#000000' },`
 
     const serializedStylesheet = Object.entries(stylesheet).map(([key, value]) => {
         const stringifiedValue = serialize(value)
