@@ -94,6 +94,10 @@ export class CSS {
                 case 'delim':
                     return ` ${declarationValue.value} `
                 case 'ident':
+                    if (declarationValue.value === 'inset') {
+                        return true
+                    }
+
                     if (declarationValue.value === 'currentcolor') {
                         return 'this["currentColor"]'
                     }
