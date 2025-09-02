@@ -105,7 +105,13 @@ export class UniwindStoreBuilder {
             })
 
             originalVars.forEach(([varName, descriptor]) => {
-                descriptor && Object.defineProperty(this.stylesheets, varName, descriptor)
+                if (descriptor) {
+                    Object.defineProperty(this.stylesheets, varName, descriptor)
+
+                    return
+                }
+
+                delete this.stylesheets[varName]
             })
         }
 
