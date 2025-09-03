@@ -310,7 +310,16 @@ export class CSS {
         }
 
         if ('angle' in declarationValue) {
-            return
+            const angles = pipe([
+                ['rotateX', declarationValue.x * declarationValue.angle.value],
+                ['rotateY', declarationValue.y * declarationValue.angle.value],
+                ['rotateZ', declarationValue.z * declarationValue.angle.value],
+            ])(
+                x => x.filter(([, value]) => value !== 0),
+                x => x.map(([key, value]) => ({ [String(key)]: `${value}${declarationValue.angle.type}` })),
+            )
+
+            return angles
         }
 
         if (this.isOverflow(declarationValue)) {
@@ -343,9 +352,5 @@ export class CSS {
 
     private isOverflow(value: any): value is { x: OverflowKeyword; y: OverflowKeyword } {
         return typeof value === 'object' && 'x' in value && ['hidden', 'visible'].includes(value.x)
-    }
-
-    private isWhitespace(value: any): value is { type: 'whitespace' } {
-        return typeof value === 'object' && 'type' in value && value.type === 'whitespace'
     }
 }

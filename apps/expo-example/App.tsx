@@ -4,7 +4,7 @@ import { Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'reac
 
 const TailwindTestPage = () => {
     return (
-        <ScrollView className="flex-1 bg-gray-100">
+        <ScrollView className="flex-1 bg-gray-100 pt-10">
             {/* Layout & Flexbox */}
             <View className="p-4">
                 <Text className="text-2xl font-bold mb-4 text-gray-800">Layout & Flexbox</Text>
@@ -447,6 +447,197 @@ const TailwindTestPage = () => {
                     </View>
                     <View className="overflow-visible w-48 h-16 bg-gray-200 rounded mb-4">
                         <Text>overflow-visible: This text might overflow the container boundaries.</Text>
+                    </View>
+                </View>
+            </View>
+
+            {/* Shadows */}
+            <View className="px-4">
+                <Text className="text-2xl font-bold mb-4 text-gray-800">Shadows</Text>
+
+                <View className="bg-white p-4 rounded-lg mb-4">
+                    <View className="shadow-sm bg-white p-4 rounded mb-4 mx-2">
+                        <Text className="text-center">shadow-sm</Text>
+                    </View>
+                    <View className="shadow bg-white p-4 rounded mb-4 mx-2">
+                        <Text className="text-center">shadow (default)</Text>
+                    </View>
+                    <View className="shadow-md bg-white p-4 rounded mb-4 mx-2">
+                        <Text className="text-center">shadow-md</Text>
+                    </View>
+                    <View className="shadow-lg bg-white p-4 rounded mb-4 mx-2">
+                        <Text className="text-center">shadow-lg</Text>
+                    </View>
+                    <View className="shadow-xl bg-white p-4 rounded mb-4 mx-2">
+                        <Text className="text-center">shadow-xl</Text>
+                    </View>
+                    <View className="shadow-2xl bg-white p-4 rounded mb-4 mx-2">
+                        <Text className="text-center">shadow-2xl</Text>
+                    </View>
+                    <View className="shadow-none bg-gray-200 p-4 rounded mb-4 mx-2">
+                        <Text className="text-center">shadow-none</Text>
+                    </View>
+                </View>
+
+                {/* Colored Shadows */}
+                <View className="bg-white p-4 rounded-lg mb-4">
+                    <Text className="text-lg font-semibold mb-4 text-gray-700">Colored Shadows</Text>
+                    <View className="shadow-lg shadow-red-500/50 bg-white p-4 rounded mb-4 mx-2">
+                        <Text className="text-center">shadow-lg shadow-red-500/50</Text>
+                    </View>
+                    <View className="shadow-lg shadow-blue-500/50 bg-white p-4 rounded mb-4 mx-2">
+                        <Text className="text-center">shadow-lg shadow-blue-500/50</Text>
+                    </View>
+                    <View className="shadow-lg shadow-green-500/50 bg-white p-4 rounded mb-4 mx-2">
+                        <Text className="text-center">shadow-lg shadow-green-500/50</Text>
+                    </View>
+                    <View className="shadow-lg shadow-purple-500/50 bg-white p-4 rounded mb-4 mx-2">
+                        <Text className="text-center">shadow-lg shadow-purple-500/50</Text>
+                    </View>
+                    <View className="shadow-xl shadow-black/25 bg-white p-4 rounded mb-4 mx-2">
+                        <Text className="text-center">shadow-xl shadow-black/25</Text>
+                    </View>
+                </View>
+
+                {/* Shadow with different elements */}
+                <View className="bg-white p-4 rounded-lg mb-4">
+                    <Text className="text-lg font-semibold mb-4 text-gray-700">Shadows on Different Elements</Text>
+
+                    <TouchableOpacity className="shadow-lg bg-blue-500 p-4 rounded mb-4">
+                        <Text className="text-white text-center font-semibold">Button with shadow-lg</Text>
+                    </TouchableOpacity>
+
+                    <View className="shadow-xl bg-white border border-gray-200 p-4 rounded-lg mb-4">
+                        <Text className="text-gray-800">Card with shadow-xl and border</Text>
+                        <Text className="text-gray-600 text-sm mt-2">This looks like a material design card</Text>
+                    </View>
+                </View>
+            </View>
+
+            {/* Ring System */}
+            <View className="px-4">
+                <Text className="text-2xl font-bold mb-4 text-gray-800">Ring System</Text>
+
+                <View className="bg-white p-4 rounded-lg mb-4">
+                    <Text className="text-lg font-semibold mb-4 text-gray-700">Ring Widths</Text>
+                    <View className="ring-1 ring-gray-300 bg-white p-4 rounded mb-4">
+                        <Text className="text-center">ring-1 ring-gray-300</Text>
+                    </View>
+                    <View className="ring-2 ring-gray-400 bg-white p-4 rounded mb-4">
+                        <Text className="text-center">ring-2 ring-gray-400</Text>
+                    </View>
+                    <View className="ring-4 ring-gray-500 bg-white p-4 rounded mb-4">
+                        <Text className="text-center">ring-4 ring-gray-500</Text>
+                    </View>
+                    <View className="ring-8 ring-gray-600 bg-white p-4 rounded mb-4">
+                        <Text className="text-center">ring-8 ring-gray-600</Text>
+                    </View>
+                    <View className="ring ring-gray-500 bg-white p-4 rounded mb-4">
+                        <Text className="text-center">ring (default) ring-gray-500</Text>
+                    </View>
+                </View>
+
+                <View className="bg-white p-4 rounded-lg mb-4">
+                    <Text className="text-lg font-semibold mb-4 text-gray-700">Ring Colors</Text>
+                    <View className="ring-4 ring-red-500 bg-white p-4 rounded mb-4">
+                        <Text className="text-center">ring-4 ring-red-500</Text>
+                    </View>
+                    <View className="ring-4 ring-blue-500 bg-white p-4 rounded mb-4">
+                        <Text className="text-center">ring-4 ring-blue-500</Text>
+                    </View>
+                    <View className="ring-4 ring-green-500 bg-white p-4 rounded mb-4">
+                        <Text className="text-center">ring-4 ring-green-500</Text>
+                    </View>
+                    <View className="ring-4 ring-yellow-500 bg-white p-4 rounded mb-4">
+                        <Text className="text-center">ring-4 ring-yellow-500</Text>
+                    </View>
+                    <View className="ring-4 ring-purple-500 bg-white p-4 rounded mb-4">
+                        <Text className="text-center">ring-4 ring-purple-500</Text>
+                    </View>
+                    <View className="ring-4 ring-pink-500 bg-white p-4 rounded mb-4">
+                        <Text className="text-center">ring-4 ring-pink-500</Text>
+                    </View>
+                </View>
+
+                <View className="bg-white p-4 rounded-lg mb-4">
+                    <Text className="text-lg font-semibold mb-4 text-gray-700">Ring Opacity</Text>
+                    <View className="ring-4 ring-blue-500 ring-opacity-100 bg-white p-4 rounded mb-4">
+                        <Text className="text-center">ring-opacity-100</Text>
+                    </View>
+                    <View className="ring-4 ring-blue-500 ring-opacity-75 bg-white p-4 rounded mb-4">
+                        <Text className="text-center">ring-opacity-75</Text>
+                    </View>
+                    <View className="ring-4 ring-blue-500 ring-opacity-50 bg-white p-4 rounded mb-4">
+                        <Text className="text-center">ring-opacity-50</Text>
+                    </View>
+                    <View className="ring-4 ring-blue-500 ring-opacity-25 bg-white p-4 rounded mb-4">
+                        <Text className="text-center">ring-opacity-25</Text>
+                    </View>
+                </View>
+
+                <View className="bg-white p-4 rounded-lg mb-4">
+                    <Text className="text-lg font-semibold mb-4 text-gray-700">Ring Offset</Text>
+                    <View className="ring-4 ring-blue-500 ring-offset-1 ring-offset-white bg-white p-4 rounded mb-4">
+                        <Text className="text-center">ring-offset-1 ring-offset-white</Text>
+                    </View>
+                    <View className="ring-4 ring-blue-500 ring-offset-2 ring-offset-white bg-white p-4 rounded mb-4">
+                        <Text className="text-center">ring-offset-2 ring-offset-white</Text>
+                    </View>
+                    <View className="ring-4 ring-blue-500 ring-offset-4 ring-offset-white bg-white p-4 rounded mb-4">
+                        <Text className="text-center">ring-offset-4 ring-offset-white</Text>
+                    </View>
+                    <View className="ring-4 ring-blue-500 ring-offset-8 ring-offset-white bg-white p-4 rounded mb-4">
+                        <Text className="text-center">ring-offset-8 ring-offset-white</Text>
+                    </View>
+                </View>
+
+                <View className="bg-gray-100 p-4 rounded-lg mb-4">
+                    <Text className="text-lg font-semibold mb-4 text-gray-700">Ring Offset Colors</Text>
+                    <View className="ring-4 ring-blue-500 ring-offset-4 ring-offset-gray-100 bg-white p-4 rounded mb-4">
+                        <Text className="text-center">ring-offset-gray-100</Text>
+                    </View>
+                    <View className="ring-4 ring-green-500 ring-offset-4 ring-offset-red-200 bg-white p-4 rounded mb-4">
+                        <Text className="text-center">ring-offset-red-200</Text>
+                    </View>
+                    <View className="ring-4 ring-purple-500 ring-offset-4 ring-offset-yellow-200 bg-white p-4 rounded mb-4">
+                        <Text className="text-center">ring-offset-yellow-200</Text>
+                    </View>
+                </View>
+
+                {/* Ring on Interactive Elements */}
+                <View className="bg-white p-4 rounded-lg mb-4">
+                    <Text className="text-lg font-semibold mb-4 text-gray-700">Ring on Interactive Elements</Text>
+
+                    <TouchableOpacity className="ring-2 ring-blue-500 ring-offset-2 ring-offset-white bg-blue-500 p-4 rounded mb-4">
+                        <Text className="text-white text-center font-semibold">Button with Ring</Text>
+                    </TouchableOpacity>
+
+                    <TextInput
+                        className="ring-2 ring-purple-500 ring-offset-1 ring-offset-white border-0 p-3 rounded mb-4"
+                        placeholder="Input with ring focus state"
+                    />
+
+                    <TouchableOpacity className="ring-4 ring-green-500 ring-opacity-50 bg-white border-2 border-green-500 p-4 rounded-lg mb-4">
+                        <Text className="text-green-500 text-center font-semibold">Outlined Button with Ring</Text>
+                    </TouchableOpacity>
+
+                    <View className="ring-2 ring-indigo-500 ring-offset-2 ring-offset-white bg-indigo-50 p-4 rounded-lg mb-4">
+                        <Text className="text-indigo-800 font-medium">Card with Ring Border</Text>
+                        <Text className="text-indigo-600 text-sm mt-1">This creates a nice focus or selection state</Text>
+                    </View>
+                </View>
+
+                {/* Ring Inset */}
+                <View className="bg-white p-4 rounded-lg mb-4">
+                    <Text className="text-lg font-semibold mb-4 text-gray-700">Ring Inset</Text>
+                    <View className="ring-4 ring-inset ring-blue-500 bg-blue-100 p-4 rounded mb-4">
+                        <Text className="text-center text-blue-800">ring-inset ring-blue-500</Text>
+                    </View>
+                    <View className="ring-4 ring-inset ring-red-500 bg-red-100 p-4 rounded mb-4">
+                        <Text className="text-center text-red-800">ring-inset ring-red-500</Text>
+                    </View>
+                    <View className="ring-8 ring-inset ring-green-500 bg-green-100 p-4 rounded mb-4">
+                        <Text className="text-center text-green-800">ring-8 ring-inset ring-green-500</Text>
                     </View>
                 </View>
             </View>

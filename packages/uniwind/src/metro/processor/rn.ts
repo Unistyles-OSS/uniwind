@@ -47,7 +47,13 @@ const cssToRNMap: Record<string, (value: any) => unknown> = {
             })]
         }),
     ),
-    rotate: (value: string) => {
+    rotate: (value: any) => {
+        if (Array.isArray(value)) {
+            return {
+                transform: value,
+            }
+        }
+
         return {
             transform: [
                 {
@@ -179,6 +185,25 @@ const cssToRNMap: Record<string, (value: any) => unknown> = {
             overflow: value,
         }
     },
+    '--tw-scale-x': (value: string) => {
+        return {
+            '--tw-scale-x': percentageToFloat(value),
+        }
+    },
+    '--tw-scale-y': (value: string) => {
+        return {
+            '--tw-scale-y': percentageToFloat(value),
+        }
+    },
+    '--tw-scale-z': (value: string) => {
+        return {
+            '--tw-scale-z': percentageToFloat(value),
+        }
+    },
+}
+
+const percentageToFloat = (value: string) => {
+    return Number(value.replace('%', '')) / 100
 }
 
 export class RN {
@@ -191,13 +216,11 @@ export class RN {
             )
             : value
 
-        if (property.startsWith('--')) {
-            return [[property, parsedValue]] as [[string, any]]
-        }
+        const transformedProperty = property.startsWith('--')
+            ? property
+            : toCamelCase(property)
 
-        const camelizedProperty = toCamelCase(property)
-
-        const rn = cssToRNMap[camelizedProperty]?.(parsedValue) ?? { [camelizedProperty]: parsedValue }
+        const rn = cssToRNMap[transformedProperty]?.(parsedValue) ?? { [transformedProperty]: parsedValue }
 
         return Object.entries(rn) as Array<[string, any]>
     }
