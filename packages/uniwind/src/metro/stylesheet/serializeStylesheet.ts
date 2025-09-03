@@ -67,7 +67,7 @@ const serialize = (value: any): string => {
             ].join('')
         }
         case 'string':
-            return toJSExpression(value)
+            return toJSExpression(value.trim())
         default:
             return String(value)
     }
