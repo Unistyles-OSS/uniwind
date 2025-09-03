@@ -137,7 +137,7 @@ const TailwindTestPage = () => {
                     <Text className="uppercase mb-2">uppercase: uppercase text</Text>
                     <Text className="lowercase mb-2">LOWERCASE: lowercase text</Text>
                     <Text className="capitalize mb-2">capitalize: capitalize text</Text>
-                    <Text className="normal-case mb-2">normal-case: Normal Case Text</Text>
+                    <Text className="normal-case mb-2">normal-case: Normal case text</Text>
                 </View>
 
                 <View className="bg-white p-4 rounded-lg mb-4">
