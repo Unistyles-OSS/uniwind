@@ -1,5 +1,5 @@
 /* eslint-disable prefer-template */
-import { isDefined, toCamelCase } from '../utils'
+import { isDefined, pipe, toCamelCase } from '../utils'
 import type { ProcessorBuilder } from './processor'
 
 const cssToRNKeyMap = {
@@ -57,10 +57,25 @@ const cssToRNMap: Record<string, (value: any) => unknown> = {
         }
     },
     scale: (value: string) => {
+        const [scaleX, scaleY] = value.split(' ')
+
+        if (scaleY === undefined) {
+            return {
+                transform: [
+                    {
+                        scale: scaleX,
+                    },
+                ],
+            }
+        }
+
         return {
             transform: [
                 {
-                    scale: value,
+                    scaleX,
+                },
+                {
+                    scaleY,
                 },
             ],
         }
@@ -155,19 +170,34 @@ const cssToRNMap: Record<string, (value: any) => unknown> = {
             transform: value.flat(),
         }
     },
+    overflow: (value: any) => {
+        if (typeof value === 'object') {
+            return value
+        }
+
+        return {
+            overflow: value,
+        }
+    },
 }
 
 export class RN {
     constructor(private readonly Processor: ProcessorBuilder) {}
 
     cssToRN(property: string, value: any) {
+        const parsedValue = typeof value === 'string'
+            ? pipe(value)(
+                x => x.replace(/]this/g, '] this'),
+            )
+            : value
+
         if (property.startsWith('--')) {
-            return [[property, value]] as [[string, any]]
+            return [[property, parsedValue]] as [[string, any]]
         }
 
         const camelizedProperty = toCamelCase(property)
 
-        const rn = cssToRNMap[camelizedProperty]?.(value) ?? { [camelizedProperty]: value }
+        const rn = cssToRNMap[camelizedProperty]?.(parsedValue) ?? { [camelizedProperty]: parsedValue }
 
         return Object.entries(rn) as Array<[string, any]>
     }

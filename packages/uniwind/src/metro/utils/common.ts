@@ -16,3 +16,15 @@ type PipeFns<T> = {
 }
 
 export const pipe = <T>(data: T) => ((...fns: Array<any>) => fns.reduce((acc, fn) => fn(acc), data)) as PipeFns<T>
+
+export const isNumber = (data: any) => {
+    if (typeof data === 'number') {
+        return true
+    }
+
+    if (typeof data === 'string' && data !== '') {
+        return !isNaN(Number(data))
+    }
+
+    return false
+}

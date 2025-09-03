@@ -1,4 +1,5 @@
 import { Logger } from '../logger'
+import { isNumber } from '../utils'
 
 type Stylesheet = Record<string, any>
 
@@ -19,7 +20,7 @@ const toJSExpression = (value: string): string => {
         return value
             .split(' ')
             .map(token => {
-                if (isJSExpression(token) || /[-+/*?]/.test(token) || !isNaN(Number(token))) {
+                if (isJSExpression(token) || /[-+/*?]/.test(token) || isNumber(token)) {
                     return token
                 }
 
@@ -77,7 +78,9 @@ export const serializeStylesheet = (stylesheet: Stylesheet) => {
     const currentColor = `get currentColor() { return rt.colorScheme === 'dark' ? '#ffffff' : '#000000' },`
 
     const serializedStylesheet = Object.entries(stylesheet).map(([key, value]) => {
-        const stringifiedValue = serialize(value)
+        const stringifiedValue = isNumber(value)
+            ? String(value)
+            : serialize(value)
 
         if (stringifiedValue.includes('this')) {
             return `get "${key}"() { return ${stringifiedValue} }`

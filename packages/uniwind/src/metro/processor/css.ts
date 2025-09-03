@@ -1,4 +1,4 @@
-import { Declaration } from 'lightningcss'
+import { Declaration, OverflowKeyword } from 'lightningcss'
 import { Logger } from '../logger'
 import { DeclarationValues, ProcessMetaValues } from '../types'
 import { pipe } from '../utils'
@@ -213,6 +213,8 @@ export class CSS {
                     return `${declarationValue.value}s`
                 case 'milliseconds':
                     return `${declarationValue.value}ms`
+                case 'pair':
+                    return declarationValue.inside.type
                 case 'white-space':
                 case 'string':
                 case 'self-position':
@@ -274,10 +276,12 @@ export class CSS {
                         return acc
                     }, [])
                 default:
-                    return declarationValue.reduce<any>((acc, value, index, array) => {
+                    return declarationValue.reduce<string | number>((acc, value, index, array) => {
                         if (typeof value === 'object') {
+                            const nextValue = array.at(index + 1)
+
                             // Dimensions might be duplicated
-                            if (this.isDimension(value) && this.isDimension(array.at(index + 1))) {
+                            if (this.isDimension(value) && this.isDimension(nextValue)) {
                                 return acc
                             }
 
@@ -301,12 +305,47 @@ export class CSS {
             return `${property},`
         }
 
-        this.logger.error(`Unsupported value type - ${JSON.stringify(declarationValue)}`)
+        if ('case' in declarationValue) {
+            return declarationValue.case
+        }
+
+        if ('angle' in declarationValue) {
+            return
+        }
+
+        if (this.isOverflow(declarationValue)) {
+            if (declarationValue.x === declarationValue.y) {
+                return {
+                    overflow: declarationValue.x,
+                }
+            }
+
+            return {
+                overflowX: declarationValue.x,
+                overflowY: declarationValue.y,
+            }
+        }
+
+        this.logger.error(
+            [
+                `Unsupported value ${JSON.stringify(declarationValue)}`,
+                meta.propertyName !== undefined ? `for property ${meta.propertyName}` : null,
+                meta.className !== undefined ? `for className ${meta.className}` : null,
+            ].filter(Boolean).join(' '),
+        )
 
         return declarationValue
     }
 
     private isDimension(value: any): value is { type: 'dimension' } {
         return typeof value === 'object' && 'type' in value && value.type === 'dimension'
+    }
+
+    private isOverflow(value: any): value is { x: OverflowKeyword; y: OverflowKeyword } {
+        return typeof value === 'object' && 'x' in value && ['hidden', 'visible'].includes(value.x)
+    }
+
+    private isWhitespace(value: any): value is { type: 'whitespace' } {
+        return typeof value === 'object' && 'type' in value && value.type === 'whitespace'
     }
 }

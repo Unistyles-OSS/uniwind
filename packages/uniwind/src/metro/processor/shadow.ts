@@ -1,6 +1,6 @@
 import { Logger } from '../logger'
 import { DeclarationValues } from '../types'
-import { isDefined, pipe } from '../utils'
+import { isDefined, isNumber, pipe } from '../utils'
 import type { ProcessorBuilder } from './processor'
 
 type ShadowType = {
@@ -50,11 +50,7 @@ export class Shadow {
             const color = tokens.find(token => token.startsWith('#') || token.toLowerCase().includes('color'))
             const [offsetX, offsetY, blurRadius, spreadDistance] = tokens
                 .filter(token => token !== inset && token !== color)
-                .map(x => {
-                    const numeric = Number(x)
-
-                    return isNaN(numeric) ? x : numeric
-                })
+                .map(x => isNumber(x) ? Number(x) : x)
 
             if (this.isEmptyShadow({ offsetX, offsetY, blurRadius, spreadDistance })) {
                 return null
