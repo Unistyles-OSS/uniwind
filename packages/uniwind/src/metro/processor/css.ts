@@ -230,6 +230,8 @@ export class CSS {
                     return `${declarationValue.value}ms`
                 case 'pair':
                     return declarationValue.inside.type
+                case 'currentcolor':
+                    return 'this["currentColor"]'
                 case 'white-space':
                 case 'string':
                 case 'self-position':
