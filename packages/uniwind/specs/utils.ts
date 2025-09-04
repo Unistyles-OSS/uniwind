@@ -43,3 +43,5 @@ beforeEach(() => {
 afterEach(() => {
     delete globalThis.__uniwind__computeStylesheet
 })
+
+export const twSize = (size: number) => size * 4

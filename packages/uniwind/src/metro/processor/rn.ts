@@ -16,12 +16,6 @@ const cssToRNKeyMap = {
     borderTopLeftRadius: 'borderTopStartRadius',
     borderInlineEndWidth: 'borderEndWidth',
     borderInlineStartWidth: 'borderStartWidth',
-    right: 'end',
-    left: 'start',
-    marginRight: 'marginEnd',
-    marginLeft: 'marginStart',
-    paddingRight: 'paddingEnd',
-    paddingLeft: 'paddingStart',
     backgroundSize: 'resizeMode',
 } as Record<string, string>
 

@@ -10,8 +10,8 @@ export const UniwindRuntimeMock = {
     rem: 16,
     rtl: false,
     insets: {
-        top: 0,
-        left: 0,
+        top: 20,
+        left: 10,
         bottom: 0,
         right: 0,
     },

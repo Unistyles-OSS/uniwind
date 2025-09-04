@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test'
-import { getStylesFromCandidates } from './utils'
+import { getStylesFromCandidates } from '../utils'
 
 describe('Converts tailwind colors to hex', () => {
-    test('tailwind built-in colors', async () => {
+    test('Tailwind built-in', async () => {
         const styles = await getStylesFromCandidates(
             'bg-red-500',
             'border-blue-500',
@@ -18,7 +18,7 @@ describe('Converts tailwind colors to hex', () => {
         expect(styles['bg-current']).toHaveProperty('backgroundColor', '#000000')
     })
 
-    test('custom colors', async () => {
+    test('Custom colors', async () => {
         const styles = await getStylesFromCandidates(
             'bg-[#ff0000]',
             'bg-[#ff000080]',
