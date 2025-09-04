@@ -566,22 +566,6 @@ const TailwindTestPage = () => {
                 </View>
 
                 <View className="bg-white p-4 rounded-lg mb-4">
-                    <Text className="text-lg font-semibold mb-4 text-gray-700">Ring Opacity</Text>
-                    <View className="ring-4 ring-blue-500 ring-opacity-100 bg-white p-4 rounded mb-4">
-                        <Text className="text-center">ring-opacity-100</Text>
-                    </View>
-                    <View className="ring-4 ring-blue-500 ring-opacity-75 bg-white p-4 rounded mb-4">
-                        <Text className="text-center">ring-opacity-75</Text>
-                    </View>
-                    <View className="ring-4 ring-blue-500 ring-opacity-50 bg-white p-4 rounded mb-4">
-                        <Text className="text-center">ring-opacity-50</Text>
-                    </View>
-                    <View className="ring-4 ring-blue-500 ring-opacity-25 bg-white p-4 rounded mb-4">
-                        <Text className="text-center">ring-opacity-25</Text>
-                    </View>
-                </View>
-
-                <View className="bg-white p-4 rounded-lg mb-4">
                     <Text className="text-lg font-semibold mb-4 text-gray-700">Ring Offset</Text>
                     <View className="ring-4 ring-blue-500 ring-offset-1 ring-offset-white bg-white p-4 rounded mb-4">
                         <Text className="text-center">ring-offset-1 ring-offset-white</Text>
