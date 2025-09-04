@@ -116,7 +116,7 @@ export class UniwindStoreBuilder {
         }
 
         if (result.lineHeight !== undefined) {
-            result.lineHeight = result.lineHeight * (result.fontSize ?? 1)
+            result.lineHeight = result.lineHeight * (result.fontSize ?? this.runtime.rem)
         }
 
         if (result.boxShadow !== undefined) {
