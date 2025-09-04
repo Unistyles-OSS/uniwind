@@ -23,6 +23,7 @@ export default [
             'build.config.ts',
             'types.d.ts',
             'dist',
+            'specs',
         ],
     },
 ]

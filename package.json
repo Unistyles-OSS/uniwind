@@ -10,7 +10,8 @@
         "web": "turbo web",
         "start": "turbo start",
         "lint": "turbo lint",
-        "precommit": "turbo precommit"
+        "precommit": "turbo precommit",
+        "test": "turbo test"
     },
     "workspaces": [
         "packages/*",
