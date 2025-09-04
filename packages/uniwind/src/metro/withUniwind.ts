@@ -7,7 +7,7 @@ import { DeepMutable, ExtendedBundler, ExtendedFileSystem, Haste, Platform, Uniw
 
 const getVirtualPath = (platform: string) => `${platform}.uniwind.js`
 
-const platforms = [Platform.iOS]
+const platforms = [Platform.iOS, Platform.Android]
 
 export const withUniwind = (
     config: DeepMutable<MetroConfig>,

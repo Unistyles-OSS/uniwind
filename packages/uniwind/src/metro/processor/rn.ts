@@ -210,6 +210,7 @@ export class RN {
     constructor(private readonly Processor: ProcessorBuilder) {}
 
     cssToRN(property: string, value: any) {
+        // Sometimes lightningcss doesn't include whitespace between css variables
         const parsedValue = typeof value === 'string'
             ? pipe(value)(
                 x => x.replace(/]this/g, '] this'),
