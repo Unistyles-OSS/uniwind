@@ -79,7 +79,13 @@ export class UniwindStoreBuilder {
                         stylesUsingVariables.push([property, style.stylesUsingVariables[property]])
                     }
 
-                    result[property] = value
+                    if (property === 'transform' && Array.isArray(value)) {
+                        result[property] = result[property] ?? []
+                        result[property].push(...value)
+                    } else {
+                        result[property] = value
+                    }
+
                     bestBreakpoints[property] = style.colorScheme !== null || style.orientation !== null || style.rtl !== null || style.native
                         ? Infinity
                         : style.minWidth
@@ -98,10 +104,15 @@ export class UniwindStoreBuilder {
                 })
             })
 
-            stylesUsingVariables.forEach(([style, className]) => {
+            stylesUsingVariables.forEach(([property, className]) => {
                 const allEntries = Object.fromEntries(this.stylesheets[className]!.entries)
+                const value = allEntries[property]
 
-                result[style] = allEntries[style]
+                if (property === 'transform' && Array.isArray(value)) {
+                    result[property].push(...value)
+                } else {
+                    result[property] = value
+                }
             })
 
             originalVars.forEach(([varName, descriptor]) => {
@@ -121,6 +132,10 @@ export class UniwindStoreBuilder {
 
         if (result.boxShadow !== undefined) {
             result.boxShadow = result.boxShadow.flat()
+        }
+
+        if (result.transform !== undefined) {
+            result.transform = result.transform.filter(Boolean)
         }
 
         return result

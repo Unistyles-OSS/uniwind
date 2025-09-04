@@ -415,6 +415,12 @@ const TailwindTestPage = () => {
                         <Text className="text-white text-center">translate-x-4 translate-y-4</Text>
                     </View>
                 </View>
+
+                <View className="bg-white p-4 rounded-lg mb-4">
+                    <View className="transform translate-10 rotate-12 scale-125 bg-sky-900 p-4 rounded mb-4 w-32">
+                        <Text className="text-white text-center">translate-10 rotate-12 scale-125</Text>
+                    </View>
+                </View>
             </View>
 
             {/* Images */}
