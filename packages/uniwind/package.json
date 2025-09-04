@@ -8,7 +8,7 @@
     "type": "module",
     "repository": "https://github.com/Unistyles-OSS/uniwind",
     "scripts": {
-        "precommit": "bun lint && bun test",
+        "precommit": "bun lint",
         "build": "unbuild && bun build:css",
         "check:typescript": "tsc --noEmit",
         "lint": "eslint src && dprint check",

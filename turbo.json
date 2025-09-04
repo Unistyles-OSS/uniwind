@@ -22,7 +22,7 @@
         "lint": {},
         "circular:check": {},
         "precommit": {
-            "dependsOn": ["lint", "check:typescript", "circular:check"]
+            "dependsOn": ["lint", "check:typescript", "circular:check", "test"]
         },
         "test": {
             "cache": false
