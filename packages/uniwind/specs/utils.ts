@@ -1,10 +1,10 @@
-import { afterEach, beforeEach } from 'bun:test'
+import { mock } from 'bun:test'
 import { RNStyle } from '../src/components/rn/props'
 import { compileVirtualJS } from '../src/metro/compileVirtualJS'
 import { Platform } from '../src/metro/types'
 import { UniwindRuntimeMock } from './mocks'
 
-export const getStylesFromCandidates = async <T extends string>(...candidates: Array<T>) => {
+export const getStyleSheetsFromCandidates = async <T extends string>(...candidates: Array<T>) => {
     const cwd = process.cwd()
     const testCSSPath = cwd.includes('packages/uniwind')
         ? 'specs/test.css'
@@ -17,7 +17,11 @@ export const getStylesFromCandidates = async <T extends string>(...candidates: A
 
     new Function(virtualJS)()
 
-    const stylesheets = globalThis.__uniwind__computeStylesheet(UniwindRuntimeMock)
+    return globalThis.__uniwind__computeStylesheet(UniwindRuntimeMock)
+}
+
+export const getStylesFromCandidates = async <T extends string>(...candidates: Array<T>) => {
+    const stylesheets = await getStyleSheetsFromCandidates(...candidates)
     const descriptors = Object.getOwnPropertyDescriptors(stylesheets)
 
     return Object.fromEntries(
@@ -36,12 +40,26 @@ export const getStylesFromCandidates = async <T extends string>(...candidates: A
     ) as Record<T, RNStyle>
 }
 
-beforeEach(() => {
-    delete globalThis.__uniwind__computeStylesheet
-})
-
-afterEach(() => {
-    delete globalThis.__uniwind__computeStylesheet
-})
-
 export const twSize = (size: number) => size * 4
+
+export const injectMocks = () => {
+    mock.module('react-native', () => ({
+        Dimensions: {
+            get: () => ({
+                width: UniwindRuntimeMock.screen.width,
+                height: UniwindRuntimeMock.screen.height,
+            }),
+        },
+        Appearance: {
+            getColorScheme: () => UniwindRuntimeMock.colorScheme,
+        },
+        PixelRatio: {
+            getFontScale: () => UniwindRuntimeMock.rem,
+        },
+        I18nManager: {
+            isRTL: UniwindRuntimeMock.rtl,
+        },
+    }))
+    // @ts-expect-error Mock __DEV__
+    globalThis.__DEV__ = true
+}
