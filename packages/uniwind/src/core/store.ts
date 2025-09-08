@@ -1,8 +1,9 @@
-import { RNStyle, RNStylesProps, UniwindComponentProps } from '../components/rn/props'
 import { UniwindRuntime } from '../components/runtime'
-import { Style, StyleSheets } from '../components/types'
-import { styleToClass } from '../components/utils'
 import { StyleDependency } from '../types'
+import { listenToNativeUpdates } from './nativeListener'
+import { RNClassNameProps, RNStyle, RNStylesProps, Style, StyleSheets, UniwindComponentProps } from './types'
+
+const styleToClass = (style: RNStylesProps) => style.replace('Style', 'ClassName') as RNClassNameProps
 
 export class UniwindStoreBuilder {
     stylesheets = {} as StyleSheets
@@ -10,12 +11,15 @@ export class UniwindStoreBuilder {
     initialized = false
     runtime = UniwindRuntime
 
-    subscribe(onStoreChange: () => void) {
-        const listener = () => {
-            onStoreChange()
-        }
+    subscribe(onStoreChange: () => void, dependencies: Array<StyleDependency>) {
+        const dispose = listenToNativeUpdates(onStoreChange, dependencies)
 
-        return () => this.listeners.delete(listener)
+        this.listeners.add(onStoreChange)
+
+        return () => {
+            this.listeners.delete(onStoreChange)
+            dispose()
+        }
     }
 
     getStyles(className: string) {

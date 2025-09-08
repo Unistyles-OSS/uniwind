@@ -1,7 +1,7 @@
 import './rnw'
 import React from 'react'
-import { copyComponentProperties, styleToClass } from '../../utils'
-import { RNStylesProps, UniwindComponentProps } from '../props'
+import { RNClassNameProps, RNStylesProps, UniwindComponentProps } from '../../../core/types'
+import { copyComponentProperties } from '../../utils'
 
 type TailwindRNStyle = {
     $$css: true
@@ -9,6 +9,8 @@ type TailwindRNStyle = {
 }
 
 type AdditionalClasses = Record<string, [TailwindRNStyle, any]>
+
+const styleToClass = (style: RNStylesProps) => style.replace('Style', 'ClassName') as RNClassNameProps
 
 export const createUniwindComponent = (
     Component: React.ComponentType<any>,

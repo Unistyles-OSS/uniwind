@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useSyncExternalStore } from 'react'
 import { UniwindStore } from '../../../core'
-import { RNStylesProps, UniwindComponentProps } from '../props'
+import { RNStylesProps, UniwindComponentProps } from '../../../core/types'
 
 export const createUniwindComponent = (
     Component: React.ComponentType<any>,
@@ -11,7 +11,7 @@ export const createUniwindComponent = (
             return UniwindStore.getSnapshot(props, additionalStyles)
         }, [props])
         const uniwindState = useSyncExternalStore(
-            useCallback(subscribe => UniwindStore.subscribe(subscribe), []),
+            useCallback(subscribe => UniwindStore.subscribe(subscribe, snapshot.dependencies), []),
             () => snapshot,
         )
 

@@ -1,6 +1,6 @@
 import { Appearance, Dimensions, I18nManager, PixelRatio } from 'react-native'
-import type { UniwindRuntime as UniwindRuntimeType } from '../core/types'
 import { ColorScheme, Orientation } from '../types'
+import type { UniwindRuntime as UniwindRuntimeType } from './types'
 
 const window = Dimensions.get('window')
 

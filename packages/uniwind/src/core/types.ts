@@ -1,3 +1,4 @@
+import type { ImageStyle, StyleProp, TextStyle, ViewStyle } from 'react-native'
 import { ColorScheme, Orientation, StyleDependency } from '../types'
 
 export type Style = {
@@ -31,6 +32,27 @@ export type UniwindRuntime = {
         right: number
     }
 }
+
+export type RNStyle = ViewStyle | TextStyle | ImageStyle
+
+export type RNStylesProps =
+    | 'style'
+    | 'contentContainerStyle'
+    | 'imageStyle'
+    | 'ListFooterComponentStyle'
+    | 'ListHeaderComponentStyle'
+    | 'columnWrapperStyle'
+export type RNClassNameProps = GetClassName<RNStylesProps>
+
+type GetClassName<T extends string> = T extends `${infer S}Style` ? `${S}ClassName` : 'className'
+
+export type UniwindComponentProps =
+    & {
+        [K in RNStylesProps]?: StyleProp<RNStyle>
+    }
+    & {
+        [K in RNClassNameProps]?: string
+    }
 
 declare global {
     var __uniwind__computeStylesheet: (runtime: UniwindRuntime) => StyleSheets
