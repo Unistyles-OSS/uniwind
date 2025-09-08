@@ -1,0 +1,1 @@
+export { useUniwindAccent } from './hooks'

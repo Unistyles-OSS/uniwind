@@ -49,9 +49,11 @@ export const injectMocks = () => {
                 width: UniwindRuntimeMock.screen.width,
                 height: UniwindRuntimeMock.screen.height,
             }),
+            addEventListener: () => {},
         },
         Appearance: {
             getColorScheme: () => UniwindRuntimeMock.colorScheme,
+            addChangeListener: () => {},
         },
         PixelRatio: {
             getFontScale: () => UniwindRuntimeMock.rem,

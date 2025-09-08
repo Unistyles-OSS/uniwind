@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useSyncExternalStore } from 'react'
+import { UniwindStore } from '../../../core'
 import { RNStylesProps, UniwindComponentProps } from '../props'
-import { UniwindStore } from './store'
 
 export const createUniwindComponent = (
     Component: React.ComponentType<any>,

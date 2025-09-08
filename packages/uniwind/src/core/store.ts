@@ -1,8 +1,8 @@
-import { StyleDependency } from '../../../types'
-import { UniwindRuntime } from '../../runtime'
-import { Style, StyleSheets } from '../../types'
-import { styleToClass } from '../../utils'
-import { RNStyle, RNStylesProps, UniwindComponentProps } from '../props'
+import { RNStyle, RNStylesProps, UniwindComponentProps } from '../components/rn/props'
+import { UniwindRuntime } from '../components/runtime'
+import { Style, StyleSheets } from '../components/types'
+import { styleToClass } from '../components/utils'
+import { StyleDependency } from '../types'
 
 export class UniwindStoreBuilder {
     stylesheets = {} as StyleSheets
