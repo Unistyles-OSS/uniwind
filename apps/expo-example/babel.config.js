@@ -13,6 +13,7 @@ module.exports = function(api) {
                 {
                     alias: {
                         [pak.name]: path.resolve(__dirname, '../../packages/uniwind/src'),
+                        'culori': 'culori/require',
                     },
                 },
             ],

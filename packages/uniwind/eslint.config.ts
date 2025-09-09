@@ -15,6 +15,7 @@ export default [
             'functional/no-let': 'off',
             'functional/no-loop-statements': 'off',
             'nested-if/nested-if-statements': 'off',
+            'no-continue': 'off',
         },
     },
     {
