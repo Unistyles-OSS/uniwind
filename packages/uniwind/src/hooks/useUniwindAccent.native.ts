@@ -3,8 +3,8 @@ import { listenToNativeUpdates, UniwindStore } from '../core'
 
 export const useUniwindAccent = (className: string) => {
     const [uniwindState, recreate] = useReducer(
-        () => UniwindStore.getSnapshot({ className }),
-        UniwindStore.getSnapshot({ className }),
+        () => UniwindStore.getStyles(className),
+        UniwindStore.getStyles(className),
     )
 
     useEffect(() => {
@@ -13,5 +13,5 @@ export const useUniwindAccent = (className: string) => {
         return dispose
     }, [uniwindState.dependencies, className])
 
-    return (uniwindState.dynamicStyles.style[0] as { accentColor?: string }).accentColor ?? ''
+    return (uniwindState.styles as { accentColor?: string }).accentColor ?? ''
 }

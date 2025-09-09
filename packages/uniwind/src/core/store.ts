@@ -1,9 +1,7 @@
-import { UniwindRuntime } from '../components/runtime'
 import { StyleDependency } from '../types'
 import { listenToNativeUpdates } from './nativeListener'
-import { RNClassNameProps, RNStyle, RNStylesProps, Style, StyleSheets, UniwindComponentProps } from './types'
-
-const styleToClass = (style: RNStylesProps) => style.replace('Style', 'ClassName') as RNClassNameProps
+import { UniwindRuntime } from './runtime'
+import { Style, StyleSheets } from './types'
 
 export class UniwindStoreBuilder {
     stylesheets = {} as StyleSheets
@@ -22,7 +20,14 @@ export class UniwindStoreBuilder {
         }
     }
 
-    getStyles(className: string) {
+    getStyles(className?: string) {
+        if (className === undefined) {
+            return {
+                styles: {},
+                dependencies: [],
+            }
+        }
+
         if (!this.initialized) {
             this.initialized = true
             this.reload()
@@ -35,34 +40,12 @@ export class UniwindStoreBuilder {
         return this.resolveStyles(styles)
     }
 
-    getSnapshot(props: UniwindComponentProps, additionalStyles?: Array<RNStylesProps>) {
-        const { styles, dependencies } = this.getStyles(props.className ?? '')
-
-        return {
-            dynamicStyles: {
-                style: [
-                    styles,
-                    props.style,
-                ],
-                ...additionalStyles?.reduce((acc, styleProp) => {
-                    const className = props[styleToClass(styleProp)] ?? ''
-                    const { styles, dependencies: additionalDependencies } = this.getStyles(className)
-
-                    dependencies.push(...additionalDependencies)
-
-                    acc[styleProp] = [
-                        styles,
-                        props[styleProp],
-                    ]
-
-                    return acc
-                }, {} as Record<RNStylesProps, [RNStyle, unknown]>),
-            },
-            dependencies: Array.from(new Set(dependencies)),
-        }
+    reload = () => {
+        this.stylesheets = globalThis.__uniwind__computeStylesheet(this.runtime)
+        this.listeners.forEach(listener => listener())
     }
 
-    resolveStyles(styles: Array<Style | undefined>) {
+    private resolveStyles(styles: Array<Style | undefined>) {
         const result = {} as Record<string, any>
         const bestBreakpoints = {} as Record<string, number>
         const stylesUsingVariables = [] as Array<[string, string]>
@@ -157,11 +140,6 @@ export class UniwindStoreBuilder {
             styles: result,
             dependencies: Array.from(new Set(dependencies)),
         }
-    }
-
-    reload = () => {
-        this.stylesheets = globalThis.__uniwind__computeStylesheet(this.runtime)
-        this.listeners.forEach(listener => listener())
     }
 }
 

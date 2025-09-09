@@ -4,24 +4,26 @@ import { name } from '../../package.json'
 
 const DEFAULT_RN_COMPONENTS = [
     'ActivityIndicator',
-    'View',
-    'Text',
+    'Animated',
+    'Button',
+    'FlatList',
     'Image',
     'ImageBackground',
     'KeyboardAvoidingView',
+    'Modal',
     'Pressable',
+    'RefreshControl',
+    'SafeAreaView',
     'ScrollView',
-    'FlatList',
     'SectionList',
     'Switch',
+    'Text',
     'TextInput',
-    'RefreshControl',
     'TouchableHighlight',
     'TouchableOpacity',
-    'VirtualizedList',
-    'Animated',
-    'Modal',
     'TouchableWithoutFeedback',
+    'View',
+    'VirtualizedList',
 ]
 
 export default ({ types }: { types: typeof t }): PluginObj => {

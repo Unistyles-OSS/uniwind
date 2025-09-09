@@ -16,14 +16,17 @@ declare module '@react-native/virtualized-lists' {
 declare module 'react-native' {
     interface FlatListProps<ItemT> extends VirtualizedListProps<ItemT> {
         columnWrapperClassName?: string
+        contentContainerClassName?: string
     }
 
     interface ImageBackgroundProps extends ImagePropsBase {
         imageClassName?: string
+        tintColorClassName?: string
     }
 
     interface ImagePropsBase {
         className?: string
+        tintColorClassName?: string
     }
 
     interface InputAccessoryViewProps {
@@ -36,14 +39,23 @@ declare module 'react-native' {
 
     interface ScrollViewProps extends ViewProps, ScrollViewPropsIOS, ScrollViewPropsAndroid, Touchable {
         contentContainerClassName?: string
+        endFillColorClassName?: string
+    }
+
+    interface SectionListProps<ItemT> extends VirtualizedListProps<ItemT> {
+        contentContainerClassName?: string
     }
 
     interface SwitchProps {
-        className?: string
+        className?: never
+        ios_backgroundColorClassName?: string
+        thumbColorClassName?: string
+        trackColorClassName?: string
     }
 
     interface TextProps {
         className?: string
+        selectionColorClassName?: string
     }
 
     interface TouchableWithoutFeedbackProps {
@@ -52,5 +64,50 @@ declare module 'react-native' {
 
     interface ViewProps {
         className?: string
+    }
+
+    interface PressableProps {
+        className?: string
+    }
+
+    interface TextInputProps {
+        className?: string
+        cursorColorClassName?: string
+        underlineColorAndroidClassName?: string
+        placeholderTextColorClassName?: string
+        selectionColorClassName?: string
+        selectionHandleColorClassName?: string
+    }
+
+    interface RefreshControlProps {
+        colorsClassName?: Array<string>
+        progressBackgroundColorClassName?: string
+        tintColorClassName?: string
+        titleColorClassName?: string
+    }
+
+    interface TouchableHighlightProps {
+        underlayColorClassName?: string
+    }
+
+    interface ActivityIndicatorProps {
+        colorClassName?: string
+    }
+
+    interface DrawerLayoutAndroidProps {
+        drawerBackgroundColorClassName?: string
+        statusBarBackgroundColorClassName?: string
+    }
+
+    interface ModalBaseProps {
+        backdropColorClassName?: string
+    }
+
+    interface ButtonProps {
+        colorClassName?: string
+    }
+
+    interface StatusBarPropsAndroid {
+        backgroundColorClassName?: string
     }
 }

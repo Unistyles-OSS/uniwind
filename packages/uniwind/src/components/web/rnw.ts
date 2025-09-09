@@ -20,3 +20,5 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         moveCssRulesToUtilitiesLayer(rnwStyleSheet.sheet)
     }
 }
+
+export const toRNWClassName = (className?: string) => ({ $$css: true, tailwind: className }) as {}

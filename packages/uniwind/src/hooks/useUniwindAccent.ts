@@ -29,14 +29,23 @@ const getAccentColor = (className: string) => {
     return formatRgb(parsed)
 }
 
-export const useUniwindAccent = (className: string) => {
-    const [accentColor, setAccentColor] = useState(() => getAccentColor(className))
+type UseUniwindAccent = {
+    (className: string): string
+    (className: string | undefined): string | undefined
+}
+
+export const useUniwindAccent: UseUniwindAccent = className => {
+    const [accentColor, setAccentColor] = useState(() => className !== undefined ? getAccentColor(className) : undefined)
 
     useEffect(() => {
+        if (className === undefined) {
+            return
+        }
+
         const dispose = CSSListener.addListener(className.split(' '), () => setAccentColor(getAccentColor(className)))
 
         return dispose
     }, [className])
 
-    return accentColor
+    return accentColor as string
 }
