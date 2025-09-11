@@ -53,7 +53,7 @@ export class UniwindStoreBuilder {
         const inlineVariables = [] as Array<[string, () => unknown]>
         const dependencies = [] as Array<StyleDependency>
 
-        styles.forEach(style => {
+        styles.flat().forEach(style => {
             if (
                 style === undefined
                 || style.minWidth > this.runtime.screen.width

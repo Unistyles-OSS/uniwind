@@ -79,6 +79,6 @@ export type ProcessMetaValues = {
     className?: string
 }
 
-export type StylesTemplate = {
-    [K: string]: MediaQueryResolver & Record<string, unknown>
+export type StyleSheetTemplate = {
+    [K: string]: Array<MediaQueryResolver & Record<string, unknown>>
 }
