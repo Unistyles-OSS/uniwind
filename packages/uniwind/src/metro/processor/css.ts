@@ -217,6 +217,21 @@ export class CSS {
                     return `${this.processValue(declarationValue.width)} ${this.processValue(declarationValue.height)}`
                 case 'angle':
                     return `${declarationValue.value.value}${declarationValue.value.type}`
+                case 'gradient':
+                    if (declarationValue.value.type === 'linear') {
+                        return [
+                            `to ${this.processValue(declarationValue.value.direction)}`,
+                            declarationValue.value.items.map(item => this.processValue(item)),
+                        ].join(', ')
+                    }
+
+                    return ''
+                case 'color-stop':
+                    return [
+                        this.Processor.Color.processColor(declarationValue.color),
+                        declarationValue.position ? this.processValue(declarationValue.position) : null,
+                    ].filter(isDefined).join(' ')
+                case 'horizontal':
                 case 'white-space':
                 case 'string':
                 case 'self-position':

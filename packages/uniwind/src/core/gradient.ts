@@ -4,20 +4,19 @@ type InferFromReadonlyArray<T> = T extends ReadonlyArray<infer U> ? U : never
 
 const gradientDirectionTokens = new Set(['to', 'top', 'right', 'bottom', 'left'])
 
-export const resolveGradient = (value: Array<string>) => {
-    const flatten = value.flat()
-    const directionToken = flatten.find(token => token.includes('to') || token.includes('deg'))
-    const filtered = flatten.filter(token => token !== directionToken)
-    const colorStops = [] as Array<InferFromReadonlyArray<GradientValue['colorStops']>>
+export const resolveGradient = (value: string) => {
+    const tokens = value.split(', ')
+    const directionToken = tokens.find(token => token.includes('to') || token.includes('deg'))
+    const filtered = tokens.filter(token => token !== directionToken)
 
-    for (let i = 0; i < filtered.length; i += 2) {
-        const position = filtered[i + 1]
+    const colorStops = filtered.map(token => {
+        const [color, position] = token.split(' ')
 
-        colorStops.push({
-            color: filtered[i]!,
+        return {
+            color: color!,
             positions: position !== undefined ? [position] as unknown as Array<Array<string>> : undefined,
-        })
-    }
+        } satisfies InferFromReadonlyArray<GradientValue['colorStops']>
+    })
 
     const direction = directionToken
         ?.split(' ')

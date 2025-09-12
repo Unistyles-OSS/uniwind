@@ -1,5 +1,7 @@
 import type {
     Declaration,
+    GradientItemFor_DimensionPercentageFor_LengthValue,
+    LineDirection,
     MathFunctionFor_DimensionPercentageFor_LengthValue,
     MathFunctionFor_Length,
     MediaFeatureValue,
@@ -73,6 +75,8 @@ export type DeclarationValues =
     | MediaFeatureValue
     | MathFunctionFor_DimensionPercentageFor_LengthValue
     | MathFunctionFor_Length
+    | LineDirection
+    | GradientItemFor_DimensionPercentageFor_LengthValue
 
 export type ProcessMetaValues = {
     propertyName?: string

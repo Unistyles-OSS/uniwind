@@ -75,6 +75,16 @@ export const compileVirtual = async (input: string, getCandidates: () => Array<s
                         const className = selectorToken.name
                         const styles: Record<string, any> = {}
 
+                        rule.value.rules.forEach(rule => {
+                            if (rule.type === 'nested-declarations') {
+                                rule.value.declarations.declarations?.forEach(declaration => {
+                                    const { property, value } = Processor.CSS.processDeclaration(declaration, className)
+
+                                    styles[property] = value
+                                })
+                            }
+                        })
+
                         rule.value.declarations.declarations.forEach(declaration => {
                             const { property, value } = Processor.CSS.processDeclaration(declaration, className)
 

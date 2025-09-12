@@ -59,9 +59,16 @@ const toJSExpression = (value: string): string => {
                                     return x.split(' ?? ').map(toJSExpression).join(' ?? ')
                                 }
 
-                                return x
+                                return toJSExpression(x)
                             },
                         )
+
+                        if (parsedToken.startsWith('"')) {
+                            return [
+                                parsedToken.slice(1, -1),
+                                token.includes(',') ? ',' : '',
+                            ].join('')
+                        }
 
                         return [
                             '${',
