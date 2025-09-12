@@ -28,3 +28,14 @@ export const isNumber = (data: any) => {
 
     return false
 }
+
+export const smartSplit = (str: string) => {
+    const escaper = '&&&'
+
+    return pipe(str)(
+        x => x.replace(/\s\?\?\s/g, `${escaper}??${escaper}`),
+        x => x.replace(/\s([+\-*/])\s/g, `${escaper}$1${escaper}`),
+        x => x.split(' '),
+        x => x.map(token => token.replace(new RegExp(escaper, 'g'), ' ')),
+    )
+}

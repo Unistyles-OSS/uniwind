@@ -2,6 +2,7 @@ import { StyleDependency } from '../types'
 import { resolveGradient } from './gradient'
 import { listenToNativeUpdates } from './nativeListener'
 import { UniwindRuntime } from './runtime'
+import { parseTransformsMutation } from './transforms'
 import { Style, StyleSheets } from './types'
 
 export class UniwindStoreBuilder {
@@ -134,9 +135,7 @@ export class UniwindStoreBuilder {
             // TODO: Parse box shadow in runtime
         }
 
-        if (result.transform !== undefined) {
-            // TODO: Parse transform in runtime
-        }
+        parseTransformsMutation(result)
 
         if (result.experimental_backgroundImage !== undefined) {
             result.experimental_backgroundImage = resolveGradient(result.experimental_backgroundImage)

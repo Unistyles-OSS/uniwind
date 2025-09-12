@@ -1,7 +1,7 @@
 import { BackgroundPosition, Declaration, OverflowKeyword } from 'lightningcss'
 import { Logger } from '../logger'
 import { DeclarationValues, ProcessMetaValues } from '../types'
-import { pipe } from '../utils'
+import { isDefined, pipe } from '../utils'
 import type { ProcessorBuilder } from './processor'
 
 export class CSS {
@@ -267,8 +267,8 @@ export class CSS {
 
         if (Array.isArray(declarationValue)) {
             switch (meta.propertyName) {
-                case 'transform':
-                    return declarationValue.reduce<Array<any>>((acc, value) => {
+                case 'transform': {
+                    const transforms = declarationValue.reduce<Array<any>>((acc, value) => {
                         if (typeof value === 'object') {
                             const result = this.processValue(value)
 
@@ -281,6 +281,13 @@ export class CSS {
 
                         return acc
                     }, [])
+
+                    const transformsEntries = transforms
+                        .flatMap(transform => typeof transform === 'object' ? Object.entries(transform) : null)
+                        .filter(isDefined)
+
+                    return Object.fromEntries(transformsEntries)
+                }
                 default:
                     return declarationValue.reduce<string | number>((acc, value, index, array) => {
                         if (typeof value === 'object') {
@@ -322,7 +329,8 @@ export class CSS {
                 ['rotateZ', declarationValue.z * declarationValue.angle.value],
             ])(
                 x => x.filter(([, value]) => value !== 0),
-                x => x.map(([key, value]) => ({ [String(key)]: `${value}${declarationValue.angle.type}` })),
+                x => x.map(([key, value]) => [key, `${value}${declarationValue.angle.type}`]),
+                Object.fromEntries,
             )
 
             return angles
@@ -349,6 +357,13 @@ export class CSS {
 
         if (this.isBackgroundPosition(declarationValue)) {
             return ''
+        }
+
+        if ('x' in declarationValue && 'y' in declarationValue) {
+            return {
+                x: this.processValue(declarationValue.x),
+                y: this.processValue(declarationValue.y),
+            }
         }
 
         this.logger.error(

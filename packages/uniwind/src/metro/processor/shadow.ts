@@ -1,6 +1,6 @@
 import { Logger } from '../logger'
 import { DeclarationValues } from '../types'
-import { isDefined, isNumber, pipe } from '../utils'
+import { isDefined, isNumber, pipe, smartSplit } from '../utils'
 import type { ProcessorBuilder } from './processor'
 
 type ShadowType = {
@@ -42,7 +42,7 @@ export class Shadow {
 
         return shadows.map(shadow => {
             const tokens = pipe(shadow)(
-                x => this.smartSplit(x),
+                smartSplit,
                 x => x.filter(token => token.length > 0),
             )
 
@@ -69,16 +69,5 @@ export class Shadow {
 
     private isEmptyShadow(shadow: ShadowType) {
         return Object.values(shadow).every(value => value === undefined || value === 0)
-    }
-
-    private smartSplit(str: string) {
-        const escaper = '&&&'
-
-        return pipe(str)(
-            x => x.replace(/\s\?\?\s/g, `${escaper}??${escaper}`),
-            x => x.replace(/\s([+\-*/])\s/g, `${escaper}$1${escaper}`),
-            x => x.split(' '),
-            x => x.map(token => token.replace(new RegExp(escaper, 'g'), ' ')),
-        )
     }
 }

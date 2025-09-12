@@ -1,5 +1,5 @@
 import { Logger } from '../logger'
-import { isNumber, pipe } from '../utils'
+import { isNumber, pipe, smartSplit } from '../utils'
 
 type Stylesheet = Record<string, any>
 
@@ -10,6 +10,17 @@ const isJSExpression = (value: string) =>
         value.includes('() =>'),
         /\s([-+/*])\s/.test(value),
     ].some(Boolean)
+
+const isValidJS = (value: string) => {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
+        new Function(`return (${value})`)
+
+        return true
+    } catch {
+        return false
+    }
+}
 
 const toJSExpression = (value: string): string => {
     if (!isJSExpression(value)) {
@@ -33,15 +44,10 @@ const toJSExpression = (value: string): string => {
             x => x.join(' '),
             x => x.replace(/" "/g, ' '),
             x => {
-                // Convert "X, Y, Z" to [X, Y, Z] and serialize it, regex is to exclude functions like Math.max
-                if (x.includes(',') && !x.startsWith('[') && !/^[A-Za-z.]+\(\s+/.test(x)) {
-                    const withArray = x
-                        .replace(' ?? ', '&&&??&&&')
-                        .split(' ')
-                        .map(token => token.replace(',', ''))
-                        .map(token => token.replace('&&&??&&&', ' ?? '))
+                if (!isValidJS(x)) {
+                    const tokens = smartSplit(x).map(token => `$\{${token}}`)
 
-                    return serialize(withArray)
+                    return `\`${tokens.join(' ')}\``
                 }
 
                 return x
