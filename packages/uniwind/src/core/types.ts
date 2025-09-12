@@ -12,9 +12,11 @@ export type Style = {
     rtl: boolean | null
     native: boolean
     dependencies: Array<StyleDependency>
+    index: number
+    className: string
 }
 
-export type StyleSheets = Record<string, Style>
+export type StyleSheets = Record<string, Array<Style>>
 
 export type UniwindRuntime = {
     screen: {

@@ -6,7 +6,7 @@ import { isDefined } from '../utils'
 export const addMetaToStylesTemplate = (stylesheet: StyleSheetTemplate, currentPlatform: Platform) => {
     const stylesheetsEntries = Object.entries(stylesheet)
         .map(([className, stylesPerMediaQuery]) => {
-            const styles = stylesPerMediaQuery.map(style => {
+            const styles = stylesPerMediaQuery.map((style, index) => {
                 const entries = Object.entries(style)
                     .filter(([property]) => {
                         return !['minWidth', 'maxWidth'].includes(property)
@@ -81,12 +81,14 @@ export const addMetaToStylesTemplate = (stylesheet: StyleSheetTemplate, currentP
                     stylesUsingVariables,
                     inlineVariables,
                     dependencies,
+                    index,
+                    className,
                 }
             })
 
             return [
                 className,
-                styles.length === 1 ? styles[0] : styles,
+                styles,
             ] as const
         })
         .filter(isDefined)

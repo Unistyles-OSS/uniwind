@@ -36,9 +36,18 @@ export class UniwindStoreBuilder {
 
         const styles = className
             .split(' ')
-            .map(className => this.stylesheets[className])
+            .flatMap(className => {
+                const styles = this.stylesheets[className]
 
-        return this.resolveStyles(styles)
+                if (!styles) {
+                    return null
+                }
+
+                return styles.map(style => [className, style])
+            })
+            .filter(Boolean)
+
+        return this.resolveStyles(styles as Array<[string, Style]>)
     }
 
     reload = () => {
@@ -46,82 +55,74 @@ export class UniwindStoreBuilder {
         this.listeners.forEach(listener => listener())
     }
 
-    private resolveStyles(styles: Array<Style | undefined>) {
-        const result = {} as Record<string, any>
-        const bestBreakpoints = {} as Record<string, number>
-        const stylesUsingVariables = [] as Array<[string, string]>
-        const inlineVariables = [] as Array<[string, () => unknown]>
-        const dependencies = [] as Array<StyleDependency>
-
-        styles.flat().forEach(style => {
+    private resolveStyles(styles: Array<[string, Style]>) {
+        const filteredStyles = styles.filter(([, style]) => {
             if (
-                style === undefined
-                || style.minWidth > this.runtime.screen.width
+                style.minWidth > this.runtime.screen.width
                 || style.maxWidth < this.runtime.screen.height
+                || (style.colorScheme !== null && this.runtime.colorScheme !== style.colorScheme)
+                || (style.orientation !== null && this.runtime.orientation !== style.orientation)
+                || (style.rtl !== null && this.runtime.rtl !== style.rtl)
             ) {
-                return
+                return false
             }
 
-            inlineVariables.push(...style.inlineVariables)
-            dependencies.push(...style.dependencies)
+            return true
+        })
+
+        const bestBreakpoints = new Map<string, Style>()
+        const result = {} as Record<string, any>
+        const inlineVariables = new Map<string, () => any>()
+        const dependencies = [] as Array<StyleDependency>
+        const usingVariables = new Map<string, Style>()
+
+        filteredStyles.forEach(([, style]) => {
+            style.inlineVariables.forEach(([varName, varValue]) => {
+                const previousBest = bestBreakpoints.get(varName)
+
+                if (previousBest && previousBest.minWidth > style.minWidth) {
+                    return
+                }
+
+                bestBreakpoints.set(varName, style)
+                inlineVariables.set(varName, varValue)
+            })
 
             style.entries.forEach(([property, value]) => {
-                if (
-                    style.minWidth >= (bestBreakpoints[property] ?? 0)
-                    && (style.colorScheme === null || this.runtime.colorScheme === style.colorScheme)
-                    && (style.orientation === null || this.runtime.orientation === style.orientation)
-                    && (style.rtl === null || this.runtime.rtl === style.rtl)
-                ) {
-                    if (style.stylesUsingVariables[property] !== undefined) {
-                        stylesUsingVariables.push([property, style.stylesUsingVariables[property]])
-                    }
+                const previousBest = bestBreakpoints.get(property)
 
-                    bestBreakpoints[property] = style.colorScheme !== null || style.orientation !== null || style.rtl !== null || style.native
-                        ? Infinity
-                        : style.minWidth
-
-                    if (property === 'transform' && Array.isArray(value)) {
-                        result[property] = result[property] ?? []
-                        result[property].push(...value)
-
-                        return
-                    }
-
-                    result[property] = value
+                if (previousBest && previousBest.minWidth > style.minWidth) {
+                    return
                 }
+
+                bestBreakpoints.set(property, style)
+
+                result[property] = value
+
+                if (property in style.stylesUsingVariables) {
+                    usingVariables.set(property, style)
+
+                    return
+                }
+
+                usingVariables.delete(property)
             })
         })
 
-        if (inlineVariables.length > 0) {
-            const originalVars = new Map<string, PropertyDescriptor | undefined>()
+        if (usingVariables.size > 0) {
+            const styleSheet = globalThis.__uniwind__computeStylesheet(this.runtime)
 
-            inlineVariables.forEach(([varName, varValue]) => {
-                !originalVars.has(varName) && originalVars.set(varName, Object.getOwnPropertyDescriptor(this.stylesheets, varName))
-                Object.defineProperty(this.stylesheets, varName, {
+            inlineVariables.forEach((varValue, varName) => {
+                Object.defineProperty(styleSheet, varName, {
                     get: varValue,
                     configurable: true,
                 })
             })
 
-            stylesUsingVariables.forEach(([property, className]) => {
-                const allEntries = Object.fromEntries(this.stylesheets[className]!.entries)
-                const value = allEntries[property]
+            usingVariables.forEach((style, property) => {
+                const newStyle = Object.fromEntries(styleSheet[style.className]![style.index]!.entries)
 
-                if (property === 'transform' && Array.isArray(value)) {
-                    result[property].push(...value)
-                } else {
-                    result[property] = value
-                }
-            })
-
-            originalVars.forEach((descriptor, varName) => {
-                if (descriptor) {
-                    Object.defineProperty(this.stylesheets, varName, descriptor)
-
-                    return
-                }
-
-                delete this.stylesheets[varName]
+                result[property] = newStyle[property]
             })
         }
 
@@ -130,11 +131,11 @@ export class UniwindStoreBuilder {
         }
 
         if (result.boxShadow !== undefined) {
-            result.boxShadow = result.boxShadow.flat()
+            // TODO: Parse box shadow in runtime
         }
 
         if (result.transform !== undefined) {
-            result.transform = result.transform.filter(Boolean)
+            // TODO: Parse transform in runtime
         }
 
         if (result.experimental_backgroundImage !== undefined) {
