@@ -1,4 +1,3 @@
-/* eslint-disable prefer-template */
 import { isDefined, pipe, toCamelCase } from '../utils'
 import type { ProcessorBuilder } from './processor'
 
@@ -41,21 +40,6 @@ const cssToRNMap: Record<string, (value: any) => Record<string, any>> = {
             })]
         }),
     ),
-    boxShadow: () => {
-        return {
-            boxShadow: '['
-                + [
-                    '--tw-inset-shadow',
-                    '--tw-inset-ring-shadow',
-                    '--tw-ring-offset-shadow',
-                    '--tw-ring-shadow',
-                    '--tw-shadow',
-                ]
-                    .map(key => `this[\`${key}\`]`)
-                    .join(', ')
-                + ']',
-        }
-    },
     borderWidth: (value: string | PositionValues) => {
         if (typeof value === 'string') {
             return {
@@ -197,6 +181,7 @@ export class RN {
         const parsedValue = typeof value === 'string'
             ? pipe(value)(
                 x => x.replace(/]this/g, '] this'),
+                x => x.replace(/\](?=\d)/g, '] '),
             )
             : value
 

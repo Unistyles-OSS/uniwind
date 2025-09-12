@@ -26,7 +26,7 @@ export const addMetaToStylesTemplate = (stylesheet: StyleSheetTemplate, currentP
                 const filteredEntries = entries
                     .filter(([property, value]) => {
                         if (property.startsWith('--')) {
-                            inlineVariables.push([property, `() => ${typeof value === 'object' ? JSON.stringify(value) : value}`])
+                            inlineVariables.push([property, `function() { return ${typeof value === 'object' ? JSON.stringify(value) : value} }`])
 
                             return false
                         }

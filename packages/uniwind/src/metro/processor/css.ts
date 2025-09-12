@@ -40,10 +40,6 @@ export class CSS {
     }
 
     processValue(declarationValue: DeclarationValues, meta = {} as ProcessMetaValues): any {
-        if (meta.propertyName !== undefined && this.Processor.Shadow.isShadowKey(meta.propertyName)) {
-            return this.Processor.Shadow.processShadow(declarationValue)
-        }
-
         if (typeof declarationValue !== 'object') {
             return declarationValue
         }
@@ -289,7 +285,7 @@ export class CSS {
                     return Object.fromEntries(transformsEntries)
                 }
                 default:
-                    return declarationValue.reduce<string | number>((acc, value, index, array) => {
+                    return this.addComaBetweenTokens(declarationValue).reduce<string | number>((acc, value, index, array) => {
                         if (typeof value === 'object') {
                             const nextValue = array.at(index + 1)
 
@@ -366,6 +362,18 @@ export class CSS {
             }
         }
 
+        // Shadows
+        if ('xOffset' in declarationValue) {
+            return [
+                'inset' in declarationValue && declarationValue.inset ? 'inset' : undefined,
+                this.processValue(declarationValue.xOffset),
+                this.processValue(declarationValue.yOffset),
+                this.processValue(declarationValue.blur),
+                this.processValue(declarationValue.spread),
+                this.processValue(declarationValue.color),
+            ].filter(isDefined).join(' ')
+        }
+
         this.logger.error(
             [
                 `Unsupported value ${JSON.stringify(declarationValue)}`,
@@ -387,5 +395,38 @@ export class CSS {
 
     private isBackgroundPosition(value: any): value is BackgroundPosition {
         return typeof value === 'object' && 'x' in value && 'y' in value && Object.keys(value).length === 2
+    }
+
+    /**
+     * Between some tokens there isn't a comma but it should be.
+     * For example this applies to Array of shadows
+     */
+    private addComaBetweenTokens(values: Array<DeclarationValues>) {
+        return values.reduce<Array<any>>((acc, value, index, array) => {
+            const next = array.at(index + 1)
+
+            acc.push(value)
+
+            if (next === undefined) {
+                return acc
+            }
+
+            if (typeof next === 'object' && 'type' in next && next.type === 'token' && next.value.type === 'comma') {
+                return acc
+            }
+
+            if (!(typeof value === 'object' && 'xOffset' in value && 'blur' in value)) {
+                return acc
+            }
+
+            acc.push({
+                type: 'token',
+                value: {
+                    type: 'comma',
+                },
+            })
+
+            return acc
+        }, [])
     }
 }

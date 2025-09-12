@@ -3,18 +3,20 @@ import { isNumber, pipe, smartSplit } from '../utils'
 
 type Stylesheet = Record<string, any>
 
+const FN_DECLARATION = 'function() { return'
+
 const isJSExpression = (value: string) =>
     [
         value.includes('this'),
         value.includes('rt.'),
-        value.includes('() =>'),
+        value.includes('function() {'),
         /\s([-+/*])\s/.test(value),
     ].some(Boolean)
 
-const isValidJS = (value: string) => {
+const isValidJSValue = (value: string) => {
     try {
         // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
-        new Function(`return (${value})`)
+        new Function(`const test = ${value}`)
 
         return true
     } catch {
@@ -31,7 +33,7 @@ const toJSExpression = (value: string): string => {
         return `"${value.trim()}"`
     }
 
-    if (!value.includes('() =>')) {
+    if (!value.includes(FN_DECLARATION)) {
         return pipe(value)(
             x => x.split(' '),
             x => x.map(token => {
@@ -44,8 +46,30 @@ const toJSExpression = (value: string): string => {
             x => x.join(' '),
             x => x.replace(/" "/g, ' '),
             x => {
-                if (!isValidJS(x)) {
-                    const tokens = smartSplit(x).map(token => `$\{${token}}`)
+                if (!isValidJSValue(x)) {
+                    const tokens = smartSplit(x).map(token => {
+                        if (isNumber(token)) {
+                            return token
+                        }
+
+                        const parsedToken = pipe(token)(
+                            x => x.replace(',', ''),
+                            x => {
+                                if (x.includes('??')) {
+                                    return x.split(' ?? ').map(toJSExpression).join(' ?? ')
+                                }
+
+                                return x
+                            },
+                        )
+
+                        return [
+                            '${',
+                            parsedToken,
+                            '}',
+                            token.includes(',') ? ',' : '',
+                        ].join('')
+                    })
 
                     return `\`${tokens.join(' ')}\``
                 }
@@ -55,16 +79,16 @@ const toJSExpression = (value: string): string => {
         )
     }
 
-    const [, after] = value.split('() =>')
+    const [, after] = value.split(FN_DECLARATION)
 
     if (after === undefined) {
         return value
     }
 
     try {
-        return `() => ${serialize(JSON.parse(after))}`
+        return `${FN_DECLARATION} ${serialize(JSON.parse(after.replace('}', '')))} }`
     } catch {
-        return `() => ${serialize(after)}`
+        return `${FN_DECLARATION} ${serialize(after.replace('}', ''))} }`
     }
 }
 

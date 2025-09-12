@@ -49,7 +49,13 @@ export const compileVirtual = async (input: string, getCandidates: () => Array<s
                         }
 
                         rule.value.declarations?.declarations?.forEach(declaration => {
-                            if (declaration.property === 'custom' && declaration.value.name.startsWith('--')) {
+                            if (
+                                declaration.property === 'custom'
+                                && declaration.value.name.startsWith('--')
+                                && rule.value.selectors.some(selector =>
+                                    selector.some(selectorToken => selectorToken.type === 'pseudo-class' && selectorToken.kind === 'root')
+                                )
+                            ) {
                                 vars[declaration.value.name] = Processor.CSS.processValue(declaration.value.value, {
                                     propertyName: declaration.value.name,
                                 })

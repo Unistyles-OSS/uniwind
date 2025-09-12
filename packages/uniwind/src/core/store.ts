@@ -1,8 +1,8 @@
 import { StyleDependency } from '../types'
 import { resolveGradient } from './gradient'
 import { listenToNativeUpdates } from './nativeListener'
+import { parseBoxShadow, parseTransformsMutation } from './parsers'
 import { UniwindRuntime } from './runtime'
-import { parseTransformsMutation } from './transforms'
 import { Style, StyleSheets } from './types'
 
 export class UniwindStoreBuilder {
@@ -132,7 +132,7 @@ export class UniwindStoreBuilder {
         }
 
         if (result.boxShadow !== undefined) {
-            // TODO: Parse box shadow in runtime
+            result.boxShadow = parseBoxShadow(result.boxShadow)
         }
 
         parseTransformsMutation(result)
