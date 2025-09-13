@@ -22,22 +22,16 @@ export const getStyleSheetsFromCandidates = async <T extends string>(...candidat
 
 export const getStylesFromCandidates = async <T extends string>(...candidates: Array<T>) => {
     const stylesheets = await getStyleSheetsFromCandidates(...candidates)
-    const descriptors = Object.getOwnPropertyDescriptors(stylesheets)
 
     return Object.fromEntries(
-        Object.entries(descriptors).map(([key, descriptor]) => {
-            const value = descriptor.get?.call(stylesheets) ?? descriptor.value
-
-            if (typeof value !== 'object' || !('entries' in value)) {
+        Object.entries(stylesheets).map(([key, value]) => {
+            if (!Array.isArray(value)) {
                 return null
             }
 
-            return [
-                key,
-                Object.fromEntries(value.entries),
-            ]
+            return [key, value.map(entry => Object.fromEntries(entry.entries))]
         }).filter(Boolean),
-    ) as Record<T, RNStyle>
+    ) as Record<T, Array<RNStyle>>
 }
 
 export const twSize = (size: number) => size * 4

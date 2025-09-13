@@ -154,10 +154,6 @@ export class CSS {
                         return this.Processor.Color.processColor(declarationValue.value)
                     }
 
-                    if (declarationValue.value === 'inset') {
-                        return true
-                    }
-
                     if (declarationValue.value === 'currentcolor') {
                         return 'this["currentColor"]'
                     }
@@ -221,7 +217,7 @@ export class CSS {
                     if (declarationValue.value.type === 'linear') {
                         return [
                             `to ${this.processValue(declarationValue.value.direction)}`,
-                            declarationValue.value.items.map(item => this.processValue(item)),
+                            ...declarationValue.value.items.map(item => this.processValue(item)),
                         ].join(', ')
                     }
 

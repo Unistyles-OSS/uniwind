@@ -30,6 +30,13 @@ const toJSExpression = (value: string): string => {
             return value
         }
 
+        // Percentage regex, round to 3 decimal places
+        if (/^\s*[+-]?(?:\d+(?:\.\d+)?|\.\d+)\s*%\s*$/.test(value)) {
+            const roundedPercentage = Number(value.replace('%', '')).toFixed(3).replace(/\.?0+$/, '')
+
+            return `"${roundedPercentage}%"`
+        }
+
         return `"${value.trim()}"`
     }
 
@@ -123,13 +130,6 @@ const serialize = (value: any): string => {
             ].join('')
         }
         case 'string':
-            // Percentage regex, round to 3 decimal places
-            if (/^\s*[+-]?(?:\d+(?:\.\d+)?|\.\d+)\s*%\s*$/.test(value)) {
-                const roundedPercentage = Number(value.replace('%', '')).toFixed(3).replace(/\.?0+$/, '')
-
-                return toJSExpression(`${roundedPercentage}%`)
-            }
-
             return toJSExpression(value.trim())
         default:
             return String(value)
