@@ -1,7 +1,7 @@
-@custom-variant ios (ios &);
-@custom-variant android (android &);
+@custom-variant ios (@media ios);
+@custom-variant android (@media android);
 @custom-variant web (html &);
-@custom-variant native (native &);
+@custom-variant native (@media native);
 
 @utility h-screen-safe {
     height: calc(100vh - (env(safe-area-inset-top) + env(safe-area-inset-bottom)));

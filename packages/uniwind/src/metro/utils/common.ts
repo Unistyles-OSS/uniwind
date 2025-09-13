@@ -39,3 +39,7 @@ export const smartSplit = (str: string) => {
         x => x.map(token => token.replace(new RegExp(escaper, 'g'), ' ')),
     )
 }
+
+export const percentageToFloat = (value: string) => {
+    return Number(value.replace('%', '')) / 100
+}

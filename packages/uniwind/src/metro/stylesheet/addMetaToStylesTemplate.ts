@@ -1,19 +1,16 @@
 import { StyleDependency } from '../../types'
-import { Processor } from '../processor'
+import { ProcessorBuilder } from '../processor'
 import { Platform, StyleSheetTemplate } from '../types'
 import { isDefined } from '../utils'
 
-export const addMetaToStylesTemplate = (stylesheet: StyleSheetTemplate, currentPlatform: Platform) => {
-    const stylesheetsEntries = Object.entries(stylesheet)
+export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlatform: Platform) => {
+    const stylesheetsEntries = Object.entries(Processor.stylesheets as StyleSheetTemplate)
         .map(([className, stylesPerMediaQuery]) => {
             const styles = stylesPerMediaQuery.map((style, index) => {
-                const entries = Object.entries(style)
-                    .filter(([property]) => {
-                        return !['minWidth', 'maxWidth'].includes(property)
-                    })
-                    .flatMap(([property, value]) => Processor.RN.cssToRN(property, value))
+                const { platform, rtl, colorScheme, orientation, minWidth, maxWidth, ...rest } = style
 
-                const { colorScheme, orientation, platform, rtl } = Processor.MQ.extractResolvers(className)
+                const entries = Object.entries(rest)
+                    .flatMap(([property, value]) => Processor.RN.cssToRN(property, value))
 
                 if (platform && platform !== Platform.Native && platform !== currentPlatform) {
                     return null
@@ -55,8 +52,8 @@ export const addMetaToStylesTemplate = (stylesheet: StyleSheetTemplate, currentP
                 }
 
                 if (
-                    Number(style.minWidth) !== 0
-                    || Number(style.maxWidth) !== Number.MAX_VALUE
+                    Number(minWidth) !== 0
+                    || Number(maxWidth) !== Number.MAX_VALUE
                     || stringifiedEntries.includes('rt.screen')
                 ) {
                     dependencies.push(StyleDependency.Dimensions)
@@ -72,8 +69,8 @@ export const addMetaToStylesTemplate = (stylesheet: StyleSheetTemplate, currentP
 
                 return {
                     entries: filteredEntries,
-                    minWidth: style.minWidth,
-                    maxWidth: style.maxWidth,
+                    minWidth,
+                    maxWidth,
                     colorScheme,
                     orientation,
                     rtl,

@@ -168,7 +168,7 @@ export class CSS {
 
                     this.logger.error(`Unsupported env value - ${JSON.stringify(declarationValue.value)}`)
 
-                    return declarationValue.value
+                    return ''
                 case 'time': {
                     const unit = declarationValue.value.type === 'milliseconds' ? 'ms' : 's'
 
@@ -205,7 +205,7 @@ export class CSS {
 
                     this.logger.error(`Unsupported keyword value - ${JSON.stringify(declarationValue)}`)
 
-                    return declarationValue.type
+                    return ''
                 case 'min-max':
                 case 'track-breadth':
                     return declarationValue.type
@@ -242,7 +242,7 @@ export class CSS {
 
                     this.logger.error(`Unsupported value type - ${declarationValue.type}`)
 
-                    return declarationValue.type
+                    return ''
             }
         }
 
@@ -393,7 +393,7 @@ export class CSS {
             ].filter(Boolean).join(' '),
         )
 
-        return declarationValue
+        return ''
     }
 
     private isDimension(value: any): value is { type: 'dimension' } {

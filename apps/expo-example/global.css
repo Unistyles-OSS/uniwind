@@ -4,7 +4,3 @@
 @theme {
     --color-primary: oklch(0.72 0.11 178);
 }
-
-.box {
-    background-image: linear-gradient(to right, red, green, blue);
-}

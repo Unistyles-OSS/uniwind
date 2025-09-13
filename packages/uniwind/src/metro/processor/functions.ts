@@ -1,6 +1,6 @@
 import { CalcFor_DimensionPercentageFor_LengthValue, CalcFor_Length, Function as FunctionType } from 'lightningcss'
 import { Logger } from '../logger'
-import { pipe } from '../utils'
+import { percentageToFloat, pipe } from '../utils'
 import type { ProcessorBuilder } from './processor'
 
 export class Functions {
@@ -88,6 +88,10 @@ export class Functions {
             return this.Processor.CSS.processValue(fn.arguments)
         }
 
+        if (fn.name === 'color-mix') {
+            return this.processColorMix(fn)
+        }
+
         if (
             [
                 'blur',
@@ -127,5 +131,33 @@ export class Functions {
         const values = value.map(x => this.processCalc(x)).join(' , ')
 
         return `Math.${name}( ${values} )`
+    }
+
+    private processColorMix(fn: FunctionType) {
+        const tokens = pipe(this.Processor.CSS.processValue(fn.arguments))(
+            String,
+            x => x.replace(/\](?!\s*[+-/*])(?!\s)/g, '] '),
+            x => x.replace(/,/g, ''),
+            x => x.split(' '),
+        )
+
+        const color = tokens.find(token => token.startsWith('#') || token.startsWith('this[`--color-'))
+        const percentage = percentageToFloat(tokens.find(token => token.endsWith('%')) ?? '50%')
+        const mixColor = tokens.reverse().find(token => token.startsWith('#') || token.startsWith('this[`--color-'))
+
+        // Not transparent
+        if (mixColor !== '#00000000') {
+            return [
+                'rt.colorMix( ',
+                color,
+                ', ',
+                mixColor,
+                ', ',
+                percentage,
+                ' )',
+            ].join('')
+        }
+
+        return this.Processor.Color.changeAlpha(color ?? '', percentage)
     }
 }

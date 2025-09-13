@@ -1,4 +1,4 @@
-import { isDefined, pipe, toCamelCase } from '../utils'
+import { isDefined, percentageToFloat, pipe, toCamelCase } from '../utils'
 import type { ProcessorBuilder } from './processor'
 
 const cssToRNKeyMap = {
@@ -167,10 +167,6 @@ const cssToRNMap: Record<string, (value: any) => Record<string, any>> = {
 
         return {}
     },
-}
-
-const percentageToFloat = (value: string) => {
-    return Number(value.replace('%', '')) / 100
 }
 
 export class RN {

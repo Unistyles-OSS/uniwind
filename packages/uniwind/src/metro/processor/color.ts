@@ -53,6 +53,31 @@ export class Color {
         return typeof value === 'string' && parse(value) !== undefined
     }
 
+    changeAlpha(color: string, alpha: number) {
+        if (color.startsWith('this')) {
+            const varName = color.replace('this[`', '').replace('`]', '')
+            const varColorWithAlpha = this.changeAlpha(this.Processor.vars[varName], alpha)
+            const varNameWithAlpha = `${varName}/${alpha * 100}`
+
+            this.Processor.vars[varNameWithAlpha] = varColorWithAlpha
+
+            return `this[\`${varNameWithAlpha}\`]`
+        }
+
+        const parsed = parse(color)
+
+        if (parsed === undefined) {
+            this.logger.error(`Failed to convert color ${color}`)
+
+            return this.black
+        }
+
+        return formatHex8({
+            ...parsed,
+            alpha,
+        })
+    }
+
     private format(color: ColorType) {
         if (color.alpha === 1 || color.alpha === undefined) {
             return formatHex(color)

@@ -24,6 +24,8 @@ const isValidJSValue = (value: string) => {
     }
 }
 
+const isFunction = (value: string) => /^[A-Za-z][A-Za-z0-9_]*(?:\.[A-Za-z][A-Za-z0-9_]*)*\s*\(.*\)$/.test(value)
+
 const toJSExpression = (value: string): string => {
     if (!isJSExpression(value)) {
         if (value.startsWith('"')) {
@@ -37,22 +39,48 @@ const toJSExpression = (value: string): string => {
             return `"${roundedPercentage}%"`
         }
 
+        if (isNumber(value)) {
+            return value
+        }
+
         return `"${value.trim()}"`
     }
 
     if (!value.includes(FN_DECLARATION)) {
         return pipe(value)(
-            x => x.split(' '),
-            x => x.map(token => {
-                if (isJSExpression(token) || /[-+/*?(),]/.test(token) || isNumber(token)) {
-                    return token
+            x => {
+                if (isFunction(x)) {
+                    const [fnName] = x.split('(')
+
+                    if (fnName === undefined) {
+                        return x
+                    }
+
+                    const args = pipe(x)(
+                        x => x
+                            .replace(fnName, '')
+                            .replace('(', '')
+                            .slice(0, -1)
+                            .trim(),
+                        smartSplit,
+                        x => x.map(token => {
+                            if (token.endsWith(',')) {
+                                return token.slice(0, -1)
+                            }
+
+                            return token
+                        }),
+                        x => x.map(toJSExpression),
+                    )
+
+                    return [
+                        fnName,
+                        '(',
+                        args.join(','),
+                        ')',
+                    ].join('')
                 }
 
-                return `"${token}"`
-            }),
-            x => x.join(' '),
-            x => x.replace(/" "/g, ' '),
-            x => {
                 if (!isValidJSValue(x)) {
                     const tokens = smartSplit(x).map(token => {
                         if (isNumber(token)) {
@@ -159,7 +187,6 @@ export const serializeStylesheet = (stylesheet: Stylesheet) => {
         new Function(`function validateJS() { ${js} }`)
     } catch {
         Logger.error('Failed to create virtual js')
-
         return ''
     }
 

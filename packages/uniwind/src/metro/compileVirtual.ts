@@ -2,11 +2,12 @@ import { compile } from '@tailwindcss/node'
 import fs from 'fs'
 import { MediaQuery, transform } from 'lightningcss'
 import path from 'path'
-import { Processor } from './processor'
+import { ProcessorBuilder } from './processor'
 import { addMetaToStylesTemplate, serializeStylesheet } from './stylesheet'
 import { Platform } from './types'
 
 export const compileVirtual = async (input: string, getCandidates: () => Array<string>, platform: Platform) => {
+    const Processor = new ProcessorBuilder()
     const cssPath = path.join(process.cwd(), input)
     const css = fs.readFileSync(cssPath, 'utf8')
     const compiler = await compile(css, {
@@ -19,14 +20,41 @@ export const compileVirtual = async (input: string, getCandidates: () => Array<s
         return tailwindCSS
     }
 
-    const stylesheets = {} as Record<string, any>
-    const vars = {} as Record<string, any>
+    let newStyle = false
+    let isRTL = null as boolean | null
     const mediaQueries = [] as Array<MediaQuery>
+    const currentClassNames = new Set<string>()
 
     transform({
         filename: 'tailwind.css',
         code: Buffer.from(tailwindCSS),
         visitor: {
+            Declaration: declaration => {
+                if (currentClassNames.size === 0) {
+                    return
+                }
+
+                if (newStyle) {
+                    newStyle = false
+
+                    currentClassNames.forEach(className => {
+                        Processor.stylesheets[className] ??= []
+                        Processor.stylesheets[className].push({})
+                    })
+                }
+
+                const mq = Processor.MQ.processMediaQueries(mediaQueries)
+
+                mq.rtl = isRTL
+
+                currentClassNames.forEach(className => {
+                    const style = Processor.stylesheets[className]?.at(-1)
+                    const { property, value } = Processor.CSS.processDeclaration(declaration, className)
+
+                    style[property] = value
+                    Object.assign(style, mq)
+                })
+            },
             Rule: rule => {
                 if (rule.type === 'media') {
                     mediaQueries.push(...rule.value.query.mediaQueries)
@@ -39,7 +67,7 @@ export const compileVirtual = async (input: string, getCandidates: () => Array<s
                         return
                     }
 
-                    vars[rule.value.name] = Processor.CSS.processValue(rule.value.initialValue, { propertyName: rule.value.name })
+                    Processor.vars[rule.value.name] = Processor.CSS.processValue(rule.value.initialValue, { propertyName: rule.value.name })
                 }
 
                 if (rule.type === 'layer-block') {
@@ -56,12 +84,39 @@ export const compileVirtual = async (input: string, getCandidates: () => Array<s
                                     selector.some(selectorToken => selectorToken.type === 'pseudo-class' && selectorToken.kind === 'root')
                                 )
                             ) {
-                                vars[declaration.value.name] = Processor.CSS.processValue(declaration.value.value, {
+                                Processor.vars[declaration.value.name] = Processor.CSS.processValue(declaration.value.value, {
                                     propertyName: declaration.value.name,
                                 })
                             }
                         })
                     })
+                }
+
+                if (rule.type === 'style') {
+                    rule.value.selectors.forEach(selectorTokens => {
+                        selectorTokens.forEach(token => {
+                            if (token.type === 'pseudo-class' && token.kind === 'where') {
+                                token.selectors.flat().forEach(whereToken => {
+                                    if (whereToken.type === 'pseudo-class' && whereToken.kind === 'dir') {
+                                        isRTL = whereToken.direction === 'rtl'
+                                    }
+                                })
+                            }
+                        })
+
+                        const [selectorToken] = selectorTokens
+
+                        if (!selectorToken || selectorToken.type !== 'class') {
+                            return
+                        }
+
+                        currentClassNames.add(selectorToken.name)
+                    })
+                }
+            },
+            RuleExit: rule => {
+                if (rule.type === 'media') {
+                    mediaQueries.splice(rule.value.query.mediaQueries.length * -1)
                 }
 
                 if (rule.type === 'style') {
@@ -72,40 +127,17 @@ export const compileVirtual = async (input: string, getCandidates: () => Array<s
                             return
                         }
 
-                        const className = selectorToken.name
-                        const styles: Record<string, any> = {}
-
-                        rule.value.rules.forEach(rule => {
-                            if (rule.type === 'nested-declarations') {
-                                rule.value.declarations.declarations?.forEach(declaration => {
-                                    const { property, value } = Processor.CSS.processDeclaration(declaration, className)
-
-                                    styles[property] = value
-                                })
-                            }
-                        })
-
-                        rule.value.declarations.declarations.forEach(declaration => {
-                            const { property, value } = Processor.CSS.processDeclaration(declaration, className)
-
-                            styles[property] = value
-                        })
-
-                        const mq = Processor.MQ.processMediaQueries(mediaQueries)
-
-                        Object.assign(styles, mq)
-                        stylesheets[className] ??= []
-                        stylesheets[className].push(styles)
+                        currentClassNames.delete(selectorToken.name)
                     })
-                }
-            },
-            RuleExit: rule => {
-                if (rule.type === 'media') {
-                    mediaQueries.splice(mediaQueries.length * -1)
+
+                    if (currentClassNames.size === 0) {
+                        newStyle = true
+                        isRTL = null
+                    }
                 }
             },
         },
     })
 
-    return serializeStylesheet({ ...vars, ...addMetaToStylesTemplate(stylesheets, platform) })
+    return serializeStylesheet({ ...Processor.vars, ...addMetaToStylesTemplate(Processor, platform) })
 }

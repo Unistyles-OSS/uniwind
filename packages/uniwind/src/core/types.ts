@@ -33,6 +33,7 @@ export type UniwindRuntime = {
         left: number
         right: number
     }
+    colorMix: (color: string, mixColor: string, weight: number) => string
 }
 
 export type RNStyle = ViewStyle | TextStyle | ImageStyle
