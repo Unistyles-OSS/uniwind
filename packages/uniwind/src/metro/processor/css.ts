@@ -215,8 +215,10 @@ export class CSS {
                     return `${declarationValue.value.value}${declarationValue.value.type}`
                 case 'gradient':
                     if (declarationValue.value.type === 'linear') {
+                        const direction = String(this.processValue(declarationValue.value.direction))
+
                         return [
-                            `to ${this.processValue(declarationValue.value.direction)}`,
+                            direction.includes('deg') ? direction : `to ${direction}`,
                             ...declarationValue.value.items.map(item => this.processValue(item)),
                         ].join(', ')
                     }
@@ -228,6 +230,7 @@ export class CSS {
                         declarationValue.position ? this.processValue(declarationValue.position) : null,
                     ].filter(isDefined).join(' ')
                 case 'horizontal':
+                case 'vertical':
                 case 'white-space':
                 case 'string':
                 case 'self-position':
