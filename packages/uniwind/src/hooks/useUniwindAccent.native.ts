@@ -13,5 +13,5 @@ export const useUniwindAccent = (className: string) => {
         return dispose
     }, [uniwindState.dependencies, className])
 
-    return (uniwindState.styles as { accentColor?: string }).accentColor ?? ''
+    return uniwindState.styles.accentColor
 }
