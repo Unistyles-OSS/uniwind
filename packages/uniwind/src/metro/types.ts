@@ -37,6 +37,8 @@ export type MediaQueryResolver = {
     minWidth: any
     platform: Platform | null
     rtl: boolean | null
+    important: boolean
+    importantProperties?: Array<string>
     colorScheme: ColorScheme | null
     orientation: Orientation | null
 }

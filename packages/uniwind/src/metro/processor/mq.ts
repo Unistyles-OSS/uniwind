@@ -6,17 +6,6 @@ import type { ProcessorBuilder } from './processor'
 export class MQ {
     constructor(private readonly Processor: ProcessorBuilder) {}
 
-    getInitialMediaQueryResolver(): MediaQueryResolver {
-        return {
-            minWidth: 0,
-            maxWidth: Number.MAX_VALUE,
-            platform: null,
-            rtl: null,
-            colorScheme: null,
-            orientation: null,
-        }
-    }
-
     processMediaQueries(mediaQueries: Array<MediaQuery>) {
         const mq = this.getInitialMediaQueryResolver()
 
@@ -72,6 +61,18 @@ export class MQ {
                 break
             default:
                 break
+        }
+    }
+
+    private getInitialMediaQueryResolver(): MediaQueryResolver {
+        return {
+            minWidth: 0,
+            maxWidth: Number.MAX_VALUE,
+            platform: null,
+            rtl: null,
+            important: false,
+            colorScheme: null,
+            orientation: null,
         }
     }
 }

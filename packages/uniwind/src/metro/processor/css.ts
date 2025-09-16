@@ -1,4 +1,4 @@
-import { BackgroundPosition, Declaration, OverflowKeyword } from 'lightningcss'
+import { BackgroundPosition, OverflowKeyword } from 'lightningcss'
 import { Logger } from '../logger'
 import { DeclarationValues, ProcessMetaValues } from '../types'
 import { isDefined, pipe } from '../utils'
@@ -8,36 +8,6 @@ export class CSS {
     private readonly logger = new Logger('CSS')
 
     constructor(private readonly Processor: ProcessorBuilder) {}
-
-    processDeclaration(declaration: Declaration, className: string) {
-        if (declaration.property === 'unparsed') {
-            return {
-                property: declaration.value.propertyId.property,
-                value: this.processValue(declaration.value.value, {
-                    propertyName: declaration.value.propertyId.property,
-                    className,
-                }),
-            }
-        }
-
-        if (declaration.property === 'custom') {
-            return {
-                property: declaration.value.name,
-                value: this.processValue(declaration.value.value, {
-                    propertyName: declaration.value.name,
-                    className,
-                }),
-            }
-        }
-
-        return {
-            property: declaration.property,
-            value: this.processValue(declaration.value, {
-                propertyName: declaration.property,
-                className,
-            }),
-        }
-    }
 
     processValue(declarationValue: DeclarationValues, meta = {} as ProcessMetaValues): any {
         if (typeof declarationValue !== 'object') {

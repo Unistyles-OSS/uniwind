@@ -1,13 +1,24 @@
 import { StyleDependency } from '../../types'
 import { ProcessorBuilder } from '../processor'
 import { Platform, StyleSheetTemplate } from '../types'
-import { isDefined } from '../utils'
+import { isDefined, toCamelCase } from '../utils'
 
 export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlatform: Platform) => {
     const stylesheetsEntries = Object.entries(Processor.stylesheets as StyleSheetTemplate)
         .map(([className, stylesPerMediaQuery]) => {
             const styles = stylesPerMediaQuery.map((style, index) => {
-                const { platform, rtl, colorScheme, orientation, minWidth, maxWidth, ...rest } = style
+                const {
+                    platform,
+                    rtl,
+                    colorScheme,
+                    orientation,
+                    minWidth,
+                    maxWidth,
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    important,
+                    importantProperties,
+                    ...rest
+                } = style
 
                 const entries = Object.entries(rest)
                     .flatMap(([property, value]) => Processor.RN.cssToRN(property, value))
@@ -80,6 +91,7 @@ export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlat
                     dependencies,
                     index,
                     className,
+                    importantProperties: importantProperties?.map(property => property.startsWith('--') ? property : toCamelCase) ?? [],
                 }
             })
 

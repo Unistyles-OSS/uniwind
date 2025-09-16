@@ -14,6 +14,7 @@ export type Style = {
     dependencies: Array<StyleDependency>
     index: number
     className: string
+    importantProperties: Array<string>
 }
 
 export type StyleSheets = Record<string, Array<Style>>
