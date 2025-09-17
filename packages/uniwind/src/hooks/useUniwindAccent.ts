@@ -1,26 +1,17 @@
-import { useEffect, useState } from 'react'
-import { CSSListener } from '../core/cssListener'
-import { getAccentColor } from '../core/getAccentColor'
+import { formatHex, formatHex8, parse } from 'culori'
+import { useResolveClassNames } from './useResolveClassNames'
 
-type UseUniwindAccent = {
-    (className: string): string
-    (className: string | undefined): string | undefined
-}
+export const useUniwindAccent = (className: string | undefined) => {
+    const styles = useResolveClassNames(className ?? '')
+    const color = styles.accentColor !== undefined
+        ? parse(styles.accentColor)
+        : undefined
 
-export const useUniwindAccent: UseUniwindAccent = className => {
-    const [accentColor, setAccentColor] = useState(() => getAccentColor(className))
+    if (!color) {
+        return undefined
+    }
 
-    useEffect(() => {
-        if (className === undefined) {
-            return
-        }
-
-        setAccentColor(getAccentColor(className))
-
-        const dispose = CSSListener.addListener(className.split(' '), () => setAccentColor(getAccentColor(className)))
-
-        return dispose
-    }, [className])
-
-    return accentColor as string
+    return color.alpha !== undefined && color.alpha !== 1
+        ? formatHex8(color)
+        : formatHex(color)
 }

@@ -1,11 +1,15 @@
 import { useEffect, useReducer } from 'react'
 import { listenToNativeUpdates, UniwindStore } from '../core'
 
-export const useUniwindAccent = (className: string) => {
+export const useResolveClassNames = (className: string) => {
     const [uniwindState, recreate] = useReducer(
         () => UniwindStore.getStyles(className),
         UniwindStore.getStyles(className),
     )
+
+    useEffect(() => {
+        recreate()
+    }, [className])
 
     useEffect(() => {
         const dispose = listenToNativeUpdates(recreate, uniwindState.dependencies)
@@ -13,5 +17,5 @@ export const useUniwindAccent = (className: string) => {
         return dispose
     }, [uniwindState.dependencies, className])
 
-    return uniwindState.styles.accentColor
+    return uniwindState.styles
 }

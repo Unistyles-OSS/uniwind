@@ -63,6 +63,8 @@ export class UniwindStoreBuilder {
     private resolveStyles(styles: Array<[string, Style]>) {
         const dependencies = [] as Array<StyleDependency>
         const filteredStyles = styles.filter(([, style]) => {
+            dependencies.push(...style.dependencies)
+
             if (
                 style.minWidth > this.runtime.screen.width
                 || style.maxWidth < this.runtime.screen.height
@@ -115,7 +117,6 @@ export class UniwindStoreBuilder {
 
                 bestBreakpoints.set(property, style)
                 result[property] = value
-                dependencies.push(...style.dependencies)
 
                 if (property in style.stylesUsingVariables) {
                     usingVariables.set(property, style)

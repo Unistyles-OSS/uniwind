@@ -1,1 +1,1 @@
-export { useUniwindAccent } from './hooks'
+export { useResolveClassNames } from './hooks'
