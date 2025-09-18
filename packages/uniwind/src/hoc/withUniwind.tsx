@@ -54,7 +54,7 @@ const withAutoUniwind = (Component: Component<AnyObject>) => (props: AnyObject) 
         acc.colors[classToColor(key)] = color.accentColor !== undefined
             ? formatColor(color.accentColor)
             : undefined
-        acc.classNames += ` ${colorClassName}`
+        acc.classNames += `${colorClassName} `
 
         return acc
     }, { colors: {} as AnyObject, classNames: '' })
@@ -77,6 +77,48 @@ const withAutoUniwind = (Component: Component<AnyObject>) => (props: AnyObject) 
     )
 }
 
-const withManualUniwind = (Component: Component<AnyObject>, options: AnyObject) => (props: AnyObject) => {
-    return <Component {...props} />
+const withManualUniwind = (Component: Component<AnyObject>, options: Record<PropertyKey, OptionMapping>) => (props: AnyObject) => {
+    const { generatedProps, classNames } = Object.entries(options).reduce((acc, [propName, option]) => {
+        const className = props[option.toClassName]
+
+        if (className === undefined) {
+            return acc
+        }
+
+        if (option.styleProperty !== undefined) {
+            // If the prop is already defined, we don't want to override it
+            if (props[propName] !== undefined) {
+                return acc
+            }
+
+            const value = getWebStyles(className)[option.styleProperty]
+            const transformedValue = value !== undefined && option.styleProperty.toLowerCase().includes('color')
+                ? formatColor(value as string)
+                : value
+
+            acc.classNames += `${className} `
+            acc.generatedProps[propName] = transformedValue
+
+            return acc
+        }
+
+        acc.generatedProps[propName] = [{ $$css: true, tailwind: className }, props[propName]]
+
+        return acc
+    }, { generatedProps: {} as AnyObject, classNames: '' })
+
+    const [, rerender] = useReducer(() => ({}), {})
+
+    useEffect(() => {
+        const dispose = CSSListener.addListener(classNames, rerender)
+
+        return dispose
+    }, [classNames])
+
+    return (
+        <Component
+            {...props}
+            {...generatedProps}
+        />
+    )
 }
