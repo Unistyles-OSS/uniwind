@@ -4,7 +4,7 @@ import { resolveGradient } from './gradient'
 import { listenToNativeUpdates } from './nativeListener'
 import { parseBoxShadow, parseTransformsMutation } from './parsers'
 import { UniwindRuntime } from './runtime'
-import { Style, StyleSheets } from './types'
+import { RNStyle, Style, StyleSheets } from './types'
 
 export class UniwindStoreBuilder {
     stylesheets = {} as StyleSheets
@@ -26,7 +26,7 @@ export class UniwindStoreBuilder {
     getStyles(className?: string) {
         if (className === undefined) {
             return {
-                styles: {},
+                styles: {} as RNStyle,
                 dependencies: [],
             }
         }
@@ -160,7 +160,7 @@ export class UniwindStoreBuilder {
         }
 
         return {
-            styles: result,
+            styles: result as RNStyle,
             dependencies: Array.from(new Set(dependencies)),
         }
     }

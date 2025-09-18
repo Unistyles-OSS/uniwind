@@ -1,7 +1,6 @@
 import { useEffect, useReducer } from 'react'
-import { CSSListener } from '../core/cssListener'
-import { formatColor } from '../core/formatColor'
-import { getWebStyles } from '../core/getWebStyles'
+import { UniwindStore } from '../core'
+import { StyleDependency } from '../types'
 import { AnyObject, Component, OptionMapping, WithUniwind } from './types'
 import { classToColor, classToStyle, isClassProperty, isColorClassProperty, isStyleProperty } from './withUniwindUtils'
 
@@ -16,7 +15,7 @@ export const withUniwind: WithUniwind = <
     : withAutoUniwind(Component)
 
 const withAutoUniwind = (Component: Component<AnyObject>) => (props: AnyObject) => {
-    const { classNames, generatedProps } = Object.entries(props).reduce((acc, [propName, propValue]) => {
+    const { dependencies, generatedProps } = Object.entries(props).reduce((acc, [propName, propValue]) => {
         if (isColorClassProperty(propName)) {
             const colorProp = classToColor(propName)
 
@@ -24,22 +23,21 @@ const withAutoUniwind = (Component: Component<AnyObject>) => (props: AnyObject) 
                 return acc
             }
 
-            const className = propValue
-            const color = getWebStyles(className).accentColor
+            const { styles, dependencies } = UniwindStore.getStyles(propValue)
 
-            acc.generatedProps[colorProp] = color !== undefined
-                ? formatColor(color)
-                : undefined
-            acc.classNames += `${className} `
+            acc.dependencies.push(...dependencies)
+            acc.generatedProps[colorProp] = styles.accentColor
 
             return acc
         }
 
         if (isClassProperty(propName)) {
             const styleProp = classToStyle(propName)
+            const { styles, dependencies } = UniwindStore.getStyles(propValue)
 
+            acc.dependencies.push(...dependencies)
             acc.generatedProps[styleProp] ??= []
-            acc.generatedProps[styleProp][0] = { $$css: true, tailwind: propValue }
+            acc.generatedProps[styleProp][0] = styles
 
             return acc
         }
@@ -52,15 +50,16 @@ const withAutoUniwind = (Component: Component<AnyObject>) => (props: AnyObject) 
         }
 
         return acc
-    }, { generatedProps: {} as AnyObject, classNames: '' })
+    }, { generatedProps: {} as AnyObject, dependencies: [] as Array<StyleDependency> })
 
+    const deps = Array.from(new Set(dependencies))
     const [, rerender] = useReducer(() => ({}), {})
 
     useEffect(() => {
-        const dispose = CSSListener.addListener(classNames, rerender)
+        const dispose = UniwindStore.subscribe(rerender, deps)
 
         return dispose
-    }, [classNames])
+    }, deps)
 
     return (
         <Component
@@ -71,7 +70,7 @@ const withAutoUniwind = (Component: Component<AnyObject>) => (props: AnyObject) 
 }
 
 const withManualUniwind = (Component: Component<AnyObject>, options: Record<PropertyKey, OptionMapping>) => (props: AnyObject) => {
-    const { generatedProps, classNames } = Object.entries(options).reduce((acc, [propName, option]) => {
+    const { generatedProps, dependencies } = Object.entries(options).reduce((acc, [propName, option]) => {
         const className = props[option.toClassName]
 
         if (className === undefined) {
@@ -84,29 +83,30 @@ const withManualUniwind = (Component: Component<AnyObject>, options: Record<Prop
                 return acc
             }
 
-            const value = getWebStyles(className)[option.styleProperty]
-            const transformedValue = value !== undefined && option.styleProperty.toLowerCase().includes('color')
-                ? formatColor(value as string)
-                : value
+            const { styles, dependencies } = UniwindStore.getStyles(className)
 
-            acc.classNames += `${className} `
-            acc.generatedProps[propName] = transformedValue
+            acc.generatedProps[propName] = styles[option.styleProperty]
+            acc.dependencies.push(...dependencies)
 
             return acc
         }
 
-        acc.generatedProps[propName] = [{ $$css: true, tailwind: className }, props[propName]]
+        const { styles, dependencies } = UniwindStore.getStyles(className)
+
+        acc.generatedProps[propName] = styles
+        acc.dependencies.push(...dependencies)
 
         return acc
-    }, { generatedProps: {} as AnyObject, classNames: '' })
+    }, { generatedProps: {} as AnyObject, dependencies: [] as Array<StyleDependency> })
 
+    const deps = Array.from(new Set(dependencies))
     const [, rerender] = useReducer(() => ({}), {})
 
     useEffect(() => {
-        const dispose = CSSListener.addListener(classNames, rerender)
+        const dispose = UniwindStore.subscribe(rerender, deps)
 
         return dispose
-    }, [classNames])
+    }, deps)
 
     return (
         <Component

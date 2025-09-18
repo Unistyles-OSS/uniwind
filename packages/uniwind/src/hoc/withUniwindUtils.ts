@@ -6,6 +6,5 @@ export const classToStyle = (className: string) =>
 export const classToColor = (className: string) => className.replace('ClassName', '')
 
 export const isColorClassProperty = (prop: string) => prop === 'colorClassName' || prop.endsWith('ColorClassName')
-export const isColorProperty = (prop: string) => prop === 'color' || prop.endsWith('Color')
 export const isClassProperty = (prop: string) => prop === 'className' || prop.endsWith('ClassName')
 export const isStyleProperty = (prop: string) => prop === 'style' || prop.endsWith('Style')
