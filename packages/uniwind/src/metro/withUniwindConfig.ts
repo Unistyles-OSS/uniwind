@@ -16,7 +16,7 @@ const getPlatformFromVirtualPath = (path: string) => {
 
 const platforms = [Platform.iOS, Platform.Android, Platform.Web]
 
-export const withUniwind = (
+export const withUniwindConfig = (
     config: DeepMutable<MetroConfig>,
     uniwindConfig: UniwindConfig,
 ) => {

@@ -1,5 +1,5 @@
 const { getDefaultConfig } = require('expo/metro-config')
-const { withUniwind } = require('uniwind/metro')
+const { withUniwindConfig } = require('uniwind/metro')
 const path = require('path')
 
 const projectRoot = __dirname
@@ -17,5 +17,5 @@ module.exports = (async () => {
         path.join(workspaceRoot, 'node_modules'),
     ]
 
-    return withUniwind(config, { input: 'global.css' })
+    return withUniwindConfig(config, { input: 'global.css' })
 })()

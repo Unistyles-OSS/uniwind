@@ -4,4 +4,4 @@ type UniwindConfig = {
     input: string
 }
 
-export declare function withUniwind(config: MetroConfig, options: UniwindConfig): MetroConfig
+export declare function withUniwindConfig(config: MetroConfig, options: UniwindConfig): MetroConfig

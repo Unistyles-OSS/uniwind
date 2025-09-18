@@ -1,5 +1,5 @@
 const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config')
-const { withUniwind } = require('uniwind/metro')
+const { withUniwindConfig } = require('uniwind/metro')
 const path = require('path')
 
 const projectRoot = __dirname
@@ -27,4 +27,4 @@ const config = {
     },
 }
 
-module.exports = withUniwind(mergeConfig(getDefaultConfig(__dirname), config), { input: 'global.css' })
+module.exports = withUniwindConfig(mergeConfig(getDefaultConfig(__dirname), config), { input: 'global.css' })

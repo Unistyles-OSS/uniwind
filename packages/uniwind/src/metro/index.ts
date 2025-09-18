@@ -1,1 +1,1 @@
-export * from './withUniwind'
+export * from './withUniwindConfig'
