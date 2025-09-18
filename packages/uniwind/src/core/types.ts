@@ -38,7 +38,9 @@ export type UniwindRuntime = {
     colorMix: (color: string, mixColor: string, weight: number) => string
 }
 
-export type RNStyle = ViewStyle | TextStyle | ImageStyle
+export type RNStyle = ViewStyle & TextStyle & ImageStyle & {
+    accentColor?: string
+}
 
 export type RNStylesProps =
     | 'style'

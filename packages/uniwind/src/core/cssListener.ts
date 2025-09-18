@@ -25,10 +25,10 @@ class CSSListenerBuilder {
         })
     }
 
-    addListener(classNames: Array<string>, listener: VoidFunction) {
+    addListener(classNames: string, listener: VoidFunction) {
         const disposables = [] as Array<VoidFunction>
 
-        classNames.forEach((className) => {
+        classNames.split(' ').forEach(className => {
             const mediaQuery = this.classNameMediaQueryListeners.get(className)
 
             if (!mediaQuery) {

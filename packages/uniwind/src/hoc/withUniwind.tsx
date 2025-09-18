@@ -1,5 +1,9 @@
+import { useEffect, useReducer } from 'react'
+import { CSSListener } from '../core/cssListener'
+import { formatColor } from '../core/formatColor'
+import { getWebStyles } from '../core/getWebStyles'
 import { AnyObject, Component, OptionMapping, WithUniwind } from './types'
-import { classToStyle, isClassProperty, isStyleProperty } from './withUniwindUtils'
+import { classToColor, classToStyle, isClassProperty, isColorClassProperty, isColorProperty, isStyleProperty } from './withUniwindUtils'
 
 export const withUniwind: WithUniwind = <
     TProps extends AnyObject,
@@ -12,7 +16,19 @@ export const withUniwind: WithUniwind = <
     : withAutoUniwind(Component)
 
 const withAutoUniwind = (Component: Component<AnyObject>) => (props: AnyObject) => {
-    const { rest, styles } = Object.entries(props).reduce((acc, [propName, propValue]) => {
+    const { styles, colorClassNames, colorStyles } = Object.entries(props).reduce((acc, [propName, propValue]) => {
+        if (isColorClassProperty(propName)) {
+            acc.colorClassNames[propName] = propValue
+
+            return acc
+        }
+
+        if (isColorProperty(propName)) {
+            acc.colorStyles[propName] = propValue
+
+            return acc
+        }
+
         if (isClassProperty(propName)) {
             const styleProp = classToStyle(propName)
 
@@ -29,12 +45,36 @@ const withAutoUniwind = (Component: Component<AnyObject>) => (props: AnyObject) 
             return acc
         }
 
-        acc.rest[propName] = propValue
+        return acc
+    }, { styles: {} as AnyObject, colorClassNames: {} as AnyObject, colorStyles: {} as AnyObject })
+
+    const { classNames, colors } = Object.entries(colorClassNames).reduce((acc, [key, colorClassName]) => {
+        const color = getWebStyles(colorClassName)
+
+        acc.colors[classToColor(key)] = color.accentColor !== undefined
+            ? formatColor(color.accentColor)
+            : undefined
+        acc.classNames += ` ${colorClassName}`
 
         return acc
-    }, { rest: {} as AnyObject, styles: {} as AnyObject })
+    }, { colors: {} as AnyObject, classNames: '' })
 
-    return <Component {...rest} {...styles} />
+    const [, rerender] = useReducer(() => ({}), {})
+
+    useEffect(() => {
+        const dispose = CSSListener.addListener(classNames, rerender)
+
+        return dispose
+    }, [classNames])
+
+    return (
+        <Component
+            {...props}
+            {...styles}
+            {...colors}
+            {...colorStyles}
+        />
+    )
 }
 
 const withManualUniwind = (Component: Component<AnyObject>, options: AnyObject) => (props: AnyObject) => {
