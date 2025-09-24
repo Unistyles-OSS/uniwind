@@ -8,7 +8,7 @@ export type Style = {
     stylesUsingVariables: Record<string, string>
     inlineVariables: Array<[string, () => unknown]>
     orientation: Orientation | null
-    colorScheme: ColorScheme | null
+    theme: ColorScheme | null
     rtl: boolean | null
     native: boolean
     dependencies: Array<StyleDependency>
@@ -27,6 +27,7 @@ export type UniwindRuntime = {
     }
     orientation: Orientation
     colorScheme: ColorScheme
+    currentThemeName: string
     rtl: boolean
     rem: number
     insets: {

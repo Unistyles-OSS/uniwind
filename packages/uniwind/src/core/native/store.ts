@@ -1,5 +1,5 @@
-import { Appearance, Dimensions } from 'react-native'
-import { ColorScheme, Orientation, StyleDependency } from '../../types'
+import { Dimensions } from 'react-native'
+import { Orientation, StyleDependency } from '../../types'
 import { RNStyle, Style, StyleSheets } from '../types'
 import { parseBoxShadow, parseTransformsMutation, resolveGradient } from './parsers'
 import { UniwindRuntime } from './runtime'
@@ -7,7 +7,7 @@ import { UniwindRuntime } from './runtime'
 export class UniwindStoreBuilder {
     stylesheets = {} as StyleSheets
     listeners = {
-        [StyleDependency.ColorScheme]: new Set<() => void>(),
+        [StyleDependency.Theme]: new Set<() => void>(),
         [StyleDependency.Dimensions]: new Set<() => void>(),
         [StyleDependency.Orientation]: new Set<() => void>(),
         [StyleDependency.Insets]: new Set<() => void>(),
@@ -74,7 +74,7 @@ export class UniwindStoreBuilder {
             if (
                 style.minWidth > this.runtime.screen.width
                 || style.maxWidth < this.runtime.screen.height
-                || (style.colorScheme !== null && this.runtime.colorScheme !== style.colorScheme)
+                || (style.theme !== null && this.runtime.currentThemeName !== style.theme)
                 || (style.orientation !== null && this.runtime.orientation !== style.orientation)
                 || (style.rtl !== null && this.runtime.rtl !== style.rtl)
             ) {
@@ -193,9 +193,4 @@ Dimensions.addEventListener('change', ({ window }) => {
         ...orientationChanged ? [StyleDependency.Orientation] : [],
         StyleDependency.Dimensions,
     ])
-})
-
-Appearance.addChangeListener(({ colorScheme }) => {
-    UniwindStore.runtime.colorScheme = (colorScheme ?? ColorScheme.Light) as ColorScheme
-    UniwindStore.notifyListeners([StyleDependency.ColorScheme])
 })

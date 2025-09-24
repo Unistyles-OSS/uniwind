@@ -1,5 +1,5 @@
 export enum StyleDependency {
-    ColorScheme = 1,
+    Theme = 1,
     Dimensions = 2,
     Orientation = 3,
     Insets = 4,
@@ -16,3 +16,6 @@ export const enum ColorScheme {
     Light = 'light',
     Dark = 'dark',
 }
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface UniwindConfig {}

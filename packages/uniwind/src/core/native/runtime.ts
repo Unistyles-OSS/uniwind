@@ -4,13 +4,15 @@ import { ColorScheme, Orientation } from '../../types'
 import type { UniwindRuntime as UniwindRuntimeType } from '../types'
 
 const window = Dimensions.get('window')
+const initialColorScheme = Appearance.getColorScheme() ?? ColorScheme.Light
 
 export const UniwindRuntime = {
     screen: {
         width: window.width,
         height: window.height,
     },
-    colorScheme: Appearance.getColorScheme() ?? ColorScheme.Light,
+    colorScheme: initialColorScheme,
+    currentThemeName: initialColorScheme,
     orientation: window.width > window.height ? Orientation.Landscape : Orientation.Portrait,
     rem: PixelRatio.getFontScale() * 16,
     rtl: I18nManager.isRTL,

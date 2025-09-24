@@ -10,10 +10,11 @@ export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlat
                 const {
                     platform,
                     rtl,
-                    colorScheme,
+                    theme,
                     orientation,
                     minWidth,
                     maxWidth,
+                    colorScheme,
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
                     important,
                     importantProperties,
@@ -50,8 +51,8 @@ export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlat
 
                 const stringifiedEntries = JSON.stringify(filteredEntries)
 
-                if (colorScheme !== null) {
-                    dependencies.push(StyleDependency.ColorScheme)
+                if (theme !== null) {
+                    dependencies.push(StyleDependency.Theme)
                 }
 
                 if (orientation !== null) {
@@ -82,9 +83,10 @@ export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlat
                     entries: filteredEntries,
                     minWidth,
                     maxWidth,
-                    colorScheme,
+                    theme,
                     orientation,
                     rtl,
+                    colorScheme,
                     native: platform !== null,
                     stylesUsingVariables,
                     inlineVariables,
@@ -94,7 +96,7 @@ export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlat
                     importantProperties: importantProperties?.map(property => property.startsWith('--') ? property : toCamelCase) ?? [],
                     complexity: [
                         minWidth !== 0,
-                        colorScheme !== null,
+                        theme !== null,
                         orientation !== null,
                         rtl !== null,
                         platform !== null,

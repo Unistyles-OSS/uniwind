@@ -40,6 +40,7 @@ export class ProcessorBuilder {
             rtl: null as boolean | null,
             mediaQueries: [] as Array<MediaQuery>,
             root: false,
+            theme: null as string | null,
         })
     }
 
@@ -54,6 +55,7 @@ export class ProcessorBuilder {
             Object.assign(style, mq)
             style.importantProperties ??= []
             style.rtl = this.declarationConfig.rtl
+            style.theme = mq.colorScheme ?? this.declarationConfig.theme
         }
 
         if (declaration.property === 'unparsed') {
@@ -102,11 +104,16 @@ export class ProcessorBuilder {
                 }
 
                 let rtl = null as boolean | null
+                let theme = null as string | null
 
                 selector.forEach(selector => {
                     if (selector.type === 'pseudo-class' && selector.kind === 'where') {
                         selector.selectors.forEach(selector => {
                             selector.forEach(selector => {
+                                if (selector.type === 'class') {
+                                    theme = selector.name
+                                }
+
                                 if (selector.type === 'pseudo-class' && selector.kind === 'dir') {
                                     rtl = selector.direction === 'rtl'
                                 }
@@ -115,8 +122,9 @@ export class ProcessorBuilder {
                     }
                 })
 
-                if (rtl !== null) {
+                if (rtl !== null || theme !== null) {
                     this.declarationConfig.rtl = rtl
+                    this.declarationConfig.theme = theme
 
                     rule.value.declarations?.declarations?.forEach(declaration => this.addDeclaration(declaration))
                     rule.value.declarations?.importantDeclarations?.forEach(declaration => this.addDeclaration(declaration, true))

@@ -73,6 +73,7 @@ export class MQ {
             important: false,
             colorScheme: null,
             orientation: null,
+            theme: null,
         }
     }
 }

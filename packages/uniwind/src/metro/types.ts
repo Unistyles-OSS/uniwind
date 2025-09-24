@@ -40,6 +40,7 @@ export type MediaQueryResolver = {
     important: boolean
     importantProperties?: Array<string>
     colorScheme: ColorScheme | null
+    theme: string | null
     orientation: Orientation | null
 }
 
