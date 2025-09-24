@@ -1,9 +1,26 @@
 @import 'tailwindcss';
 @import 'uniwind';
 
-@theme {
-    --color-primary: oklch(0.72 0.11 178);
-}
-
 @custom-variant dark (&:where(.dark, .dark *));
 @custom-variant light (&:where(.light, .light *));
+@custom-variant premium (&:where(.premium, .premium *));
+
+@theme {
+    --color-background: unset;
+}
+
+@layer theme {
+    :root {
+        @variant dark {
+            --color-background: black;
+        }
+
+        @variant light {
+            --color-background: white;
+        }
+
+        @variant premium {
+            --color-background: gold;
+        }
+    }
+}
