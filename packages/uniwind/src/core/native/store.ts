@@ -136,6 +136,11 @@ export class UniwindStoreBuilder {
 
         if (usingVariables.size > 0) {
             const styleSheet = globalThis.__uniwind__computeStylesheet(this.runtime)
+            const themeVars = styleSheet[`__uniwind-theme-${this.runtime.currentThemeName}`]
+
+            if (themeVars) {
+                Object.assign(styleSheet, themeVars)
+            }
 
             inlineVariables.forEach((varValue, varName) => {
                 Object.defineProperty(styleSheet, varName, {

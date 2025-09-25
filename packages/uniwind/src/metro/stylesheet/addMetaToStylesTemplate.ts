@@ -104,6 +104,12 @@ export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlat
                 }
             })
 
+            const filteredStyles = styles.filter(isDefined)
+
+            if (filteredStyles.length === 0) {
+                return null
+            }
+
             return [
                 className,
                 styles,
