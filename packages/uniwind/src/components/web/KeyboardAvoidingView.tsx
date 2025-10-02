@@ -11,3 +11,5 @@ export const KeyboardAvoidingView = copyComponentProperties(RNKeyboardAvoidingVi
         />
     )
 })
+
+export default KeyboardAvoidingView

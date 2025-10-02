@@ -5,7 +5,7 @@ import type { MetroConfig } from 'metro-config'
 import path from 'path'
 import { compileVirtual } from './compileVirtual'
 import { injectThemes } from './injectThemes'
-import { nativeResolver } from './resolvers'
+import { nativeResolver, webResolver } from './resolvers'
 import { DeepMutable, ExtendedBundler, ExtendedFileSystem, FileChangeEvent, Platform, UniwindConfig } from './types'
 import { areSetsEqual } from './utils'
 
@@ -75,14 +75,13 @@ export const withUniwindConfig = (
     )
     config.resolver.resolveRequest = (context, moduleName, platform) => {
         const resolver = uniwind.originalResolveRequest ?? context.resolveRequest
-        const resolved = platform === Platform.Web
-            ? resolver(context, moduleName, platform)
-            : nativeResolver({
-                context,
-                moduleName,
-                platform,
-                resolver,
-            })
+        const platformResolver = platform === Platform.Web ? webResolver : nativeResolver
+        const resolved = platformResolver({
+            context,
+            moduleName,
+            platform,
+            resolver,
+        })
 
         if (('filePath' in resolved && resolved.filePath !== path.join(process.cwd(), uniwindConfig.cssEntryFile))) {
             return resolved

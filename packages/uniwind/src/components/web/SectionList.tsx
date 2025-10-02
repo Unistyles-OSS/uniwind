@@ -13,3 +13,5 @@ export const SectionList = copyComponentProperties(RNSectionList, (props: Sectio
         />
     )
 })
+
+export default SectionList

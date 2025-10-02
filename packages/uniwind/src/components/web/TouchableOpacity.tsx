@@ -10,3 +10,5 @@ export const TouchableOpacity = copyComponentProperties(RNTouchableOpacity, (pro
         />
     )
 })
+
+export default TouchableOpacity

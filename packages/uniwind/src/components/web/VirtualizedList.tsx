@@ -13,3 +13,5 @@ export const VirtualizedList = copyComponentProperties(RNVirtualizedList, (props
         />
     )
 })
+
+export default VirtualizedList

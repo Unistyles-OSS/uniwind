@@ -208,6 +208,8 @@ export class CSS {
                     ].filter(isDefined).join(' ')
                 case 'side':
                     return declarationValue.side
+                case 'absolute':
+                    return declarationValue.type
                 case 'horizontal':
                 case 'vertical':
                 case 'white-space':

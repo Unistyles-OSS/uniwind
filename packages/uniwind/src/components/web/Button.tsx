@@ -12,3 +12,5 @@ export const Button = copyComponentProperties(RNButton, (props: ButtonProps) => 
         />
     )
 })
+
+export default Button

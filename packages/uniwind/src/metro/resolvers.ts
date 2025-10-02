@@ -14,8 +14,29 @@ const thisModuleSrc = resolve(__dirname, '../../src')
 
 const isFromThisModule = (filename: string) => filename.startsWith(thisModuleDist) || filename.startsWith(thisModuleSrc)
 
-const DEFAULT_RN_COMPONENTS = [
+const SUPPORTED_COMPONENTS = [
+    'ActivityIndicator',
+    'Button',
+    'FlatList',
+    'Image',
+    'ImageBackground',
+    'InputAccessoryView',
+    'KeyboardAvoidingView',
+    'Modal',
+    'Pressable',
+    'RefreshControl',
+    'SafeAreaView',
+    'ScrollView',
+    'SectionList',
+    'Switch',
+    'Text',
+    'TextInput',
+    'TouchableHighlight',
+    'TouchableNativeFeedback',
+    'TouchableOpacity',
+    'TouchableWithoutFeedback',
     'View',
+    'VirtualizedList',
 ]
 
 export const nativeResolver = ({
@@ -44,10 +65,37 @@ export const nativeResolver = ({
         const filename = basename(resolution.filePath.split(sep).at(-1) ?? '')
         const module = filename.split('.').at(0)
 
-        if (module !== undefined && DEFAULT_RN_COMPONENTS.includes(module)) {
+        if (module !== undefined && SUPPORTED_COMPONENTS.includes(module)) {
             return resolver(context, `${name}/components/${module}`, platform)
         }
     }
 
     return resolution
+}
+
+export const webResolver = ({
+    context,
+    moduleName,
+    platform,
+    resolver,
+}: ResolverConfig) => {
+    const resolution = resolver(context, moduleName, platform)
+
+    if (
+        isFromThisModule(context.originModulePath)
+        || resolution.type !== 'sourceFile'
+        || !resolution.filePath.includes(`${sep}react-native-web${sep}`)
+    ) {
+        return resolution
+    }
+
+    const segments = resolution.filePath.split(sep)
+    const isIndex = segments.at(-1)?.startsWith('index.')
+    const module = segments.at(-2)
+
+    if (!isIndex || module === undefined || !SUPPORTED_COMPONENTS.includes(module) || context.originModulePath.endsWith(`${module}/index.js`)) {
+        return resolution
+    }
+
+    return resolver(context, `${name}/components/${module}`, platform)
 }

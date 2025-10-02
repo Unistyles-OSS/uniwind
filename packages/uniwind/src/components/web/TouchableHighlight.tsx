@@ -14,3 +14,5 @@ export const TouchableHighlight = copyComponentProperties(RNTouchableHighlight, 
         />
     )
 })
+
+export default TouchableHighlight

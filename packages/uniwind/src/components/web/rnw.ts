@@ -1,3 +1,5 @@
+import '../../core/config'
+
 const moveCssRulesToUtilitiesLayer = (sourceSheet: CSSStyleSheet) => {
     const layerRuleIndex = sourceSheet.insertRule(
         '@layer rnw {}',

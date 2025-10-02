@@ -17,3 +17,5 @@ export const Switch = copyComponentProperties(RNSwitch, (props: SwitchProps) => 
         />
     )
 })
+
+export default Switch

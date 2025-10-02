@@ -16,3 +16,5 @@ export const FlatList = copyComponentProperties(RNFlatList, (props: FlatListProp
         />
     )
 })
+
+export default FlatList

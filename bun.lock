@@ -68,7 +68,7 @@
     },
     "packages/uniwind": {
       "name": "uniwind",
-      "version": "1.0.0-alpha-2",
+      "version": "1.0.0-beta.3",
       "dependencies": {
         "@tailwindcss/node": "4.1.13",
         "@tailwindcss/oxide": "4.1.13",
