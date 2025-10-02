@@ -12,3 +12,5 @@ export const View = copyComponentProperties(RNView, (props: ViewProps) => {
         />
     )
 })
+
+export default View

@@ -15,3 +15,5 @@ export const ActivityIndicator = copyComponentProperties(RNActivityIndicator, (p
         />
     )
 })
+
+export default ActivityIndicator

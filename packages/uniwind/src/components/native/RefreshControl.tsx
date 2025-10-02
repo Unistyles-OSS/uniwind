@@ -21,3 +21,5 @@ export const RefreshControl = copyComponentProperties(RNRefreshControl, (props: 
         />
     )
 })
+
+export default RefreshControl

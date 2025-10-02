@@ -12,3 +12,5 @@ export const Pressable = copyComponentProperties(RNPressable, (props: PressableP
         />
     )
 })
+
+export default Pressable

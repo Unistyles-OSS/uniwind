@@ -20,3 +20,5 @@ export const Text = copyComponentProperties(RNText, (props: TextProps) => {
         />
     )
 })
+
+export default Text

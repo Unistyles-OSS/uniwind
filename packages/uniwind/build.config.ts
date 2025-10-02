@@ -51,11 +51,6 @@ export default defineBuildConfig({
             declaration: true,
             format: 'esm',
         },
-        {
-            builder: 'rollup',
-            input: './src/babel',
-            name: 'babel/index',
-        },
         ...getConfig({
             input: './src/components',
             outDir: 'components',
@@ -65,8 +60,6 @@ export default defineBuildConfig({
             outDir: '',
             pattern: [
                 '**/*',
-                '!babel/**',
-                '!components/**',
                 '!metro/**',
             ],
             declaration: true,

@@ -7,7 +7,6 @@ module.exports = function(api) {
     return {
         presets: ['module:@react-native/babel-preset'],
         plugins: [
-            `${pak.name}/babel`,
             [
                 'module-resolver',
                 {

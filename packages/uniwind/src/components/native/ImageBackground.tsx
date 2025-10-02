@@ -17,3 +17,5 @@ export const ImageBackground = copyComponentProperties(RNImageBackground, (props
         />
     )
 })
+
+export default ImageBackground

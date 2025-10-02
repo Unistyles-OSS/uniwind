@@ -12,3 +12,5 @@ export const TouchableWithoutFeedback = copyComponentProperties(RNTouchableWitho
         />
     )
 })
+
+export default TouchableWithoutFeedback

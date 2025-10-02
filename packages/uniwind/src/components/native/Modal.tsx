@@ -15,3 +15,5 @@ export const Modal = copyComponentProperties(RNModal, (props: ModalProps) => {
         />
     )
 })
+
+export default Modal

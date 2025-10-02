@@ -23,3 +23,5 @@ export const TextInput = copyComponentProperties(RNTextInput, (props: TextInputP
         />
     )
 })
+
+export default TextInput

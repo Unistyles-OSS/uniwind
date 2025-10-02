@@ -29,12 +29,16 @@
             "types": "./dist/module/index.d.ts",
             "default": "./dist/common/index.js"
         },
-        "./components/*": {
-            "react-native": "./dist/common/components/index.native.js",
+        "./components": {
+            "react-native": "./src/components/index.native.ts",
             "import": "./dist/module/components/index.js",
             "default": "./dist/common/components/index.js"
         },
-        "./babel": "./dist/babel/index.cjs",
+        "./components/*": {
+            "react-native": "./dist/common/components/native/*.js",
+            "import": "./dist/module/components/web/*.js",
+            "default": "./dist/common/components/web/*.js"
+        },
         "./metro": {
             "types": "./dist/metro/index.d.ts",
             "import": "./dist/metro/index.mjs",
@@ -44,10 +48,9 @@
         "./package.json": "./package.json"
     },
     "files": [
+        "src",
         "dist",
         "metro",
-        "components",
-        "babel",
         "uniwind.css",
         "types.d.ts",
         "README.md"

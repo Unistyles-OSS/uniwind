@@ -15,3 +15,5 @@ export const Image = copyComponentProperties(RNImage, (props: ImageProps) => {
         />
     )
 })
+
+export default Image

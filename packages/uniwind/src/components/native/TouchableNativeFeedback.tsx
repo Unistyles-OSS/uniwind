@@ -15,3 +15,5 @@ export const TouchableNativeFeedback = copyComponentProperties(
         )
     },
 )
+
+export default TouchableNativeFeedback

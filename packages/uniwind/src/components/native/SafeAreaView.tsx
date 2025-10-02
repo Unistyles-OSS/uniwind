@@ -12,3 +12,5 @@ export const SafeAreaView = copyComponentProperties(RNSafeAreaView, (props: View
         />
     )
 })
+
+export default SafeAreaView

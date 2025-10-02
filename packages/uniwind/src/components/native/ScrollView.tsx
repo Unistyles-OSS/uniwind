@@ -17,3 +17,5 @@ export const ScrollView = copyComponentProperties(RNScrollView, (props: ScrollVi
         />
     )
 })
+
+export default ScrollView

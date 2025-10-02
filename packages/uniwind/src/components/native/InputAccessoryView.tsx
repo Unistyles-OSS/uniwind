@@ -19,3 +19,5 @@ export const InputAccessoryView = copyComponentProperties(
         )
     },
 )
+
+export default InputAccessoryView
