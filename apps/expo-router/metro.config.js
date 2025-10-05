@@ -8,5 +8,5 @@ const config = getDefaultConfig(__dirname);
 module.exports = withUniwindConfig(config, {
   cssEntryFile: "./globals.css",
   dtsFile: "./uniwind.d.ts",
-  themes: ["light", "dark", "sepia"],
+  extraThemes: ["sepia"],
 });

@@ -58,7 +58,7 @@ export default function RootLayout() {
                 runtimeTheme: Uniwind.currentTheme,
                 adaptiveThemes: Uniwind.hasAdaptiveThemes,
                 '---': '----',
-                deciceColorScheme: colorScheme,
+                deviceColorScheme: colorScheme,
             },
             null,
             2,
