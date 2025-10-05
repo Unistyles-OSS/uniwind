@@ -31,7 +31,8 @@ export type DeepMutable<T> = {
 
 export type UniwindConfig = {
     cssEntryFile: string
-    themes?: Array<string>
+    themes: Array<string>
+    extraThemes?: Array<string>
     dtsFile?: string
 }
 

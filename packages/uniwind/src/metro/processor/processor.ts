@@ -22,6 +22,8 @@ export class ProcessorBuilder {
 
     private declarationConfig = this.getDeclarationConfig()
 
+    constructor(private readonly themes: Array<string>) {}
+
     transform(css: string) {
         transform({
             filename: 'tailwind.css',
@@ -99,15 +101,23 @@ export class ProcessorBuilder {
     }
 
     private parseRuleRec(rule: Rule<Declaration, MediaQuery>) {
+        if (this.declarationConfig.className !== null) {
+            const lastStyle = this.stylesheets[this.declarationConfig.className]?.at(-1)
+
+            if (lastStyle !== undefined && Object.keys(lastStyle).length > 0) {
+                this.stylesheets[this.declarationConfig.className]?.push({})
+            }
+        }
+
         if (rule.type === 'style') {
             rule.value.selectors.forEach(selector => {
                 const [maybeClassNameSelector] = selector
-                const className = maybeClassNameSelector?.type === 'class' ? maybeClassNameSelector.name : undefined
+                const newClassName = maybeClassNameSelector?.type === 'class' ? maybeClassNameSelector.name : undefined
 
-                if (className !== undefined) {
-                    this.stylesheets[className] ??= []
-                    this.stylesheets[className].push({})
-                    this.declarationConfig.className = className
+                if (newClassName !== undefined) {
+                    this.declarationConfig.className = newClassName
+                    this.stylesheets[newClassName] ??= []
+                    this.stylesheets[newClassName].push({})
 
                     rule.value.declarations?.declarations?.forEach(declaration => this.addDeclaration(declaration))
                     rule.value.declarations?.importantDeclarations?.forEach(declaration => this.addDeclaration(declaration, true))
@@ -123,7 +133,7 @@ export class ProcessorBuilder {
                     if (selector.type === 'pseudo-class' && selector.kind === 'where') {
                         selector.selectors.forEach(selector => {
                             selector.forEach(selector => {
-                                if (selector.type === 'class') {
+                                if (selector.type === 'class' && this.themes.includes(selector.name)) {
                                     theme = selector.name
                                 }
 

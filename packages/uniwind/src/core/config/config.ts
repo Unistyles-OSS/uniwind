@@ -38,27 +38,15 @@ class UniwindConfigBuilder {
         return this.#currentTheme
     }
 
-    private get haveLightAndDarkThemes() {
-        return this.themes.includes('light') && this.themes.includes('dark')
-    }
-
     private get themes() {
         return globalThis.__uniwindThemes__ ?? ['light', 'dark']
     }
 
     // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     setTheme(theme: ThemeName | typeof SYSTEM_THEME) {
-        if (theme === this.#currentTheme) {
-            return
-        }
-
         const prevTheme = this.#currentTheme
 
         if (theme === SYSTEM_THEME) {
-            if (!this.haveLightAndDarkThemes) {
-                throw new Error(`Uniwind: You're trying to setTheme to '${SYSTEM_THEME}', but you did not register 'light' and 'dark' themes.`)
-            }
-
             this.#hasAdaptiveThemes = true
             this.#currentTheme = this.#colorScheme
 

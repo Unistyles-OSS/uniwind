@@ -3,13 +3,13 @@ import { name } from '../../package.json'
 import { buildCSS } from '../css'
 
 type InjectThemesConfig = {
-    themes?: Array<string>
+    themes: Array<string>
     dtsPath?: string
     input: string
 }
 
 export const injectThemes = ({
-    themes = ['light', 'dark'],
+    themes,
     dtsPath = 'uniwind-types.d.ts',
     input,
 }: InjectThemesConfig) => {

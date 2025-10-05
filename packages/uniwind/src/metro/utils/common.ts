@@ -65,3 +65,5 @@ export const addMissingSpaces = (str: string) =>
         x => x.replace(/\](?=\d)/g, '] '),
         x => x.replace(/\)(?=\S)/g, ') '),
     )
+
+export const uniq = <T>(arr: Array<T>) => Array.from(new Set(arr))

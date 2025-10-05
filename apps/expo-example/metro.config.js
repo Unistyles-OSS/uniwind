@@ -17,5 +17,5 @@ module.exports = (async () => {
         path.join(workspaceRoot, 'node_modules'),
     ]
 
-    return withUniwindConfig(config, { cssEntryFile: 'global.css', themes: ['light', 'dark', 'premium'] })
+    return withUniwindConfig(config, { cssEntryFile: 'global.css', extraThemes: ['premium'] })
 })()

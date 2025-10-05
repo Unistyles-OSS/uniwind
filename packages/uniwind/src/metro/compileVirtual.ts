@@ -8,9 +8,10 @@ type CompileVirtualConfig = {
     css: string
     candidates: Array<string>
     platform: Platform
+    themes: Array<string>
 }
 
-export const compileVirtual = async ({ candidates, css, cssPath, platform }: CompileVirtualConfig) => {
+export const compileVirtual = async ({ candidates, css, cssPath, platform, themes }: CompileVirtualConfig) => {
     const compiler = await compile(css, {
         base: cssPath,
         onDependency: () => void 0,
@@ -21,7 +22,7 @@ export const compileVirtual = async ({ candidates, css, cssPath, platform }: Com
         return tailwindCSS
     }
 
-    const Processor = new ProcessorBuilder()
+    const Processor = new ProcessorBuilder(themes)
 
     Processor.transform(tailwindCSS)
 

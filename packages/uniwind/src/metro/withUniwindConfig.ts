@@ -4,10 +4,11 @@ import fs from 'fs'
 import type { MetroConfig } from 'metro-config'
 import path from 'path'
 import { compileVirtual } from './compileVirtual'
+import { getSources } from './getSources'
 import { injectThemes } from './injectThemes'
 import { nativeResolver, webResolver } from './resolvers'
 import { DeepMutable, ExtendedBundler, ExtendedFileSystem, FileChangeEvent, Platform, UniwindConfig } from './types'
-import { areSetsEqual } from './utils'
+import { areSetsEqual, uniq } from './utils'
 
 const getVirtualPath = (platform: string) => `${platform}.uniwind.${platform === Platform.Web ? 'css' : 'js'}`
 const getPlatformFromVirtualPath = (path: string) => {
@@ -22,6 +23,12 @@ export const withUniwindConfig = (
     config: DeepMutable<MetroConfig>,
     uniwindConfig: UniwindConfig,
 ) => {
+    uniwindConfig.themes = uniq([
+        'light',
+        'dark',
+        ...(uniwindConfig.extraThemes ?? []),
+    ])
+
     if (typeof uniwindConfig === 'undefined') {
         throw new Error('Uniwind: You need to pass second parameter to withUniwindConfig')
     }
@@ -42,16 +49,11 @@ export const withUniwindConfig = (
         candidates: new Set<string>(),
         cssFile: '',
         injectedThemesScript: '',
-        getCandidates: () =>
-            new Scanner({
-                sources: [
-                    {
-                        base: process.cwd(),
-                        pattern: '**/*',
-                        negated: false,
-                    },
-                ],
-            }).scan(),
+        getCandidates: (css: string) => {
+            const sources = getSources(css, path.dirname(uniwind.input))
+
+            return new Scanner({ sources }).scan()
+        },
     }
 
     const getInjectedThemesScript = () =>
@@ -120,7 +122,7 @@ export const withUniwindConfig = (
                         }
 
                         const css = fs.readFileSync(uniwind.input, 'utf-8')
-                        const candidates = new Set(uniwind.getCandidates())
+                        const candidates = new Set(uniwind.getCandidates(css))
                         const tailwindHasChanged = css !== uniwind.cssFile || !areSetsEqual(uniwind.candidates, candidates)
 
                         if (!tailwindHasChanged) {
@@ -150,7 +152,7 @@ export const withUniwindConfig = (
                 })
 
                 uniwind.cssFile = fs.readFileSync(uniwind.input, 'utf-8')
-                uniwind.candidates = new Set(uniwind.getCandidates())
+                uniwind.candidates = new Set(uniwind.getCandidates(uniwind.cssFile))
 
                 await Promise.all(platforms.map(getVirtualFile))
             })
@@ -218,6 +220,7 @@ export const withUniwindConfig = (
             cssPath: uniwind.input,
             css: uniwind.cssFile,
             platform,
+            themes: uniwindConfig.themes,
         })
 
         uniwind.virtualModules.set(getVirtualPath(platform), virtualFile)

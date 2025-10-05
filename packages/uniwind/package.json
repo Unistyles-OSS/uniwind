@@ -24,13 +24,17 @@
     "exports": {
         ".": {
             "style": "./uniwind.css",
+            "types": "./dist/module/index.d.ts",
             "react-native": "./src/index.ts",
             "import": "./dist/module/index.js",
-            "types": "./dist/module/index.d.ts",
             "default": "./dist/common/index.js"
         },
-        "./components": "./src/components/index.ts",
+        "./components": {
+            "types": "./no-types.d.ts",
+            "default": "./src/components/index.ts"
+        },
         "./components/*": {
+            "types": "./no-types.d.ts",
             "react-native": "./src/components/native/*.tsx",
             "import": "./dist/module/components/web/*.js",
             "default": "./dist/common/components/web/*.js"
@@ -52,8 +56,8 @@
         "README.md"
     ],
     "dependencies": {
-        "@tailwindcss/node": "4.1.13",
-        "@tailwindcss/oxide": "4.1.13",
+        "@tailwindcss/node": "4.1.14",
+        "@tailwindcss/oxide": "4.1.14",
         "chokidar": "4.0.3",
         "culori": "4.0.2"
     },
@@ -66,15 +70,15 @@
         "lightningcss": ">=1.30.0"
     },
     "devDependencies": {
-        "@types/bun": "1.2.21",
+        "@types/bun": "1.2.23",
         "@types/postcss-js": "4.0.4",
-        "@types/culori": "4.0.0",
-        "typescript": "5.9.2",
+        "@types/culori": "4.0.1",
+        "typescript": "5.9.3",
         "metro-config": "0.82.5",
-        "@babel/core": "7.28.3",
-        "@babel/types": "7.28.2",
+        "@babel/core": "7.28.4",
+        "@babel/types": "7.28.4",
         "dpdm": "3.14.0",
         "unbuild": "3.6.1",
-        "lightningcss": "1.30.1"
+        "lightningcss": "1.30.2"
     }
 }
