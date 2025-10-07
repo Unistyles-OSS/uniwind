@@ -5,6 +5,7 @@ import Animated from 'react-native-reanimated'
 import { IconSymbol } from '@/components/icon-symbol'
 import { ThemedText } from '@/components/themed-text'
 import { cn } from '@/utils/cn'
+import { useResolveClassNames } from 'uniwind'
 
 type ListSectionProps = ViewProps & {
     title?: string
@@ -77,6 +78,8 @@ export function ListItem({
     hideBorder = false,
     ...props
 }: ListItemProps) {
+    const mutedStyle = useResolveClassNames('text-muted-foreground')
+
     return (
         <TouchableOpacity className="w-full flex-row pb-[2px]" {...props} activeOpacity={0.6}>
             <Animated.View
@@ -104,7 +107,7 @@ export function ListItem({
                     </View>
                 </View>
                 <View className="shrink-0 flex-row items-center gap-1">
-                    <IconSymbol name="chevron.right" color="gray" size={16} />
+                    <IconSymbol name="chevron.right" color={mutedStyle.color as string} size={16} />
                 </View>
             </Animated.View>
             {!hideBorder && (
