@@ -33,6 +33,7 @@ const sections = [
     { name: 'Self Alignment', path: 'sections/self-alignment' },
     { name: 'Text Alignment', path: 'sections/text-alignment' },
     { name: 'Transform', path: 'sections/transform' },
+    { name: 'Effects', path: 'sections/effects' },
 ]
 
 export default function RootLayout() {

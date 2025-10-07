@@ -22,6 +22,14 @@ export default function HomeScreen() {
                 />
             </ListSection>
 
+            <ListSection title="Effects">
+                <ListItem
+                    title="Shadows & Gradients"
+                    onPress={() => router.push('/sections/effects')}
+                    hideBorder
+                />
+            </ListSection>
+
             <ListSection title="Flex">
                 <ListItem title="Flex" onPress={() => router.push('/sections/flex')} />
                 <ListItem
