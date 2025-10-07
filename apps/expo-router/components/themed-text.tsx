@@ -1,8 +1,10 @@
 import { cn } from '@/utils/cn'
 import { cva, type VariantProps } from 'class-variance-authority'
 import * as React from 'react'
-import { Text as RNText } from 'react-native'
 import Animated, { LinearTransition } from 'react-native-reanimated'
+import { withUniwind } from 'uniwind'
+
+const AnimatedText = withUniwind(Animated.Text)
 
 const textVariants = cva('text-foreground', {
     variants: {
@@ -47,13 +49,11 @@ function ThemedText({
     animated,
     ...props
 }:
-    & React.ComponentProps<typeof RNText>
+    & React.ComponentProps<typeof AnimatedText>
     & VariantProps<typeof textVariants>
     & { animated?: boolean })
 {
     const textClassName = React.useContext(TextClassContext)
-
-    const Comp = animated ? Animated.Text : RNText
 
     const classNames = cn(
         textVariants({ variant, color, invert }),
@@ -61,7 +61,7 @@ function ThemedText({
         className,
     )
     return (
-        <Comp
+        <AnimatedText
             className={classNames}
             layout={animated ? LinearTransition : undefined}
             allowFontScaling={false}

@@ -203,7 +203,7 @@ export default function TransformScreen() {
                 title="Transform origins (rotate-90)"
                 containerClassName="p-6 items-center"
             >
-                <View className="flex-row flex-wrap gap-20 items-center justify-center">
+                <View className="flex-row flex-wrap gap-14 items-center justify-center">
                     <View className="border border-red-500">
                         <TransformBox className="origin-top-left rotate-90">
                             TL

@@ -1,17 +1,19 @@
 import React from 'react'
-import { TouchableOpacity, TouchableOpacityProps, View, ViewProps } from 'react-native'
+import { TouchableOpacity, TouchableOpacityProps, ViewProps } from 'react-native'
 import Animated from 'react-native-reanimated'
 
 import { IconSymbol } from '@/components/icon-symbol'
 import { ThemedText } from '@/components/themed-text'
 import { cn } from '@/utils/cn'
-import { useResolveClassNames } from 'uniwind'
+import { useResolveClassNames, withUniwind } from 'uniwind'
 
 type ListSectionProps = ViewProps & {
     title?: string
     rightSection?: ViewProps['children']
     containerClassName?: string
 }
+
+const AnimatedView = withUniwind(Animated.View)
 
 export function ListSection({
     title,
@@ -21,9 +23,9 @@ export function ListSection({
     containerClassName,
 }: ListSectionProps) {
     return (
-        <Animated.View>
+        <AnimatedView>
             {title && (
-                <Animated.View className="mb-1.5 flex-row items-center justify-start gap-1 px-4">
+                <AnimatedView className="mb-1.5 flex-row items-center justify-start gap-1 px-4">
                     <ThemedText
                         className={cn(
                             'text-muted-foreground items-center text-sm font-semibold',
@@ -34,14 +36,14 @@ export function ListSection({
                         {title}
                     </ThemedText>
                     {rightSection && (
-                        <View className="ml-auto flex-row items-center gap-1">
+                        <AnimatedView className="ml-auto flex-row items-center gap-1">
                             {rightSection}
-                        </View>
+                        </AnimatedView>
                     )}
-                </Animated.View>
+                </AnimatedView>
             )}
 
-            <Animated.View
+            <AnimatedView
                 className={cn(
                     'overflow-hidden rounded-xl bg-card px-4 py-0',
                     containerClassName,
@@ -56,8 +58,8 @@ export function ListSection({
                 }}
             >
                 {children}
-            </Animated.View>
-        </Animated.View>
+            </AnimatedView>
+        </AnimatedView>
     )
 }
 
@@ -82,16 +84,16 @@ export function ListItem({
 
     return (
         <TouchableOpacity className="w-full flex-row pb-[2px]" {...props} activeOpacity={0.6}>
-            <Animated.View
+            <AnimatedView
                 className={cn(
                     'relative h-11 w-full flex-row items-center justify-between gap-8',
                     className,
                 )}
             >
-                <View
+                <AnimatedView
                     className={cn('shrink flex-row items-center gap-2.5', titleClassName)}
                 >
-                    <View className="shrink flex-col">
+                    <AnimatedView className="shrink flex-col">
                         <ThemedText
                             className={cn('shrink font-medium', titleTextClassName)}
                             numberOfLines={1}
@@ -104,14 +106,14 @@ export function ListItem({
                                 {subtitle}
                             </ThemedText>
                         )}
-                    </View>
-                </View>
-                <View className="shrink-0 flex-row items-center gap-1">
+                    </AnimatedView>
+                </AnimatedView>
+                <AnimatedView className="shrink-0 flex-row items-center gap-1">
                     <IconSymbol name="chevron.right" color={mutedStyle.color as string} size={16} />
-                </View>
-            </Animated.View>
+                </AnimatedView>
+            </AnimatedView>
             {!hideBorder && (
-                <View
+                <AnimatedView
                     className={cn('absolute -right-4 bottom-0 left-0 h-px bg-border')}
                 />
             )}
