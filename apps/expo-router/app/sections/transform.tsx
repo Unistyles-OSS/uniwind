@@ -200,19 +200,45 @@ export default function TransformScreen() {
 
             {/* Transform Origin */}
             <ListSection
-                title="Transform origins"
-                containerClassName="p-2 items-center"
+                title="Transform origins (rotate-90)"
+                containerClassName="p-6 items-center"
             >
-                <View className="flex-row flex-wrap gap-6 items-center justify-center">
-                    <TransformBox className="origin-top-left rotate-45 scale-75">
-                        TL
-                    </TransformBox>
-                    <TransformBox className="origin-center rotate-45 scale-75">
-                        C
-                    </TransformBox>
-                    <TransformBox className="origin-bottom-right rotate-45 scale-75">
-                        BR
-                    </TransformBox>
+                <View className="flex-row flex-wrap gap-20 items-center justify-center">
+                    <View className="border border-red-500">
+                        <TransformBox className="origin-top-left rotate-90">
+                            TL
+                        </TransformBox>
+                    </View>
+                    <View className="border border-red-500">
+                        <TransformBox className="origin-top rotate-90">
+                            T
+                        </TransformBox>
+                    </View>
+                    <View className="border border-red-500">
+                        <TransformBox className="origin-top-right rotate-90">
+                            TR
+                        </TransformBox>
+                    </View>
+                    <View className="border border-red-500">
+                        <TransformBox className="origin-bottom-left rotate-90">
+                            BL
+                        </TransformBox>
+                    </View>
+                    <View className="border border-red-500">
+                        <TransformBox className="origin-bottom rotate-90">
+                            B
+                        </TransformBox>
+                    </View>
+                    <View className="border border-red-500">
+                        <TransformBox className="origin-bottom-right rotate-90">
+                            BR
+                        </TransformBox>
+                    </View>
+                    <View className="border border-red-500">
+                        <TransformBox className="origin-center rotate-90">
+                            C
+                        </TransformBox>
+                    </View>
                 </View>
             </ListSection>
         </SectionScreen>
