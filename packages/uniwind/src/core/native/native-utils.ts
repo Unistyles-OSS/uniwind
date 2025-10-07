@@ -1,4 +1,5 @@
 import { formatHex, formatHex8, interpolate, parse } from 'culori'
+import type { UniwindRuntime } from '../types'
 
 export const colorMix = (color: string, mixColor: string, weight: number) => {
     // Change alpha
@@ -16,4 +17,12 @@ export const colorMix = (color: string, mixColor: string, weight: number) => {
     }
 
     return formatHex(interpolate([mixColor, color])(weight))
+}
+
+export function lightDark(this: UniwindRuntime, light: string, dark: string) {
+    if (this.currentThemeName === 'dark') {
+        return dark
+    }
+
+    return light
 }

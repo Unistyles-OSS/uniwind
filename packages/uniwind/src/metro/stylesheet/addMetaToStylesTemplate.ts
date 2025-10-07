@@ -51,7 +51,7 @@ export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlat
 
                 const stringifiedEntries = JSON.stringify(filteredEntries)
 
-                if (theme !== null || stringifiedEntries.includes('--color')) {
+                if (theme !== null || stringifiedEntries.includes('--color') || stringifiedEntries.includes('rt.lightDark')) {
                     dependencies.push(StyleDependency.Theme)
                 }
 

@@ -1,33 +1,34 @@
 {
-  "name": "uniwind-monorepo",
-  "private": true,
-  "scripts": {
-    "prepare": "husky",
-    "build": "turbo build",
-    "check:typescript": "turbo check:typescript",
-    "ios": "turbo ios",
-    "android": "turbo android",
-    "web": "turbo web",
-    "start": "turbo start",
-    "lint": "turbo lint",
-    "precommit": "turbo precommit",
-    "test": "turbo test",
-    "format": "dprint fmt"
-  },
-  "workspaces": [
-    "packages/*",
-    "apps/*"
-  ],
-  "devDependencies": {
-    "typescript": "5.9.3",
-    "dprint": "0.50.2",
-    "eslint": "9.37 .0",
-    "eslint-config-codemask": "2.2.1",
-    "husky": "9.1.7",
-    "turbo": "2.5.8"
-  },
-  "packageManager": "bun@1.2.19",
-  "trustedDependencies": [
-    "@tailwindcss/oxide"
-  ]
+    "name": "uniwind-monorepo",
+    "private": true,
+    "scripts": {
+        "prepare": "husky",
+        "build": "turbo build",
+        "check:typescript": "turbo check:typescript",
+        "ios": "turbo ios",
+        "android": "turbo android",
+        "web": "turbo web",
+        "start": "turbo start",
+        "lint": "turbo lint",
+        "precommit": "turbo precommit",
+        "test": "turbo test",
+        "format": "dprint fmt",
+        "circular:check": "turbo circular:check"
+    },
+    "workspaces": [
+        "packages/*",
+        "apps/*"
+    ],
+    "devDependencies": {
+        "typescript": "5.9.3",
+        "dprint": "0.50.2",
+        "eslint": "9.37 .0",
+        "eslint-config-codemask": "2.2.1",
+        "husky": "9.1.7",
+        "turbo": "2.5.8"
+    },
+    "packageManager": "bun@1.2.19",
+    "trustedDependencies": [
+        "@tailwindcss/oxide"
+    ]
 }

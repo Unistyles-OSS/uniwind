@@ -224,6 +224,8 @@ export class CSS {
                     return '('
                 case 'close-parenthesis':
                     return ')'
+                case 'light-dark':
+                    return `rt.lightDark( ${this.processValue(declarationValue.light)}, ${this.processValue(declarationValue.dark)} )`
                 case 'weight':
                 case 'horizontal':
                 case 'vertical':
