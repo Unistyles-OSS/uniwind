@@ -105,6 +105,18 @@ export class Functions {
             return `${fn.name}(${this.Processor.CSS.processValue(fn.arguments)})`
         }
 
+        if (fn.name === 'hairlineWidth') {
+            return 'rt.hairlineWidth'
+        }
+
+        if (fn.name === 'pixelRatio') {
+            return `rt.pixelRatio( ${this.Processor.CSS.processValue(fn.arguments)} )`
+        }
+
+        if (fn.name === 'fontScale') {
+            return `rt.fontScale( ${this.Processor.CSS.processValue(fn.arguments)} )`
+        }
+
         this.logger.error(`Unsupported function - ${fn.name}`)
 
         return fn.name

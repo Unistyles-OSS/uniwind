@@ -1,4 +1,5 @@
 import { compile } from '@tailwindcss/node'
+import { polyfillWeb } from './polyfillWeb'
 import { ProcessorBuilder } from './processor'
 import { addMetaToStylesTemplate, serializeStylesheet } from './stylesheet'
 import { Platform } from './types'
@@ -19,7 +20,7 @@ export const compileVirtual = async ({ candidates, css, cssPath, platform, theme
     const tailwindCSS = compiler.build(candidates)
 
     if (platform === Platform.Web) {
-        return tailwindCSS
+        return polyfillWeb(tailwindCSS)
     }
 
     const Processor = new ProcessorBuilder(themes)

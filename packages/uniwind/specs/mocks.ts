@@ -8,7 +8,6 @@ export const UniwindRuntimeMock = {
     },
     colorScheme: ColorScheme.Light,
     orientation: Orientation.Portrait,
-    rem: 16,
     rtl: false,
     currentThemeName: ColorScheme.Light,
     insets: {
@@ -18,4 +17,7 @@ export const UniwindRuntimeMock = {
         right: 0,
     },
     colorMix,
+    fontScale: (value: number) => value * 1,
+    cubicBezier: () => '',
+    lightDark: (light: string) => light,
 }

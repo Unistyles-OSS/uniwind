@@ -15,6 +15,7 @@ export const getStyleSheetsFromCandidates = async <T extends string>(...candidat
         candidates,
         platform: Platform.iOS,
         cssPath: testCSSPath,
+        themes: ['light', 'dark'],
     })
 
     new Function(virtualJS)()
@@ -52,10 +53,13 @@ export const injectMocks = () => {
             addChangeListener: () => {},
         },
         PixelRatio: {
-            getFontScale: () => UniwindRuntimeMock.rem,
+            getFontScale: () => 1,
         },
         I18nManager: {
             isRTL: UniwindRuntimeMock.rtl,
+        },
+        StyleSheet: {
+            hairlineWidth: 1,
         },
     }))
     // @ts-expect-error Mock __DEV__
