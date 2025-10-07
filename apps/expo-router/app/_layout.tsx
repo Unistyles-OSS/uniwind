@@ -42,29 +42,6 @@ export default function RootLayout() {
     const bgStyle = useResolveClassNames('bg-background')
     const primaryStyle = useResolveClassNames('bg-primary')
 
-    if (initialTheme !== 'system' && Uniwind.hasAdaptiveThemes) {
-        console.warn(
-            'Initial theme is not system, but adaptive themes are enabled',
-        )
-    }
-
-    console.log(
-        'debug',
-        JSON.stringify(
-            {
-                storedTheme,
-                '--': '----',
-                uniwindTheme,
-                runtimeTheme: Uniwind.currentTheme,
-                adaptiveThemes: Uniwind.hasAdaptiveThemes,
-                '---': '----',
-                deviceColorScheme: colorScheme,
-            },
-            null,
-            2,
-        ),
-    )
-
     let iconName: IconSymbolName
     let iconColor: string
 
@@ -116,17 +93,12 @@ export default function RootLayout() {
             navigationTheme = SepiaTheme
             break
         case 'light':
-            navigationTheme = SepiaTheme
+            navigationTheme = DefaultTheme
             break
         default:
             navigationTheme = colorScheme === 'dark' ? DarkTheme : DefaultTheme
             break
     }
-
-    console.log(
-        '? is navigationTheme.dark',
-        JSON.stringify(navigationTheme.dark, null, 2),
-    )
 
     return (
         <ThemeProvider value={navigationTheme}>
@@ -135,7 +107,6 @@ export default function RootLayout() {
                     headerBackButtonDisplayMode: 'minimal',
                     headerTransparent: true,
                     sheetGrabberVisible: true,
-                    // fullScreenGestureEnabled: true,
                     headerRight: () => (
                         <HeaderButton onPress={() => router.push('/theme-selector')}>
                             <IconSymbol
@@ -157,8 +128,6 @@ export default function RootLayout() {
                 <Stack.Screen
                     name="modal"
                     options={{
-                        // headerShown: true,
-                        // headerTransparent: false,
                         title: 'FormSheet',
                         presentation: 'formSheet',
                         sheetAllowedDetents: 'fitToContents',
