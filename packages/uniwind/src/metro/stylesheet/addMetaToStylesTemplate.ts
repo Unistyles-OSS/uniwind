@@ -75,7 +75,7 @@ export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlat
                     dependencies.push(StyleDependency.Insets)
                 }
 
-                if (stringifiedEntries.includes('rt.rem')) {
+                if (stringifiedEntries.includes('rt.fontScale')) {
                     dependencies.push(StyleDependency.FontScale)
                 }
 
