@@ -40,6 +40,8 @@ export class Units {
                 case 'value':
                 case 'dimension':
                     return this.processLength(length.value)
+                case 'percentage':
+                    return `${length.value}%`
                 default:
                     this.logger.error(`Unsupported length type - ${length.type}`)
 
