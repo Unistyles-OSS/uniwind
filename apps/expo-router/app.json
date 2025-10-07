@@ -21,7 +21,7 @@
             },
             "edgeToEdgeEnabled": true,
             "predictiveBackGestureEnabled": false,
-            "package": "com.uniwind.exporouterwithuniwind"
+            "package": "com.uniwind.exporouterexample"
         },
         "web": {
             "output": "static",
