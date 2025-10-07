@@ -2,7 +2,7 @@ import { ListSection } from '@/components/list'
 import { SectionScreen } from '@/components/shared'
 import { ThemedText } from '@/components/themed-text'
 import { cn } from '@/utils/cn'
-import { View } from 'react-native'
+import { Text, View } from 'react-native'
 
 export default function FontScreen() {
     const FontExample = ({
@@ -88,9 +88,15 @@ export default function FontScreen() {
 
             <ListSection title="tabular-nums" containerClassName="p-2 items-center">
                 <View className="gap-1">
-                    <FontExample className="tabular-nums">1,234.56</FontExample>
-                    <FontExample className="tabular-nums">9,876.54</FontExample>
-                    <FontExample className="tabular-nums">1,111.11</FontExample>
+                    <Text className="tabular-nums text-base">1,234.56</Text>
+                    <Text className="tabular-nums text-base">9,876.54</Text>
+                    <Text className="tabular-nums text-base">1,111.11</Text>
+
+                    <View className="border border-border" />
+
+                    <Text className="text-base" style={{ fontVariant: ['tabular-nums'] }}>1,234.56</Text>
+                    <Text className="text-base" style={{ fontVariant: ['tabular-nums'] }}>9,876.54</Text>
+                    <Text className="text-base" style={{ fontVariant: ['tabular-nums'] }}>1,111.11</Text>
                 </View>
             </ListSection>
 

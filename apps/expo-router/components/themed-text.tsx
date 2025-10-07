@@ -65,11 +65,6 @@ function ThemedText({
             className={classNames}
             layout={animated ? LinearTransition : undefined}
             allowFontScaling={false}
-            style={{
-                fontVariant: classNames.includes('tabular-nums')
-                    ? ['tabular-nums']
-                    : [],
-            }}
             {...props}
         />
     )
