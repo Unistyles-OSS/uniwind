@@ -44,10 +44,7 @@ export const useStoredTheme = () => {
 
 export const getStoredThemeSync = () => {
     const theme = storage.getString(SELECTED_THEME_KEY) as
-        | 'light'
-        | 'dark'
-        | 'sepia'
-        | 'system'
+        | ColorSchemeType
         | undefined
 
     return theme ?? 'system'
