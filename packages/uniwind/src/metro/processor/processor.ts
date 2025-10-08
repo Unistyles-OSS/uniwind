@@ -45,6 +45,9 @@ export class ProcessorBuilder {
             mediaQueries: [] as Array<MediaQuery>,
             root: false,
             theme: null as string | null,
+            active: null as boolean | null,
+            focus: null as boolean | null,
+            disabled: null as boolean | null,
         })
     }
 
@@ -71,6 +74,9 @@ export class ProcessorBuilder {
             style.importantProperties ??= []
             style.rtl = this.declarationConfig.rtl
             style.theme = mq.colorScheme ?? this.declarationConfig.theme
+            style.active = this.declarationConfig.active
+            style.focus = this.declarationConfig.focus
+            style.disabled = this.declarationConfig.disabled
         }
 
         if (declaration.property === 'unparsed') {
@@ -128,6 +134,9 @@ export class ProcessorBuilder {
 
                 let rtl = null as boolean | null
                 let theme = null as string | null
+                let active = null as boolean | null
+                let focus = null as boolean | null
+                let disabled = null as boolean | null
 
                 selector.forEach(selector => {
                     if (selector.type === 'pseudo-class' && selector.kind === 'where') {
@@ -143,11 +152,26 @@ export class ProcessorBuilder {
                             })
                         })
                     }
+
+                    if (selector.type === 'pseudo-class' && selector.kind === 'active') {
+                        active = true
+                    }
+
+                    if (selector.type === 'pseudo-class' && selector.kind === 'focus') {
+                        focus = true
+                    }
+
+                    if (selector.type === 'pseudo-class' && selector.kind === 'disabled') {
+                        disabled = true
+                    }
                 })
 
-                if (rtl !== null || theme !== null) {
+                if ([rtl, theme, active, focus, disabled].some(Boolean)) {
                     this.declarationConfig.rtl = rtl
                     this.declarationConfig.theme = theme
+                    this.declarationConfig.active = active
+                    this.declarationConfig.focus = focus
+                    this.declarationConfig.disabled = disabled
 
                     rule.value.declarations?.declarations?.forEach(declaration => this.addDeclaration(declaration))
                     rule.value.declarations?.importantDeclarations?.forEach(declaration => this.addDeclaration(declaration, true))
@@ -155,6 +179,9 @@ export class ProcessorBuilder {
 
                     this.declarationConfig.rtl = null
                     this.declarationConfig.theme = null
+                    this.declarationConfig.active = null
+                    this.declarationConfig.focus = null
+                    this.declarationConfig.disabled = null
 
                     return
                 }

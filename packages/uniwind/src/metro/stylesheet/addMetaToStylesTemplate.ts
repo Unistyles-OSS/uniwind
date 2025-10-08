@@ -18,6 +18,9 @@ export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlat
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
                     important,
                     importantProperties,
+                    active,
+                    focus,
+                    disabled,
                     ...rest
                 } = style
 
@@ -93,6 +96,9 @@ export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlat
                     dependencies,
                     index,
                     className,
+                    active,
+                    focus,
+                    disabled,
                     importantProperties: importantProperties?.map(property => property.startsWith('--') ? property : toCamelCase) ?? [],
                     complexity: [
                         minWidth !== 0,
@@ -100,6 +106,9 @@ export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlat
                         orientation !== null,
                         rtl !== null,
                         platform !== null,
+                        active !== null,
+                        focus !== null,
+                        disabled !== null,
                     ].filter(Boolean).length,
                 }
             })

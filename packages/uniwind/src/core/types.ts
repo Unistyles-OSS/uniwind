@@ -16,6 +16,9 @@ export type Style = {
     className: string
     importantProperties: Array<string>
     complexity: number
+    active: boolean | null
+    focus: boolean | null
+    disabled: boolean | null
 }
 
 export type StyleSheets = Record<string, Array<Style>>
@@ -76,4 +79,10 @@ declare global {
     var __uniwind__computeStylesheet: (runtime: UniwindRuntime) => StyleSheets
     var __uniwind__hot_reload: () => void
     var __uniwindThemes__: ReadonlyArray<string> | undefined
+}
+
+export type ComponentState = {
+    isPressed?: boolean
+    isDisabled?: boolean
+    isFocused?: boolean
 }

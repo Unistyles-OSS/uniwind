@@ -1,6 +1,6 @@
 import { Dimensions } from 'react-native'
 import { Orientation, StyleDependency } from '../../types'
-import { RNStyle, Style, StyleSheets } from '../types'
+import { ComponentState, RNStyle, Style, StyleSheets } from '../types'
 import { parseBoxShadow, parseFontVariant, parseTransformsMutation, resolveGradient } from './parsers'
 import { UniwindRuntime } from './runtime'
 
@@ -30,7 +30,7 @@ export class UniwindStoreBuilder {
         }
     }
 
-    getStyles(className?: string) {
+    getStyles(className?: string, state?: ComponentState) {
         if (className === undefined) {
             return {
                 styles: {} as RNStyle,
@@ -56,7 +56,7 @@ export class UniwindStoreBuilder {
             })
             .filter(Boolean)
 
-        return this.resolveStyles(styles as Array<[string, Style]>)
+        return this.resolveStyles(styles as Array<[string, Style]>, state)
     }
 
     reload = () => {
@@ -67,7 +67,7 @@ export class UniwindStoreBuilder {
         dependencies.forEach(dep => this.listeners[dep].forEach(listener => listener()))
     }
 
-    private resolveStyles(styles: Array<[string, Style]>) {
+    private resolveStyles(styles: Array<[string, Style]>, state?: ComponentState) {
         const dependencies = [] as Array<StyleDependency>
         const filteredStyles = styles.filter(([, style]) => {
             dependencies.push(...style.dependencies)
@@ -78,6 +78,9 @@ export class UniwindStoreBuilder {
                 || (style.theme !== null && this.runtime.currentThemeName !== style.theme)
                 || (style.orientation !== null && this.runtime.orientation !== style.orientation)
                 || (style.rtl !== null && this.runtime.rtl !== style.rtl)
+                || (style.active !== null && state?.isPressed !== style.active)
+                || (style.focus !== null && state?.isFocused !== style.focus)
+                || (style.disabled !== null && state?.isDisabled !== style.disabled)
             ) {
                 return false
             }

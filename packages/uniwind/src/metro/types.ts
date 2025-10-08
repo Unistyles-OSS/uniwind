@@ -46,6 +46,9 @@ export type MediaQueryResolver = {
     colorScheme: ColorScheme | null
     theme: string | null
     orientation: Orientation | null
+    disabled: boolean | null
+    active: boolean | null
+    focus: boolean | null
 }
 
 export const enum Platform {

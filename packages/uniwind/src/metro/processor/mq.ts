@@ -74,6 +74,9 @@ export class MQ {
             colorScheme: null,
             orientation: null,
             theme: null,
+            active: null,
+            focus: null,
+            disabled: null,
         }
     }
 }
