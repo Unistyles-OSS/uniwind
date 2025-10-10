@@ -8,7 +8,7 @@
 </div>
 <br />
 
-![GitHub package.json version](https://img.shields.io/github/package-json/v/unistyles-oss/uniwind?style=for-the-badge)
+![npm version](https://img.shields.io/npm/v/uniwind?style=for-the-badge)
 [![npm downloads](https://img.shields.io/npm/dm/uniwind?style=for-the-badge)](https://www.npmjs.com/package/uniwind)
 [![npm downloads](https://img.shields.io/npm/dt/uniwind?style=for-the-badge)](https://www.npmjs.com/package/uniwind)
 [![License: MIT](https://img.shields.io/badge/License-MIT-44CD11.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
