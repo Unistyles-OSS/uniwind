@@ -24,9 +24,9 @@ Then follow [installation guides](https://docs.uniwind.dev/quickstart)
 ## Documentation
 
 - [Start here](https://docs.uniwind.dev/quickstart)
-- [Pro Version](https://docs.uniwind.dev/pro-version)
-- [Supported classNames](https://docs.uniwind.dev/class-names)
 - [Theming Basics](https://docs.uniwind.dev/theming/basics)
+- [Supported classNames](https://docs.uniwind.dev/class-names)
+- [Pro Version](https://docs.uniwind.dev/pro-version)
 
 ## Features
 
