@@ -1,0 +1,83 @@
+name: Bug report
+description: Report an issue with uniwind
+labels: Needs review
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Required Information
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Provide a clear, concise, and descriptive explanation of the bug. Include screenshots or a video if needed by dragging and dropping them into the box below.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Provide a detailed list of steps to reproduce the issue.
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: input
+    id: repro
+    attributes:
+      label: Snack or Repository Link (Optional)
+      description: Provide a link to a GitHub repository or Snack that reproduces the issue.
+      placeholder: Issues without a reproduction may be marked as stale.
+
+  - type: input
+    id: uniwind-version
+    attributes:
+      label: Uniwind Version
+      description: Which version of `uniwind` are you using?
+      placeholder: 1.0.0
+    validations:
+      required: true
+
+  - type: input
+    id: react-native-version
+    attributes:
+      label: React Native Version
+      description: Which version of React Native are you using?
+      placeholder: 0.78.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platforms
+    attributes:
+      label: Platforms
+      description: Which platforms does the issue occur on? (Select all that apply.)
+      multiple: true
+      options:
+        - Android
+        - iOS
+        - Web
+    validations:
+      required: true
+
+  - type: dropdown
+    id: expo
+    attributes:
+      label: Expo
+      description: Are you using Expo?
+      options:
+        - 'Yes'
+        - 'No'
+
+  - type: checkboxes
+    attributes:
+        label: Additional information
+        description: Please check all the boxes that apply
+        options:
+          - label: I've searched for [similar issues in this repository](https://github.com/Unistyles-OSS/uniwind/issues) and found none
+            required: true
