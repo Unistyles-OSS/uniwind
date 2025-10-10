@@ -18,14 +18,14 @@
 ## Installation
 
 ```sh
-bun install uniwind tailwindcss
+bun install uniwind@beta tailwindcss
 ```
 
 Then follow [installation guides](https://docs.uniwind.dev/quickstart)
 
 ## Documentation
 
-- [Start here](https://docs.uniwind.dev/quickstart)
+- [Start here](https://docs.uniwind.dev/)
 - [Theming Basics](https://docs.uniwind.dev/theming/basics)
 - [Supported classNames](https://docs.uniwind.dev/class-names)
 - [Pro Version](https://docs.uniwind.dev/pro-version)
