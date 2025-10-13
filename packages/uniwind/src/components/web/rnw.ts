@@ -24,4 +24,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
     }
 }
 
-export const toRNWClassName = (className?: string) => ({ $$css: true, tailwind: className }) as {}
+export const toRNWClassName = (className?: string) =>
+    className !== undefined
+        ? ({ $$css: true, tailwind: className }) as {}
+        : {}
