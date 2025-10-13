@@ -61,6 +61,9 @@ export const injectMocks = () => {
         StyleSheet: {
             hairlineWidth: 1,
         },
+        Platform: {
+            OS: 'ios',
+        },
     }))
     // @ts-expect-error Mock __DEV__
     globalThis.__DEV__ = true

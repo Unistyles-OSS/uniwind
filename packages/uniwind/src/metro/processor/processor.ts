@@ -53,9 +53,17 @@ export class ProcessorBuilder {
 
     private addDeclaration(declaration: Declaration, important = false) {
         const isVar = this.declarationConfig.root || this.declarationConfig.className === null
+        const mq = this.MQ.processMediaQueries(this.declarationConfig.mediaQueries)
         const style = (() => {
             if (!isVar) {
                 return this.stylesheets[this.declarationConfig.className!]?.at(-1)
+            }
+
+            if (mq.platform !== null) {
+                const platformKey = `__uniwind-platform-${mq.platform}`
+                this.vars[platformKey] ??= {}
+
+                return this.vars[platformKey]
             }
 
             if (this.declarationConfig.theme === null) {
@@ -67,7 +75,6 @@ export class ProcessorBuilder {
 
             return this.vars[themeKey]
         })()
-        const mq = this.MQ.processMediaQueries(this.declarationConfig.mediaQueries)
 
         if (!isVar) {
             Object.assign(style, mq)

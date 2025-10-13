@@ -1,4 +1,4 @@
-import { Dimensions } from 'react-native'
+import { Dimensions, Platform } from 'react-native'
 import { Orientation, StyleDependency } from '../../types'
 import { ComponentState, RNStyle, Style, StyleSheets } from '../types'
 import { parseBoxShadow, parseFontVariant, parseTransformsMutation, resolveGradient } from './parsers'
@@ -141,9 +141,14 @@ export class UniwindStoreBuilder {
         if (usingVariables.size > 0) {
             const styleSheet = globalThis.__uniwind__computeStylesheet(this.runtime)
             const themeVars = styleSheet[`__uniwind-theme-${this.runtime.currentThemeName}`]
+            const platformVars = styleSheet[`__uniwind-platform-${Platform.OS}`]
 
             if (themeVars) {
                 Object.assign(styleSheet, themeVars)
+            }
+
+            if (platformVars) {
+                Object.assign(styleSheet, platformVars)
             }
 
             inlineVariables.forEach((varValue, varName) => {
