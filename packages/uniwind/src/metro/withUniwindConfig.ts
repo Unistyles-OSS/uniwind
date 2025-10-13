@@ -175,6 +175,7 @@ export const withUniwindConfig = (
             },
         },
         server: {
+            ...config.server,
             enhanceMiddleware: (middleware, metroServer) => {
                 const bundler = metroServer.getBundler().getBundler()
 
