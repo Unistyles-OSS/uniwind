@@ -7,7 +7,7 @@ import { compileVirtual } from './compileVirtual'
 import { getSources } from './getSources'
 import { injectThemes } from './injectThemes'
 import { nativeResolver, webResolver } from './resolvers'
-import { DeepMutable, ExtendedBundler, ExtendedFileSystem, FileChangeEvent, Platform, UniwindConfig } from './types'
+import { ExtendedBundler, ExtendedFileSystem, FileChangeEvent, Platform, UniwindConfig } from './types'
 import { areSetsEqual, uniq } from './utils'
 
 const cacheDir = path.join(__dirname, '.cache')
@@ -21,9 +21,9 @@ const getPlatformFromVirtualPath = (path: string) => {
 const platforms = [Platform.iOS, Platform.Android, Platform.Web]
 
 export const withUniwindConfig = (
-    config: DeepMutable<MetroConfig>,
+    config: MetroConfig,
     uniwindConfig: UniwindConfig,
-) => {
+): MetroConfig => {
     if (!fs.existsSync(cacheDir)) {
         fs.mkdirSync(cacheDir)
     }
@@ -70,101 +70,6 @@ export const withUniwindConfig = (
         })
 
     uniwind.injectedThemesScript = getInjectedThemesScript()
-    config.resolver ??= {}
-    config.server ??= {}
-    config.transformer ??= {}
-
-    config.resolver.sourceExts = [
-        ...config.resolver.sourceExts ?? [],
-        'css',
-    ]
-    config.resolver.assetExts = config.resolver.assetExts?.filter(
-        ext => ext !== 'css',
-    )
-    config.resolver.resolveRequest = (context, moduleName, platform) => {
-        const resolver = uniwind.originalResolveRequest ?? context.resolveRequest
-        const platformResolver = platform === Platform.Web ? webResolver : nativeResolver
-        const resolved = platformResolver({
-            context,
-            moduleName,
-            platform,
-            resolver,
-        })
-
-        if (('filePath' in resolved && resolved.filePath !== path.join(process.cwd(), uniwindConfig.cssEntryFile))) {
-            return resolved
-        }
-
-        if (platform !== Platform.iOS && platform !== Platform.Android && platform !== Platform.Web) {
-            return resolved
-        }
-
-        return {
-            ...resolved,
-            filePath: getVirtualPath(platform),
-        }
-    }
-
-    config.server.enhanceMiddleware = (middleware, metroServer) => {
-        const bundler = metroServer.getBundler().getBundler()
-
-        uniwind.virtualModulesPossible = bundler
-            .getDependencyGraph()
-            .then(async graph => {
-                uniwind.watcher = bundler.getWatcher()
-                // @ts-expect-error Hidden property
-                ensureFileSystemPatched(graph._fileSystem)
-                ensureBundlerPatched(bundler)
-
-                uniwind.watcher.on('change', (event: FileChangeEvent) => {
-                    if ('eventsQueue' in event) {
-                        if (
-                            // Listen only to changes in JS/TS/css files
-                            !event.eventsQueue.some(event => {
-                                return ['.js', '.jsx', '.ts', '.tsx', '.css'].some(ext => event.filePath.endsWith(ext))
-                            }) || event.eventsQueue.every(event => event.filePath.endsWith('uniwind.css'))
-                        ) {
-                            return
-                        }
-
-                        const css = fs.readFileSync(uniwind.input, 'utf-8')
-                        const candidates = new Set(uniwind.getCandidates(css))
-                        const tailwindHasChanged = css !== uniwind.cssFile || !areSetsEqual(uniwind.candidates, candidates)
-
-                        if (!tailwindHasChanged) {
-                            return
-                        }
-
-                        uniwind.injectedThemesScript = getInjectedThemesScript()
-                        uniwind.cssFile = css
-                        uniwind.candidates = candidates
-                        platforms.forEach(platform => {
-                            uniwind.watcher?.emit(
-                                'change',
-                                {
-                                    eventsQueue: [{
-                                        filePath: getVirtualPath(platform),
-                                        metadata: {
-                                            modifiedTime: Date.now(),
-                                            size: 1,
-                                            type: 'virtual',
-                                        },
-                                        type: 'change',
-                                    }],
-                                } satisfies FileChangeEvent,
-                            )
-                        })
-                    }
-                })
-
-                uniwind.cssFile = fs.readFileSync(uniwind.input, 'utf-8')
-                uniwind.candidates = new Set(uniwind.getCandidates(uniwind.cssFile))
-
-                await Promise.all(platforms.map(getVirtualFile))
-            })
-
-        return middleware
-    }
 
     const ensureFileSystemPatched = (fs: ExtendedFileSystem) => {
         if (!fs.getSha1.__uniwind_patched) {
@@ -234,5 +139,102 @@ export const withUniwindConfig = (
         return virtualFile
     }
 
-    return config
+    return {
+        ...config,
+        resolver: {
+            ...config.resolver,
+            sourceExts: [
+                ...config.resolver?.sourceExts ?? [],
+                'css',
+            ],
+            assetExts: config.resolver?.assetExts?.filter(
+                ext => ext !== 'css',
+            ),
+            resolveRequest: (context, moduleName, platform) => {
+                const resolver = uniwind.originalResolveRequest ?? context.resolveRequest
+                const platformResolver = platform === Platform.Web ? webResolver : nativeResolver
+                const resolved = platformResolver({
+                    context,
+                    moduleName,
+                    platform,
+                    resolver,
+                })
+
+                if (('filePath' in resolved && resolved.filePath !== path.join(process.cwd(), uniwindConfig.cssEntryFile))) {
+                    return resolved
+                }
+
+                if (platform !== Platform.iOS && platform !== Platform.Android && platform !== Platform.Web) {
+                    return resolved
+                }
+
+                return {
+                    ...resolved,
+                    filePath: getVirtualPath(platform),
+                }
+            },
+        },
+        server: {
+            enhanceMiddleware: (middleware, metroServer) => {
+                const bundler = metroServer.getBundler().getBundler()
+
+                uniwind.virtualModulesPossible = bundler
+                    .getDependencyGraph()
+                    .then(async graph => {
+                        uniwind.watcher = bundler.getWatcher()
+                        // @ts-expect-error Hidden property
+                        ensureFileSystemPatched(graph._fileSystem)
+                        ensureBundlerPatched(bundler)
+
+                        uniwind.watcher.on('change', (event: FileChangeEvent) => {
+                            if ('eventsQueue' in event) {
+                                if (
+                                    // Listen only to changes in JS/TS/css files
+                                    !event.eventsQueue.some(event => {
+                                        return ['.js', '.jsx', '.ts', '.tsx', '.css'].some(ext => event.filePath.endsWith(ext))
+                                    }) || event.eventsQueue.every(event => event.filePath.endsWith('uniwind.css'))
+                                ) {
+                                    return
+                                }
+
+                                const css = fs.readFileSync(uniwind.input, 'utf-8')
+                                const candidates = new Set(uniwind.getCandidates(css))
+                                const tailwindHasChanged = css !== uniwind.cssFile || !areSetsEqual(uniwind.candidates, candidates)
+
+                                if (!tailwindHasChanged) {
+                                    return
+                                }
+
+                                uniwind.injectedThemesScript = getInjectedThemesScript()
+                                uniwind.cssFile = css
+                                uniwind.candidates = candidates
+                                platforms.forEach(platform => {
+                                    uniwind.watcher?.emit(
+                                        'change',
+                                        {
+                                            eventsQueue: [{
+                                                filePath: getVirtualPath(platform),
+                                                metadata: {
+                                                    modifiedTime: Date.now(),
+                                                    size: 1,
+                                                    type: 'virtual',
+                                                },
+                                                type: 'change',
+                                            }],
+                                        } satisfies FileChangeEvent,
+                                    )
+                                })
+                            }
+                        })
+
+                        uniwind.cssFile = fs.readFileSync(uniwind.input, 'utf-8')
+                        uniwind.candidates = new Set(uniwind.getCandidates(uniwind.cssFile))
+
+                        await Promise.all(platforms.map(getVirtualFile))
+                    })
+
+                return middleware
+            },
+        },
+    }
 }

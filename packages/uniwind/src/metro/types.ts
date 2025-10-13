@@ -25,10 +25,6 @@ export type ExtendedFileSystem = {
     getSha1: WithUniwindPatch<(filename: string) => string>
 }
 
-export type DeepMutable<T> = {
-    -readonly [P in keyof T]: T[P] extends object ? DeepMutable<T[P]> : T[P]
-}
-
 export type UniwindConfig = {
     cssEntryFile: string
     themes: Array<string>
