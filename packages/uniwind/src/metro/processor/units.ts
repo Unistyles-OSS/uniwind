@@ -21,7 +21,7 @@ export class Units {
                 case 'vh':
                     return `rt.screen.height * ${length.value / 100}`
                 case 'rem':
-                    return length.value * 16
+                    return length.value * this.Processor.vars['--uniwind-em']
                 case 'em':
                     return `this[\`--uniwind-em\`] * ${length.value}`
                 default:

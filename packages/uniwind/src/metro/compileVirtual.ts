@@ -2,7 +2,7 @@ import { compile } from '@tailwindcss/node'
 import { polyfillWeb } from './polyfillWeb'
 import { ProcessorBuilder } from './processor'
 import { addMetaToStylesTemplate, serializeStylesheet } from './stylesheet'
-import { Platform } from './types'
+import { Platform, Polyfills } from './types'
 
 type CompileVirtualConfig = {
     cssPath: string
@@ -10,9 +10,10 @@ type CompileVirtualConfig = {
     candidates: Array<string>
     platform: Platform
     themes: Array<string>
+    polyfills: Polyfills | undefined
 }
 
-export const compileVirtual = async ({ candidates, css, cssPath, platform, themes }: CompileVirtualConfig) => {
+export const compileVirtual = async ({ candidates, css, cssPath, platform, themes, polyfills }: CompileVirtualConfig) => {
     const compiler = await compile(css, {
         base: cssPath,
         onDependency: () => void 0,
@@ -23,7 +24,7 @@ export const compileVirtual = async ({ candidates, css, cssPath, platform, theme
         return polyfillWeb(tailwindCSS)
     }
 
-    const Processor = new ProcessorBuilder(themes)
+    const Processor = new ProcessorBuilder(themes, polyfills)
 
     Processor.transform(tailwindCSS)
 

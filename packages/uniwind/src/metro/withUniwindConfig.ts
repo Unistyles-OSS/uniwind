@@ -132,6 +132,7 @@ export const withUniwindConfig = (
             css: uniwind.cssFile,
             platform,
             themes: uniwindConfig.themes,
+            polyfills: uniwindConfig.polyfills,
         })
 
         uniwind.virtualModules.set(getVirtualPath(platform), virtualFile)

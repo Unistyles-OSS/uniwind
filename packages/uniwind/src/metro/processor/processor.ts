@@ -1,4 +1,5 @@
 import { Declaration, MediaQuery, Rule, transform } from 'lightningcss'
+import { Polyfills } from '../types'
 import { Color } from './color'
 import { CSS } from './css'
 import { Functions } from './functions'
@@ -9,9 +10,7 @@ import { Var } from './var'
 
 export class ProcessorBuilder {
     stylesheets = {} as Record<string, Array<any>>
-    vars = {
-        '--uniwind-em': 16,
-    } as Record<string, any>
+    vars = {} as Record<string, any>
     CSS = new CSS(this)
     RN = new RN(this)
     Var = new Var(this)
@@ -22,7 +21,9 @@ export class ProcessorBuilder {
 
     private declarationConfig = this.getDeclarationConfig()
 
-    constructor(private readonly themes: Array<string>) {}
+    constructor(private readonly themes: Array<string>, readonly polyfills: Polyfills | undefined) {
+        this.vars['--uniwind-em'] = polyfills?.rem ?? 16
+    }
 
     transform(css: string) {
         transform({

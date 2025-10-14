@@ -25,11 +25,16 @@ export type ExtendedFileSystem = {
     getSha1: WithUniwindPatch<(filename: string) => string>
 }
 
+export type Polyfills = {
+    rem?: number
+}
+
 export type UniwindConfig = {
     cssEntryFile: string
     themes: Array<string>
     extraThemes?: Array<string>
     dtsFile?: string
+    polyfills?: Polyfills
 }
 
 export type MediaQueryResolver = {
