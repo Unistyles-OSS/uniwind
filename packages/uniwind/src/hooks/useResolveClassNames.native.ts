@@ -1,21 +1,27 @@
 import { useEffect, useReducer } from 'react'
 import { UniwindStore } from '../core/native'
-import { ComponentState } from '../core/types'
+import { ComponentState, RNStyle } from '../core/types'
+
+const emptyState = { styles: {} as RNStyle, dependencies: [] }
 
 export const useResolveClassNames = (className: string, state?: ComponentState) => {
     const [uniwindState, recreate] = useReducer(
-        () => UniwindStore.getStyles(className, state),
-        UniwindStore.getStyles(className, state),
+        () => className !== '' ? UniwindStore.getStyles(className, state) : emptyState,
+        className !== '' ? UniwindStore.getStyles(className, state) : emptyState,
     )
 
     useEffect(() => {
-        recreate()
+        if (className !== '') {
+            recreate()
+        }
     }, [className, state?.isDisabled, state?.isPressed, state?.isFocused])
 
     useEffect(() => {
-        const dispose = UniwindStore.subscribe(recreate, uniwindState.dependencies)
+        if (uniwindState.dependencies.length > 0) {
+            const dispose = UniwindStore.subscribe(recreate, uniwindState.dependencies)
 
-        return dispose
+            return dispose
+        }
     }, [uniwindState.dependencies, className])
 
     return uniwindState.styles
