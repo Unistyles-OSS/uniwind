@@ -4,6 +4,11 @@ import { ComponentState, RNStyle, Style, StyleSheets } from '../types'
 import { parseBoxShadow, parseFontVariant, parseTransformsMutation, resolveGradient } from './parsers'
 import { UniwindRuntime } from './runtime'
 
+type StylesResult = {
+    styles: RNStyle
+    dependencies: Array<StyleDependency>
+}
+
 export class UniwindStoreBuilder {
     stylesheets = {} as StyleSheets
     listeners = {
@@ -17,6 +22,7 @@ export class UniwindStoreBuilder {
     }
     initialized = false
     runtime = UniwindRuntime
+    cache = new Map<string, StylesResult>()
 
     subscribe(onStoreChange: () => void, dependencies: Array<StyleDependency>) {
         dependencies.forEach(dep => {
@@ -30,12 +36,18 @@ export class UniwindStoreBuilder {
         }
     }
 
-    getStyles(className?: string, state?: ComponentState) {
+    getStyles(className?: string, state?: ComponentState): StylesResult {
         if (className === undefined) {
             return {
-                styles: {} as RNStyle,
+                styles: {},
                 dependencies: [],
             }
+        }
+
+        const cacheKey = `${className}${state?.isDisabled ?? false}${state?.isFocused ?? false}${state?.isPressed ?? false}`
+
+        if (this.cache.has(cacheKey)) {
+            return this.cache.get(cacheKey)!
         }
 
         if (!this.initialized) {
@@ -56,7 +68,18 @@ export class UniwindStoreBuilder {
             })
             .filter(Boolean)
 
-        return this.resolveStyles(styles as Array<[string, Style]>, state)
+        const result = this.resolveStyles(styles as Array<[string, Style]>, state)
+
+        this.cache.set(cacheKey, result)
+
+        const cacheReset = () => {
+            this.cache.delete(cacheKey)
+            result.dependencies.forEach(dep => this.listeners[dep].delete(cacheReset))
+        }
+
+        this.subscribe(cacheReset, result.dependencies)
+
+        return result
     }
 
     reload = () => {
