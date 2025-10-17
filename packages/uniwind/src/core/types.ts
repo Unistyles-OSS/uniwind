@@ -2,11 +2,10 @@ import type { ImageStyle, StyleProp, TextStyle, ViewStyle } from 'react-native'
 import { ColorScheme, Orientation, StyleDependency, UniwindConfig } from '../types'
 
 export type Style = {
-    entries: Array<[string, unknown]>
+    entries: Array<[string, () => unknown]>
+    usedVars: Array<string>
     minWidth: number
     maxWidth: number
-    stylesUsingVariables: Record<string, string>
-    inlineVariables: Array<[string, () => unknown]>
     orientation: Orientation | null
     theme: ColorScheme | null
     rtl: boolean | null
@@ -21,7 +20,7 @@ export type Style = {
     disabled: boolean | null
 }
 
-export type StyleSheets = Record<string, Array<Style>>
+export type StyleSheets = Record<string, Array<Style> | (() => unknown)>
 
 type UserThemes = UniwindConfig extends { themes: infer T extends readonly string[] } ? T
     : readonly string[]

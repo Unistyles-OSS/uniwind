@@ -3,6 +3,18 @@ import { ProcessorBuilder } from '../processor'
 import { Platform, StyleSheetTemplate } from '../types'
 import { isDefined, toCamelCase } from '../utils'
 
+const extractVarsFromString = (value: string) => {
+    const thisIndexes = [...value.matchAll(/this\[`/g)].map(m => m.index)
+
+    return thisIndexes.map(index => {
+        const afterIndex = value.slice(index + 6)
+        const closingIndex = afterIndex.indexOf('`')
+        const varName = afterIndex.slice(0, closingIndex)
+
+        return varName
+    })
+}
+
 export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlatform: Platform) => {
     const stylesheetsEntries = Object.entries(Processor.stylesheets as StyleSheetTemplate)
         .map(([className, stylesPerMediaQuery]) => {
@@ -26,33 +38,19 @@ export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlat
 
                 const entries = Object.entries(rest)
                     .flatMap(([property, value]) => Processor.RN.cssToRN(property, value))
+                    .map(([property, value]) => [property, `function() { return ${value} }`])
 
                 if (platform && platform !== Platform.Native && platform !== currentPlatform) {
                     return null
                 }
 
-                const stylesUsingVariables: Record<string, string> = {}
-                const inlineVariables: Array<[string, string]> = []
+                if (entries.length === 0) {
+                    return null
+                }
+
                 const dependencies: Array<StyleDependency> = []
-
-                const filteredEntries = entries
-                    .filter(([property, value]) => {
-                        if (property.startsWith('--')) {
-                            inlineVariables.push([property, `function() { return ${typeof value === 'object' ? JSON.stringify(value) : value} }`])
-
-                            return false
-                        }
-
-                        const stringifiedValue = JSON.stringify(value)
-
-                        if (stringifiedValue.includes('this')) {
-                            stylesUsingVariables[property] = className
-                        }
-
-                        return true
-                    })
-
-                const stringifiedEntries = JSON.stringify(filteredEntries)
+                const stringifiedEntries = JSON.stringify(entries)
+                const usedVars = extractVarsFromString(stringifiedEntries)
 
                 if (theme !== null || stringifiedEntries.includes('--color') || stringifiedEntries.includes('rt.lightDark')) {
                     dependencies.push(StyleDependency.Theme)
@@ -83,7 +81,7 @@ export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlat
                 }
 
                 return {
-                    entries: filteredEntries,
+                    entries,
                     minWidth,
                     maxWidth,
                     theme,
@@ -91,14 +89,13 @@ export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlat
                     rtl,
                     colorScheme,
                     native: platform !== null,
-                    stylesUsingVariables,
-                    inlineVariables,
                     dependencies,
                     index,
                     className,
                     active,
                     focus,
                     disabled,
+                    usedVars,
                     importantProperties: importantProperties?.map(property => property.startsWith('--') ? property : toCamelCase) ?? [],
                     complexity: [
                         minWidth !== 0,
@@ -121,7 +118,7 @@ export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlat
 
             return [
                 className,
-                styles,
+                filteredStyles,
             ] as const
         })
         .filter(isDefined)

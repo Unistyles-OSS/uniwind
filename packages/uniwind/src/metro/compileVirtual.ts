@@ -28,5 +28,23 @@ export const compileVirtual = async ({ candidates, css, cssPath, platform, theme
 
     Processor.transform(tailwindCSS)
 
-    return serializeStylesheet({ ...Processor.vars, ...addMetaToStylesTemplate(Processor, platform) })
+    return serializeStylesheet({
+        ...Object.fromEntries(
+            Object.entries(Processor.vars).map(([key, value]) => {
+                if (key.startsWith('__uniwind-')) {
+                    return [
+                        key,
+                        Object.fromEntries(
+                            Object.entries(value).map(([nestedKey, nestedValue]) => {
+                                return [nestedKey, `function() { return ${nestedValue as any} }`]
+                            }),
+                        ),
+                    ]
+                }
+
+                return [key, `function() { return ${value} }`]
+            }),
+        ),
+        ...addMetaToStylesTemplate(Processor, platform),
+    })
 }

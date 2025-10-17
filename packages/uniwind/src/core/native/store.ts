@@ -1,3 +1,4 @@
+/* eslint-disable max-depth */
 import { Dimensions, Platform } from 'react-native'
 import { Orientation, StyleDependency } from '../../types'
 import { ComponentState, RNStyle, Style, StyleSheets } from '../types'
@@ -37,7 +38,7 @@ export class UniwindStoreBuilder {
     }
 
     getStyles(className?: string, state?: ComponentState): StylesResult {
-        if (className === undefined) {
+        if (className === undefined || className === '') {
             return {
                 styles: {},
                 dependencies: [],
@@ -55,20 +56,7 @@ export class UniwindStoreBuilder {
             this.reload()
         }
 
-        const styles = className
-            .split(' ')
-            .flatMap(className => {
-                const styles = this.stylesheets[className]
-
-                if (!styles) {
-                    return null
-                }
-
-                return styles.map(style => [className, style])
-            })
-            .filter(Boolean)
-
-        const result = this.resolveStyles(styles as Array<[string, Style]>, state)
+        const result = this.resolveStyles(className, state)
 
         this.cache.set(cacheKey, result)
 
@@ -83,141 +71,127 @@ export class UniwindStoreBuilder {
     }
 
     reload = () => {
-        this.stylesheets = globalThis.__uniwind__computeStylesheet(this.runtime)
+        const styleSheet = globalThis.__uniwind__computeStylesheet(this.runtime)
+        const themeVars = styleSheet[`__uniwind-theme-${this.runtime.currentThemeName}`]
+        const platformVars = styleSheet[`__uniwind-platform-${Platform.OS}`]
+
+        if (themeVars) {
+            Object.assign(styleSheet, themeVars)
+        }
+
+        if (platformVars) {
+            Object.assign(styleSheet, platformVars)
+        }
+
+        this.stylesheets = styleSheet
     }
 
     notifyListeners = (dependencies: Array<StyleDependency>) => {
         dependencies.forEach(dep => this.listeners[dep].forEach(listener => listener()))
     }
 
-    private resolveStyles(styles: Array<[string, Style]>, state?: ComponentState) {
-        const dependencies = [] as Array<StyleDependency>
-        const filteredStyles = styles.filter(([, style]) => {
-            dependencies.push(...style.dependencies)
-
-            if (
-                style.minWidth > this.runtime.screen.width
-                || style.maxWidth < this.runtime.screen.height
-                || (style.theme !== null && this.runtime.currentThemeName !== style.theme)
-                || (style.orientation !== null && this.runtime.orientation !== style.orientation)
-                || (style.rtl !== null && this.runtime.rtl !== style.rtl)
-                || (style.active !== null && state?.isPressed !== style.active)
-                || (style.focus !== null && state?.isFocused !== style.focus)
-                || (style.disabled !== null && state?.isDisabled !== style.disabled)
-            ) {
-                return false
-            }
-
-            return true
-        })
-        const bestBreakpoints = new Map<string, Style>()
+    private resolveStyles(classNames: string, state?: ComponentState) {
         const result = {} as Record<string, any>
-        const inlineVariables = new Map<string, () => any>()
-        const usingVariables = new Map<string, Style>()
+        const dependencies = [] as Array<StyleDependency>
+        const bestBreakpoints = new Map<string, Style>()
 
-        filteredStyles.forEach(([, style]) => {
-            style.inlineVariables.forEach(([varName, varValue]) => {
-                const previousBest = bestBreakpoints.get(varName)
-
-                if (
-                    previousBest
-                    && (
-                        previousBest.minWidth > style.minWidth
-                        || previousBest.complexity > style.complexity
-                        || previousBest.importantProperties.includes(varName)
-                    )
-                ) {
-                    return
-                }
-
-                bestBreakpoints.set(varName, style)
-                inlineVariables.set(varName, varValue)
-            })
-
-            style.entries.forEach(([property, value]) => {
-                const previousBest = bestBreakpoints.get(property)
-
-                if (
-                    previousBest
-                    && (
-                        previousBest.minWidth > style.minWidth
-                        || previousBest.complexity > style.complexity
-                        || previousBest.importantProperties.includes(property)
-                    )
-                ) {
-                    return
-                }
-
-                bestBreakpoints.set(property, style)
-                result[property] = value
-
-                if (property in style.stylesUsingVariables) {
-                    usingVariables.set(property, style)
-
-                    return
-                }
-
-                usingVariables.delete(property)
-            })
-        })
-
-        if (usingVariables.size > 0) {
-            const styleSheet = globalThis.__uniwind__computeStylesheet(this.runtime)
-            const themeVars = styleSheet[`__uniwind-theme-${this.runtime.currentThemeName}`]
-            const platformVars = styleSheet[`__uniwind-platform-${Platform.OS}`]
-
-            if (themeVars) {
-                Object.assign(styleSheet, themeVars)
+        for (const className of classNames.split(' ')) {
+            if (!(className in this.stylesheets)) {
+                continue
             }
 
-            if (platformVars) {
-                Object.assign(styleSheet, platformVars)
-            }
+            for (const style of this.stylesheets[className] as Array<Style>) {
+                dependencies.push(...style.dependencies)
 
-            inlineVariables.forEach((varValue, varName) => {
-                Object.defineProperty(styleSheet, varName, {
-                    get: varValue,
-                    configurable: true,
+                if (
+                    style.minWidth > this.runtime.screen.width
+                    || style.maxWidth < this.runtime.screen.height
+                    || (style.theme !== null && this.runtime.currentThemeName !== style.theme)
+                    || (style.orientation !== null && this.runtime.orientation !== style.orientation)
+                    || (style.rtl !== null && this.runtime.rtl !== style.rtl)
+                    || (style.active !== null && state?.isPressed !== style.active)
+                    || (style.focus !== null && state?.isFocused !== style.focus)
+                    || (style.disabled !== null && state?.isDisabled !== style.disabled)
+                ) {
+                    continue
+                }
+
+                style.usedVars.forEach(varName => {
+                    if (varName in this.stylesheets) {
+                        Object.defineProperty(result, varName, {
+                            configurable: true,
+                            enumerable: false,
+                            get: this.stylesheets[varName] as () => unknown,
+                        })
+                    }
                 })
-            })
 
-            usingVariables.forEach((style, property) => {
-                const newStyle = Object.fromEntries(styleSheet[style.className]![style.index]!.entries)
+                for (const [property, valueGetter] of style.entries) {
+                    const previousBest = bestBreakpoints.get(property)
 
-                result[property] = newStyle[property]
-            })
+                    if (
+                        previousBest
+                        && (
+                            previousBest.minWidth > style.minWidth
+                            || previousBest.complexity > style.complexity
+                            || previousBest.importantProperties.includes(property)
+                        )
+                    ) {
+                        continue
+                    }
+
+                    Object.defineProperty(result, property, {
+                        configurable: true,
+                        get: valueGetter,
+                        enumerable: property[0] !== '-',
+                    })
+                    bestBreakpoints.set(property, style)
+                }
+            }
         }
 
         if (result.lineHeight !== undefined && result.lineHeight < 6) {
-            result.lineHeight = result.fontSize * result.lineHeight
+            Object.defineProperty(result, 'lineHeight', {
+                value: result.fontSize * result.lineHeight,
+            })
         }
 
         if (result.boxShadow !== undefined) {
-            result.boxShadow = parseBoxShadow(result.boxShadow)
+            Object.defineProperty(result, 'boxShadow', {
+                value: parseBoxShadow(result.boxShadow),
+            })
         }
 
         if (result.visibility !== undefined && result.visibility === 'hidden') {
-            result.display = 'none'
+            Object.defineProperty(result, 'visibility', {
+                value: 'hidden',
+            })
         }
 
         if (
             result.borderStyle !== undefined && result.borderColor === undefined
         ) {
-            result.borderColor = '#000000'
+            Object.defineProperty(result, 'borderColor', {
+                value: '#000000',
+            })
         }
 
         if (result.fontVariant !== undefined) {
-            result.fontVariant = parseFontVariant(result.fontVariant)
+            Object.defineProperty(result, 'fontVariant', {
+                value: parseFontVariant(result.fontVariant),
+            })
         }
 
         parseTransformsMutation(result)
 
         if (result.experimental_backgroundImage !== undefined) {
-            result.experimental_backgroundImage = resolveGradient(result.experimental_backgroundImage)
+            Object.defineProperty(result, 'experimental_backgroundImage', {
+                value: resolveGradient(result.experimental_backgroundImage),
+            })
         }
 
         return {
-            styles: result as RNStyle,
+            styles: { ...result } as RNStyle,
             dependencies: Array.from(new Set(dependencies)),
         }
     }

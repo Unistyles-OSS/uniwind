@@ -178,10 +178,6 @@ export const serializeStylesheet = (stylesheet: Stylesheet) => {
             ? String(value)
             : serialize(value)
 
-        if (stringifiedValue.includes('this')) {
-            return `get "${key}"() { return ${stringifiedValue} }`
-        }
-
         return `"${key}": ${stringifiedValue}`
     }).join(',\n')
 
