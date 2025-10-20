@@ -117,7 +117,7 @@ export class UniwindStoreBuilder {
                 }
 
                 style.usedVars.forEach(varName => {
-                    if (varName in this.stylesheets) {
+                    if (varName in this.stylesheets && !(varName in result)) {
                         Object.defineProperty(result, varName, {
                             configurable: true,
                             enumerable: false,
