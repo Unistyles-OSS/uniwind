@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { getStyleSheetsFromCandidates, injectMocks } from '../utils'
+import { getStyleSheetsFromCandidates, injectMocks } from './utils'
 
 describe('Converts tailwind linear gradients', () => {
     injectMocks()
@@ -9,7 +9,7 @@ describe('Converts tailwind linear gradients', () => {
 
         await getStyleSheetsFromCandidates(...className.split(' '))
 
-        const { UniwindStore } = await import('../../src/core/native')
+        const { UniwindStore } = await import('../src/core/native')
         const styles = UniwindStore.getStyles(className).styles
 
         expect(styles).toEqual({
@@ -41,7 +41,7 @@ describe('Converts tailwind linear gradients', () => {
 
         await getStyleSheetsFromCandidates(...className.split(' '))
 
-        const { UniwindStore } = await import('../../src/core/native')
+        const { UniwindStore } = await import('../src/core/native')
         const styles = UniwindStore.getStyles(className).styles
 
         expect(styles).toEqual({
@@ -79,7 +79,7 @@ describe('Converts tailwind linear gradients', () => {
 
         await getStyleSheetsFromCandidates(...className.split(' '))
 
-        const { UniwindStore } = await import('../../src/core/native')
+        const { UniwindStore } = await import('../src/core/native')
         const styles = UniwindStore.getStyles(className).styles
 
         expect(styles).toEqual({
@@ -111,7 +111,7 @@ describe('Converts tailwind linear gradients', () => {
 
         await getStyleSheetsFromCandidates(...className.split(' '))
 
-        const { UniwindStore } = await import('../../src/core/native')
+        const { UniwindStore } = await import('../src/core/native')
         const styles = UniwindStore.getStyles(className).styles
 
         expect(styles).toEqual({

@@ -1,4 +1,4 @@
-import { addMissingSpaces, isDefined, percentageToFloat, toCamelCase } from '../utils'
+import { addMissingSpaces, isDefined, percentageToFloat, pipe, toCamelCase } from '../utils'
 import type { ProcessorBuilder } from './processor'
 
 const cssToRNMap: Record<string, (value: any) => Record<string, any>> = {
@@ -173,18 +173,6 @@ const cssToRNMap: Record<string, (value: any) => Record<string, any>> = {
     fontVariantNumeric: value => ({
         fontVariant: value,
     }),
-    paddingInline: value => ({
-        paddingHorizontal: value,
-    }),
-    marginInline: value => ({
-        marginHorizontal: value,
-    }),
-    paddingBlock: value => ({
-        paddingVertical: value,
-    }),
-    marginBlock: value => ({
-        marginVertical: value,
-    }),
 }
 
 export class RN {
@@ -214,7 +202,18 @@ export class RN {
             const propertyEnd = property.includes('border')
                 ? property.split('border').at(-1) ?? ''
                 : ''
-            const transformedProperty = property.replace(propertyEnd, '')
+            const transformedProperty = pipe(property)(
+                x => x.replace(propertyEnd, ''),
+                x => {
+                    if (x.includes('padding') || x.includes('margin')) {
+                        return x
+                            .replace('Inline', 'Horizontal')
+                            .replace('Block', 'Vertical')
+                    }
+
+                    return x
+                },
+            )
 
             if (properties.every(property => ['row', 'column'].includes(property))) {
                 return {
