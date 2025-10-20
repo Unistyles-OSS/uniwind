@@ -15,6 +15,7 @@ export const getStyleSheetsFromCandidates = async <T extends string>(...candidat
         candidates,
         platform: Platform.iOS,
         cssPath: testCSSPath,
+        polyfills: {},
         themes: ['light', 'dark'],
     })
 

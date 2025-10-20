@@ -4,14 +4,14 @@ import { Platform, StyleSheetTemplate } from '../types'
 import { isDefined, toCamelCase } from '../utils'
 
 const extractVarsFromString = (value: string) => {
-    const thisIndexes = [...value.matchAll(/this\[`/g)].map(m => m.index)
+    const thisIndexes = [...value.matchAll(/this\[/g)].map(m => m.index)
 
     return thisIndexes.map(index => {
-        const afterIndex = value.slice(index + 6)
-        const closingIndex = afterIndex.indexOf('`')
+        const afterIndex = value.slice(index + 5)
+        const closingIndex = afterIndex.indexOf(']')
         const varName = afterIndex.slice(0, closingIndex)
 
-        return varName
+        return varName.replace(/[`"\\]/g, '')
     })
 }
 
