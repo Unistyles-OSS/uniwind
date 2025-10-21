@@ -25,8 +25,8 @@ describe('Converts tailwind spacings', () => {
         const { UniwindStore } = await import('../src/core/native')
         const styles = UniwindStore.getStyles(className).styles
 
-        expect(styles).toHaveProperty('paddingHorizontalStart', 16)
-        expect(styles).toHaveProperty('paddingHorizontalEnd', 16)
+        expect(styles).toHaveProperty('paddingLeft', 16)
+        expect(styles).toHaveProperty('paddingRight', 16)
         expect(styles).toHaveProperty('marginTop', 8)
         expect(styles).toHaveProperty('marginBottom', 8)
         expect(styles).toHaveProperty('marginLeft', 8)

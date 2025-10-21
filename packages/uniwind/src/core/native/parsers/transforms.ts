@@ -47,6 +47,8 @@ export const parseTransformsMutation = (styles: Record<string, any>) => {
 
     if (transformsResult.length > 0) {
         Object.defineProperty(styles, 'transform', {
+            configurable: true,
+            enumerable: true,
             value: transformsResult,
         })
     }

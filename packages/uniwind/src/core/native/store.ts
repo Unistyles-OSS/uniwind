@@ -153,18 +153,24 @@ export class UniwindStoreBuilder {
         if (result.lineHeight !== undefined && result.lineHeight < 6) {
             Object.defineProperty(result, 'lineHeight', {
                 value: result.fontSize * result.lineHeight,
+                configurable: true,
+                enumerable: true,
             })
         }
 
         if (result.boxShadow !== undefined) {
             Object.defineProperty(result, 'boxShadow', {
                 value: parseBoxShadow(result.boxShadow),
+                configurable: true,
+                enumerable: true,
             })
         }
 
-        if (result.visibility !== undefined && result.visibility === 'hidden') {
-            Object.defineProperty(result, 'visibility', {
-                value: 'hidden',
+        if (result.visibility === 'hidden') {
+            Object.defineProperty(result, 'display', {
+                value: 'none',
+                configurable: true,
+                enumerable: true,
             })
         }
 
@@ -173,12 +179,16 @@ export class UniwindStoreBuilder {
         ) {
             Object.defineProperty(result, 'borderColor', {
                 value: '#000000',
+                configurable: true,
+                enumerable: true,
             })
         }
 
         if (result.fontVariant !== undefined) {
             Object.defineProperty(result, 'fontVariant', {
                 value: parseFontVariant(result.fontVariant),
+                configurable: true,
+                enumerable: true,
             })
         }
 
@@ -187,6 +197,8 @@ export class UniwindStoreBuilder {
         if (result.experimental_backgroundImage !== undefined) {
             Object.defineProperty(result, 'experimental_backgroundImage', {
                 value: resolveGradient(result.experimental_backgroundImage),
+                configurable: true,
+                enumerable: true,
             })
         }
 

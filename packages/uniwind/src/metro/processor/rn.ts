@@ -208,48 +208,73 @@ export class RN {
         }
 
         if (typeof value === 'object') {
-            const properties = Object.keys(value)
-            // border properties are border{X}Color instead of borderColor{X}
-            const propertyEnd = property.includes('border')
-                ? property.split('border').at(-1) ?? ''
-                : ''
-            const transformedProperty = property.replace(propertyEnd, '')
+            const transformed = this.transformObjectProperty(property, value)
 
-            if (properties.every(property => ['row', 'column'].includes(property))) {
-                return {
-                    rowGap: value.row,
-                    columnGap: value.column,
-                }
-            }
-
-            if (properties.every(property => ['start', 'end'].includes(property))) {
-                return {
-                    [`${transformedProperty}Start${propertyEnd}`]: value.start,
-                    [`${transformedProperty}End${propertyEnd}`]: value.end,
-                }
-            }
-
-            if (properties.every(property => ['top', 'right', 'bottom', 'left'].includes(property))) {
-                return {
-                    [`${transformedProperty}Top${propertyEnd}`]: value.top,
-                    [`${transformedProperty}Right${propertyEnd}`]: value.right,
-                    [`${transformedProperty}Bottom${propertyEnd}`]: value.bottom,
-                    [`${transformedProperty}Left${propertyEnd}`]: value.left,
-                }
-            }
-
-            if (properties.every(property => ['topLeft', 'topRight', 'bottomRight', 'bottomLeft'].includes(property))) {
-                return {
-                    [`${transformedProperty}TopLeft${propertyEnd}`]: value.topLeft,
-                    [`${transformedProperty}TopRight${propertyEnd}`]: value.topRight,
-                    [`${transformedProperty}BottomRight${propertyEnd}`]: value.bottomRight,
-                    [`${transformedProperty}BottomLeft${propertyEnd}`]: value.bottomLeft,
-                }
+            if (transformed) {
+                return transformed
             }
         }
 
         return {
             [property]: value,
+        }
+    }
+
+    private transformObjectProperty(property: string, value: Record<string, any>) {
+        const properties = Object.keys(value)
+        // border properties are border{X}Color instead of borderColor{X}
+        const propertyEnd = property.includes('border')
+            ? property.split('border').at(-1) ?? ''
+            : ''
+        const transformedProperty = property.replace(propertyEnd, '')
+        const isSpacing = property.includes('margin') || property.includes('padding')
+
+        const wrapProperty = (prop: string) => `${transformedProperty}${prop}${propertyEnd}`
+
+        if (properties.every(property => ['row', 'column'].includes(property))) {
+            return {
+                rowGap: value.row,
+                columnGap: value.column,
+            }
+        }
+
+        if (properties.every(property => ['start', 'end'].includes(property))) {
+            if (isSpacing && property.includes('Horizontal')) {
+                return {
+                    [`${property.replace('Horizontal', 'Left')}`]: value.start,
+                    [`${property.replace('Horizontal', 'Right')}`]: value.end,
+                }
+            }
+
+            if (isSpacing && property.includes('Vertical')) {
+                return {
+                    [`${property.replace('Vertical', 'Top')}`]: value.start,
+                    [`${property.replace('Vertical', 'Bottom')}`]: value.end,
+                }
+            }
+
+            return {
+                [wrapProperty('Start')]: value.start,
+                [wrapProperty('End')]: value.end,
+            }
+        }
+
+        if (properties.every(property => ['top', 'right', 'bottom', 'left'].includes(property))) {
+            return {
+                [wrapProperty('Top')]: value.top,
+                [wrapProperty('Right')]: value.right,
+                [wrapProperty('Bottom')]: value.bottom,
+                [wrapProperty('Left')]: value.left,
+            }
+        }
+
+        if (properties.every(property => ['topLeft', 'topRight', 'bottomRight', 'bottomLeft'].includes(property))) {
+            return {
+                [wrapProperty('TopLeft')]: value.topLeft,
+                [wrapProperty('TopRight')]: value.topRight,
+                [wrapProperty('BottomRight')]: value.bottomRight,
+                [wrapProperty('BottomLeft')]: value.bottomLeft,
+            }
         }
     }
 }
