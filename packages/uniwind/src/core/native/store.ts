@@ -1,7 +1,7 @@
 /* eslint-disable max-depth */
 import { Dimensions, Platform } from 'react-native'
 import { Orientation, StyleDependency } from '../../types'
-import { ComponentState, RNStyle, Style, StyleSheets } from '../types'
+import { ComponentState, GenerateStyleSheetsCallback, RNStyle, Style, StyleSheets } from '../types'
 import { parseBoxShadow, parseFontVariant, parseTransformsMutation, resolveGradient } from './parsers'
 import { UniwindRuntime } from './runtime'
 
@@ -10,7 +10,7 @@ type StylesResult = {
     dependencies: Array<StyleDependency>
 }
 
-export class UniwindStoreBuilder {
+class UniwindStoreBuilder {
     stylesheets = {} as StyleSheets
     listeners = {
         [StyleDependency.ColorScheme]: new Set<() => void>(),
@@ -21,7 +21,6 @@ export class UniwindStoreBuilder {
         [StyleDependency.FontScale]: new Set<() => void>(),
         [StyleDependency.Rtl]: new Set<() => void>(),
     }
-    initialized = false
     runtime = UniwindRuntime
     cache = new Map<string, StylesResult>()
 
@@ -51,11 +50,6 @@ export class UniwindStoreBuilder {
             return this.cache.get(cacheKey)!
         }
 
-        if (!this.initialized) {
-            this.initialized = true
-            this.reload()
-        }
-
         const result = this.resolveStyles(className, state)
 
         this.cache.set(cacheKey, result)
@@ -70,8 +64,8 @@ export class UniwindStoreBuilder {
         return result
     }
 
-    reload = () => {
-        const styleSheet = globalThis.__uniwind__computeStylesheet(this.runtime)
+    reinit = (generateStyleSheetCallback?: GenerateStyleSheetsCallback) => {
+        const styleSheet = generateStyleSheetCallback?.(this.runtime) ?? this.stylesheets
         const themeVars = styleSheet[`__uniwind-theme-${this.runtime.currentThemeName}`]
         const platformVars = styleSheet[`__uniwind-platform-${Platform.OS}`]
 
@@ -210,13 +204,6 @@ export class UniwindStoreBuilder {
 }
 
 export const UniwindStore = new UniwindStoreBuilder()
-
-if (__DEV__) {
-    globalThis.__uniwind__hot_reload = () => {
-        UniwindStore.reload()
-        UniwindStore.notifyListeners([StyleDependency.Theme])
-    }
-}
 
 Dimensions.addEventListener('change', ({ window }) => {
     const newOrientation = window.width > window.height ? Orientation.Landscape : Orientation.Portrait

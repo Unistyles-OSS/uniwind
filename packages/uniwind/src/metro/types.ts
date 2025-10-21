@@ -10,20 +10,7 @@ import type {
     Token,
     TokenOrValue,
 } from 'lightningcss'
-import type Bundler from 'metro/private/Bundler'
 import { ColorScheme, Orientation } from '../types'
-
-type WithUniwindPatch<T> = T & {
-    __uniwind_patched?: boolean
-}
-
-export type ExtendedBundler = Bundler & {
-    transformFile: WithUniwindPatch<Bundler['transformFile']>
-}
-
-export type ExtendedFileSystem = {
-    getSha1: WithUniwindPatch<(filename: string) => string>
-}
 
 export type Polyfills = {
     rem?: number
@@ -82,14 +69,4 @@ export type ProcessMetaValues = {
 
 export type StyleSheetTemplate = {
     [K: string]: Array<MediaQueryResolver & Record<string, unknown>>
-}
-
-type FileChange = {
-    filePath: string
-    type: string
-    metadata: any
-}
-
-export type FileChangeEvent = {
-    eventsQueue: Array<FileChange>
 }

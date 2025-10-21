@@ -170,7 +170,6 @@ const serialize = (value: any): string => {
 }
 
 export const serializeStylesheet = (stylesheet: Stylesheet) => {
-    const hotReloadFN = 'globalThis.__uniwind__hot_reload?.();'
     const currentColor = `get currentColor() { return function() { return rt.colorScheme === 'dark' ? '#ffffff' : '#000000' } },`
 
     const serializedStylesheet = Object.entries(stylesheet).map(([key, value]) => {
@@ -181,11 +180,11 @@ export const serializeStylesheet = (stylesheet: Stylesheet) => {
         return `"${key}": ${stringifiedValue}`
     }).join(',\n')
 
-    const js = `globalThis.__uniwind__computeStylesheet = rt => ({ ${currentColor} ${serializedStylesheet} });${hotReloadFN}`
+    const js = `({ ${currentColor} ${serializedStylesheet} })`
 
     try {
         // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
-        new Function(`function validateJS() { ${js} }`)
+        new Function(`function validateJS() { const fn = rt => ${js} }`)
     } catch {
         Logger.error('Failed to create virtual js')
         return ''

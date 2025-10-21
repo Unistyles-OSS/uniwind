@@ -22,6 +22,8 @@ export type Style = {
 
 export type StyleSheets = Record<string, Array<Style> | (() => unknown)>
 
+export type GenerateStyleSheetsCallback = (rt: UniwindRuntime) => StyleSheets
+
 type UserThemes = UniwindConfig extends { themes: infer T extends readonly string[] } ? T
     : readonly string[]
 
@@ -75,8 +77,6 @@ export type UniwindComponentProps =
     }
 
 declare global {
-    var __uniwind__computeStylesheet: (runtime: UniwindRuntime) => StyleSheets
-    var __uniwind__hot_reload: () => void
     var __uniwindThemes__: ReadonlyArray<string> | undefined
 }
 

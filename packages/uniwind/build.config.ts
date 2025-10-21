@@ -44,6 +44,11 @@ export default defineBuildConfig({
             name: 'metro/index',
         },
         {
+            builder: 'rollup',
+            input: './src/metro/metro-transformer.ts',
+            name: 'metro/metro-transformer',
+        },
+        {
             builder: 'mkdist',
             input: './src/metro',
             outDir: 'dist/metro',
@@ -70,6 +75,8 @@ export default defineBuildConfig({
     externals: [
         /@tailwindcss/,
         'lightningcss',
+        /metro-cache/,
+        /metro\/private/,
     ],
     rollup: {
         emitCJS: true,
