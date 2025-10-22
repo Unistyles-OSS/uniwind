@@ -214,7 +214,7 @@ class UniwindStoreBuilder {
         }
 
         return {
-            styles: result as RNStyle,
+            styles: { ...result } as RNStyle,
             dependencies: Array.from(new Set(dependencies)),
         }
     }
