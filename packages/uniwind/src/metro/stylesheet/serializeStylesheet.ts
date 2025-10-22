@@ -26,7 +26,26 @@ const isValidJSValue = (value: string) => {
 
 const isFunction = (value: string) => /^[A-Za-z][A-Za-z0-9_]*(?:\.[A-Za-z][A-Za-z0-9_]*)*\s*\(.*\)$/.test(value)
 
-const toJSExpression = (value: string): string => {
+const toJSExpression = (value: string, depth = 0): string => {
+    // Prevent infinite recursion - return early if depth is too high
+    if (depth > 5) {
+        return `"${String(value).trim()}"`
+    }
+
+    // Skip complex CSS selectors that cause issues (advanced Tailwind/Radix patterns)
+    if (typeof value === 'string' && (
+        value.includes('origin-(--') ||
+        value.includes('[&_') ||
+        value.includes('has-[>') ||
+        value.includes('data-[') ||
+        value.includes('group-data-[') ||
+        value.includes('peer-data-[') ||
+        value.includes(':not([class') ||
+        value.includes('*=[class')
+    )) {
+        return `"${value.trim()}"`;
+    }
+
     if (!isJSExpression(value)) {
         if (value.startsWith('"')) {
             return value
@@ -86,17 +105,17 @@ const toJSExpression = (value: string): string => {
                 }
 
                 if (isFunction(token)) {
-                    return toJSExpression(token)
+                    return toJSExpression(token, depth + 1)
                 }
 
                 const parsedToken = pipe(token)(
                     x => x.replace(',', ''),
                     x => {
                         if (x.includes('??')) {
-                            return x.split(' ?? ').map(toJSExpression).join(' ?? ')
+                            return x.split(' ?? ').map(token => toJSExpression(token, depth + 1)).join(' ?? ')
                         }
 
-                        return toJSExpression(x)
+                        return toJSExpression(x, depth + 1)
                     },
                 )
 
