@@ -2,6 +2,7 @@
 import { Dimensions, Platform } from 'react-native'
 import { Orientation, StyleDependency } from '../../types'
 import { ComponentState, GenerateStyleSheetsCallback, RNStyle, Style, StyleSheets } from '../types'
+import { cloneWithAccessors } from './native-utils'
 import { parseBoxShadow, parseFontVariant, parseTransformsMutation, resolveGradient } from './parsers'
 import { UniwindRuntime } from './runtime'
 
@@ -11,8 +12,10 @@ type StylesResult = {
 }
 
 class UniwindStoreBuilder {
-    stylesheets = {} as StyleSheets
-    listeners = {
+    runtime = UniwindRuntime
+    private stylesheet = {} as StyleSheets
+    private vars = {} as Record<string, unknown>
+    private listeners = {
         [StyleDependency.ColorScheme]: new Set<() => void>(),
         [StyleDependency.Theme]: new Set<() => void>(),
         [StyleDependency.Dimensions]: new Set<() => void>(),
@@ -21,8 +24,8 @@ class UniwindStoreBuilder {
         [StyleDependency.FontScale]: new Set<() => void>(),
         [StyleDependency.Rtl]: new Set<() => void>(),
     }
-    runtime = UniwindRuntime
-    cache = new Map<string, StylesResult>()
+    private cache = new Map<string, StylesResult>()
+    private generateStyleSheetCallbackResult: ReturnType<GenerateStyleSheetsCallback> | null = null
 
     subscribe(onStoreChange: () => void, dependencies: Array<StyleDependency>) {
         dependencies.forEach(dep => {
@@ -65,19 +68,28 @@ class UniwindStoreBuilder {
     }
 
     reinit = (generateStyleSheetCallback?: GenerateStyleSheetsCallback) => {
-        const styleSheet = generateStyleSheetCallback?.(this.runtime) ?? this.stylesheets
-        const themeVars = styleSheet[`__uniwind-theme-${this.runtime.currentThemeName}`]
-        const platformVars = styleSheet[`__uniwind-platform-${Platform.OS}`]
+        const config = generateStyleSheetCallback?.(this.runtime) ?? this.generateStyleSheetCallbackResult
+
+        if (!config) {
+            return
+        }
+
+        const { scopedVars, stylesheet, vars } = config
+
+        this.generateStyleSheetCallbackResult = config
+        this.stylesheet = stylesheet
+        this.vars = vars
+
+        const themeVars = scopedVars[`__uniwind-theme-${this.runtime.currentThemeName}`]
+        const platformVars = scopedVars[`__uniwind-platform-${Platform.OS}`]
 
         if (themeVars) {
-            Object.assign(styleSheet, themeVars)
+            Object.defineProperties(this.vars, Object.getOwnPropertyDescriptors(themeVars))
         }
 
         if (platformVars) {
-            Object.assign(styleSheet, platformVars)
+            Object.defineProperties(this.vars, Object.getOwnPropertyDescriptors(platformVars))
         }
-
-        this.stylesheets = styleSheet
     }
 
     notifyListeners = (dependencies: Array<StyleDependency>) => {
@@ -86,15 +98,16 @@ class UniwindStoreBuilder {
 
     private resolveStyles(classNames: string, state?: ComponentState) {
         const result = {} as Record<string, any>
+        let vars = this.vars
         const dependencies = [] as Array<StyleDependency>
         const bestBreakpoints = new Map<string, Style>()
 
         for (const className of classNames.split(' ')) {
-            if (!(className in this.stylesheets)) {
+            if (!(className in this.stylesheet)) {
                 continue
             }
 
-            for (const style of this.stylesheets[className] as Array<Style>) {
+            for (const style of this.stylesheet[className] as Array<Style>) {
                 dependencies.push(...style.dependencies)
 
                 if (
@@ -110,16 +123,6 @@ class UniwindStoreBuilder {
                     continue
                 }
 
-                style.usedVars.forEach(varName => {
-                    if (varName in this.stylesheets && !(varName in result)) {
-                        Object.defineProperty(result, varName, {
-                            configurable: true,
-                            enumerable: false,
-                            get: this.stylesheets[varName] as () => unknown,
-                        })
-                    }
-                })
-
                 for (const [property, valueGetter] of style.entries) {
                     const previousBest = bestBreakpoints.get(property)
 
@@ -134,11 +137,25 @@ class UniwindStoreBuilder {
                         continue
                     }
 
-                    Object.defineProperty(result, property, {
-                        configurable: true,
-                        get: valueGetter,
-                        enumerable: property[0] !== '-',
-                    })
+                    if (property[0] === '-') {
+                        // Clone vars object if we are adding inline variables
+                        if (vars === this.vars) {
+                            vars = cloneWithAccessors(this.vars)
+                        }
+
+                        Object.defineProperty(vars, property, {
+                            configurable: true,
+                            enumerable: true,
+                            get: valueGetter,
+                        })
+                    } else {
+                        Object.defineProperty(result, property, {
+                            configurable: true,
+                            enumerable: true,
+                            get: () => valueGetter.call(vars),
+                        })
+                    }
+
                     bestBreakpoints.set(property, style)
                 }
             }
@@ -197,7 +214,7 @@ class UniwindStoreBuilder {
         }
 
         return {
-            styles: { ...result } as RNStyle,
+            styles: result as RNStyle,
             dependencies: Array.from(new Set(dependencies)),
         }
     }

@@ -3,18 +3,6 @@ import { ProcessorBuilder } from '../processor'
 import { Platform, StyleSheetTemplate } from '../types'
 import { isDefined, toCamelCase } from '../utils'
 
-const extractVarsFromString = (value: string) => {
-    const thisIndexes = [...value.matchAll(/this\[/g)].map(m => m.index)
-
-    return thisIndexes.map(index => {
-        const afterIndex = value.slice(index + 5)
-        const closingIndex = afterIndex.indexOf(']')
-        const varName = afterIndex.slice(0, closingIndex)
-
-        return varName.replace(/[`"\\]/g, '')
-    })
-}
-
 export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlatform: Platform) => {
     const stylesheetsEntries = Object.entries(Processor.stylesheets as StyleSheetTemplate)
         .map(([className, stylesPerMediaQuery]) => {
@@ -50,7 +38,6 @@ export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlat
 
                 const dependencies: Array<StyleDependency> = []
                 const stringifiedEntries = JSON.stringify(entries)
-                const usedVars = extractVarsFromString(stringifiedEntries)
 
                 if (theme !== null || stringifiedEntries.includes('--color') || stringifiedEntries.includes('rt.lightDark')) {
                     dependencies.push(StyleDependency.Theme)
@@ -95,7 +82,6 @@ export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlat
                     active,
                     focus,
                     disabled,
-                    usedVars,
                     importantProperties: importantProperties?.map(property => property.startsWith('--') ? property : toCamelCase) ?? [],
                     complexity: [
                         minWidth !== 0,

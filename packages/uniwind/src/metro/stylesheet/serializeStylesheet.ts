@@ -1,8 +1,6 @@
 import { Logger } from '../logger'
 import { addMissingSpaces, isNumber, pipe, smartSplit } from '../utils'
 
-type Stylesheet = Record<string, any>
-
 const FN_DECLARATION = 'function() { return'
 
 const isJSExpression = (value: string) =>
@@ -169,22 +167,21 @@ const serialize = (value: any): string => {
     }
 }
 
-export const serializeStylesheet = (stylesheet: Stylesheet) => {
-    const currentColor = `get currentColor() { return function() { return rt.colorScheme === 'dark' ? '#ffffff' : '#000000' } },`
-
+export const serializeJS = (stylesheet: Record<string, any>, serializer: (key: string, value: string) => string) => {
+    // eslint-disable-next-line prefer-template
     const serializedStylesheet = Object.entries(stylesheet).map(([key, value]) => {
         const stringifiedValue = isNumber(value)
             ? String(value)
             : serialize(value)
 
-        return `"${key}": ${stringifiedValue}`
-    }).join(',\n')
+        return serializer(key, stringifiedValue)
+    }).join(',') + ','
 
-    const js = `({ ${currentColor} ${serializedStylesheet} })`
+    const js = `${serializedStylesheet}`
 
     try {
         // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
-        new Function(`function validateJS() { const fn = rt => ${js} }`)
+        new Function(`function validateJS() { const obj = ({ ${js} }) }`)
     } catch {
         Logger.error('Failed to create virtual js')
         return ''

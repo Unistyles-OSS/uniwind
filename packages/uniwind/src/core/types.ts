@@ -3,7 +3,6 @@ import { ColorScheme, Orientation, StyleDependency, UniwindConfig } from '../typ
 
 export type Style = {
     entries: Array<[string, () => unknown]>
-    usedVars: Array<string>
     minWidth: number
     maxWidth: number
     orientation: Orientation | null
@@ -20,9 +19,13 @@ export type Style = {
     disabled: boolean | null
 }
 
-export type StyleSheets = Record<string, Array<Style> | (() => unknown)>
+export type StyleSheets = Record<string, Array<Style>>
 
-export type GenerateStyleSheetsCallback = (rt: UniwindRuntime) => StyleSheets
+export type GenerateStyleSheetsCallback = (rt: UniwindRuntime) => {
+    stylesheet: StyleSheets
+    vars: Record<string, unknown>
+    scopedVars: Partial<Record<string, Record<string, unknown>>>
+}
 
 type UserThemes = UniwindConfig extends { themes: infer T extends readonly string[] } ? T
     : readonly string[]

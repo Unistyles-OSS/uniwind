@@ -1,7 +1,7 @@
 import { compile } from '@tailwindcss/node'
 import { polyfillWeb } from './polyfillWeb'
 import { ProcessorBuilder } from './processor'
-import { addMetaToStylesTemplate, serializeStylesheet } from './stylesheet'
+import { addMetaToStylesTemplate, serializeJS } from './stylesheet'
 import { Platform, Polyfills } from './types'
 
 type CompileVirtualConfig = {
@@ -28,23 +28,35 @@ export const compileVirtual = async ({ candidates, css, cssPath, platform, theme
 
     Processor.transform(tailwindCSS)
 
-    return serializeStylesheet({
-        ...Object.fromEntries(
-            Object.entries(Processor.vars).map(([key, value]) => {
-                if (key.startsWith('__uniwind-')) {
-                    return [
-                        key,
-                        Object.fromEntries(
-                            Object.entries(value).map(([nestedKey, nestedValue]) => {
-                                return [nestedKey, `function() { return ${nestedValue as any} }`]
-                            }),
-                        ),
-                    ]
-                }
-
-                return [key, `function() { return ${value} }`]
-            }),
+    const stylesheet = serializeJS(
+        addMetaToStylesTemplate(Processor, platform),
+        (key, value) => `"${key}": ${value}`,
+    )
+    const vars = serializeJS(
+        Object.fromEntries(
+            Object.entries(Processor.vars)
+                .filter(([key]) => !key.startsWith(`__uniwind-`)),
         ),
-        ...addMetaToStylesTemplate(Processor, platform),
-    })
+        (key, value) => `get "${key}"() { return ${value} }`,
+    )
+    const scopedVars = Object.fromEntries(
+        Object.entries(Processor.vars)
+            .filter(([scopedVarsName]) => scopedVarsName.startsWith(`__uniwind-`))
+            .map(([scopedVarsName, scopedVars]) => [
+                scopedVarsName,
+                serializeJS(scopedVars, (key, value) => `get "${key}"() { return ${value} }`),
+            ]),
+    )
+    const serializedScopedVars = Object.entries(scopedVars)
+        .map(([scopedVarsName, scopedVars]) => `"${scopedVarsName}": ({ ${scopedVars} }),`)
+        .join('')
+    const currentColorVar = `get currentColor() { return rt.colorScheme === 'dark' ? '#ffffff' : '#000000' },`
+
+    return [
+        '({',
+        `scopedVars: ({ ${serializedScopedVars} }),`,
+        `vars: ({ ${currentColorVar} ${vars} }),`,
+        `stylesheet: ({ ${stylesheet} }),`,
+        '})',
+    ].join('')
 }
