@@ -1,5 +1,4 @@
 import type { MetroConfig } from 'metro-config'
-import path from 'path'
 import { cacheStore, patchMetroGraphToSupportUncachedModules } from './metro-css-patches'
 import { nativeResolver, webResolver } from './resolvers'
 import { Platform, UniwindConfig } from './types'
@@ -9,17 +8,13 @@ export const withUniwindConfig = <T extends MetroConfig>(
     config: T,
     uniwindConfig: UniwindConfig,
 ): T => {
-    const isExpo = true
-
     uniwindConfig.themes = uniq([
         'light',
         'dark',
         ...(uniwindConfig.extraThemes ?? []),
     ])
 
-    if (isExpo === false) {
-        patchMetroGraphToSupportUncachedModules()
-    }
+    patchMetroGraphToSupportUncachedModules()
 
     if (typeof uniwindConfig === 'undefined') {
         throw new Error('Uniwind: You need to pass second parameter to withUniwindConfig')
@@ -33,7 +28,7 @@ export const withUniwindConfig = <T extends MetroConfig>(
 
     return {
         ...config,
-        cacheStores: isExpo ? config.cacheStores : [cacheStore],
+        cacheStores: [cacheStore],
         transformerPath: require.resolve('./metro-transformer.cjs'),
         transformer: {
             ...config.transformer,

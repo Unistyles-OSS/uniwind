@@ -4,6 +4,7 @@ import { compileVirtual } from '../src/metro/compileVirtual'
 import { Platform } from '../src/metro/types'
 import { UniwindRuntimeMock } from './mocks'
 import path = require('path')
+import { Uniwind } from '../src'
 
 export const getStyleSheetsFromCandidates = async <T extends string>(...candidates: Array<T>) => {
     const cwd = process.cwd()
@@ -18,9 +19,8 @@ export const getStyleSheetsFromCandidates = async <T extends string>(...candidat
         themes: ['light', 'dark'],
     })
 
-    new Function(virtualJS)()
-
-    return globalThis.__uniwind__computeStylesheet(UniwindRuntimeMock)
+    // @ts-ignore
+    Uniwind.__reinit(new Function('rt', `return ${virtualJS}`))
 }
 
 export const twSize = (size: number) => size * 4
