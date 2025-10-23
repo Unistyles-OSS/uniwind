@@ -99,9 +99,10 @@ export const transform = async (
     )
 
     uniwindCache.cachedTransforms.set(platform, transform)
-    transform.output[0].data.css = {
-        skipCache: true,
-        code: '',
+    transform.output[0].data.css.skipCache = true
+
+    if (!isWeb) {
+        transform.output[0].data.css.code = ''
     }
 
     return transform

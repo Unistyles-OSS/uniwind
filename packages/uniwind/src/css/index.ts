@@ -9,6 +9,13 @@ export const buildCSS = (themes: Array<string>, input: string) => {
     const insets = generateCSSForInsets()
     const themesCSS = generateCSSForThemes(themes, input)
     const cssFile = path.join(__dirname, '../../uniwind.css')
+    const oldCSSFile = fs.existsSync(cssFile)
+        ? fs.readFileSync(cssFile, 'utf-8')
+        : ''
+
+    if (oldCSSFile === cssFile) {
+        return
+    }
 
     fs.writeFileSync(
         cssFile,
