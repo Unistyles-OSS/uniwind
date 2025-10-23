@@ -140,7 +140,8 @@ export class Functions {
     }
 
     private tryEval(value: string) {
-        const units = Array.from(value.match(/%|deg|rad|grad|turn/g) ?? [])
+        // Match units like %, deg, rad, grad, turn that are not preceded by letters or hyphens
+        const units = Array.from(value.match(/(?<![A-Za-z-])(?:%|deg|rad|grad|turn)(?=\s|$)/g) ?? [])
 
         if (units.length === 0) {
             return value
