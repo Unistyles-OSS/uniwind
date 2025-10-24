@@ -99,6 +99,8 @@ export const transform = async (
     )
 
     uniwindCache.cachedTransforms.set(platform, transform)
+
+    transform.output[0].data.css ??= {}
     transform.output[0].data.css.skipCache = true
 
     if (!isWeb) {

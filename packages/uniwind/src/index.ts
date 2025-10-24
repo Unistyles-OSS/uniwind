@@ -1,5 +1,5 @@
 export { Uniwind } from './core'
 export { withUniwind } from './hoc'
 export type { ApplyUniwind, ApplyUniwindOptions } from './hoc/types'
-export { useResolveClassNames, useUniwind } from './hooks'
+export { useCSSVariable, useResolveClassNames, useUniwind } from './hooks'
 export type { UniwindConfig } from './types'

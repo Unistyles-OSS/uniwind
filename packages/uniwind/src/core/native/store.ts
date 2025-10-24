@@ -13,8 +13,8 @@ type StylesResult = {
 
 class UniwindStoreBuilder {
     runtime = UniwindRuntime
+    vars = {} as Record<string, unknown>
     private stylesheet = {} as StyleSheets
-    private vars = {} as Record<string, unknown>
     private listeners = {
         [StyleDependency.ColorScheme]: new Set<() => void>(),
         [StyleDependency.Theme]: new Set<() => void>(),

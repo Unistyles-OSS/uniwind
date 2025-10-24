@@ -1,6 +1,5 @@
-import { parse } from 'culori'
 import { RNStyle } from '../types'
-import { formatColor } from './formatColor'
+import { parseCSSValue } from './parseCSSValue'
 
 const dummy = typeof document !== 'undefined'
     ? Object.assign(document.createElement('div'), {
@@ -63,13 +62,9 @@ export const getWebStyles = (className?: string): RNStyle => {
 
     return Object.fromEntries(
         Object.entries(computedStyles).map(([key, value]) => {
-            const parsedValue = isNaN(Number(value)) && parse(value) !== undefined
-                ? formatColor(value)
-                : value
-
             return [
                 key.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase()),
-                parsedValue,
+                parseCSSValue(value),
             ]
         }),
     )
