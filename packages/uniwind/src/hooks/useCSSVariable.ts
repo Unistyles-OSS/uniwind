@@ -21,6 +21,11 @@ const getVariableValue = (name: string) => {
 
 let warned = false
 
+/**
+ * A hook that returns the value of a CSS variable.
+ * @param name Name of the CSS variable.
+ * @returns Value of the CSS variable. On web it is always a string (1rem, #ff0000, etc.), but on native it can be a string or a number (16px, #ff0000)
+ */
 export const useCSSVariable = (name: string): string | number | undefined => {
     const [value, setValue] = useState(getVariableValue(name))
 
