@@ -11,4 +11,4 @@ type UniwindConfig = {
     polyfills?: Polyfills
 }
 
-export declare function withUniwindConfig(config: MetroConfig, options: UniwindConfig): () => Promise<MetroConfig>
+export declare function withUniwindConfig(config: MetroConfig, options: UniwindConfig): MetroConfig
