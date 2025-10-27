@@ -12,13 +12,7 @@ export const useCSSVariable = (name: string) => {
     const [value, setValue] = useState(getVariableValue(name))
 
     useEffect(() => {
-        const updateValue = () => {
-            const newValue = getVariableValue(name)
-
-            if (newValue !== value) {
-                setValue(newValue)
-            }
-        }
+        const updateValue = () => setValue(getVariableValue(name))
         const dispose = UniwindStore.subscribe(
             updateValue,
             [StyleDependency.Theme],
