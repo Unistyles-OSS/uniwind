@@ -11,6 +11,7 @@ import { Var } from './var'
 export class ProcessorBuilder {
     stylesheets = {} as Record<string, Array<any>>
     vars = {} as Record<string, any>
+    scopedVars = {} as Record<string, Record<string, any>>
     CSS = new CSS(this)
     RN = new RN(this)
     Var = new Var(this)
@@ -63,9 +64,9 @@ export class ProcessorBuilder {
 
             if (mq.platform !== null) {
                 const platformKey = `__uniwind-platform-${mq.platform}`
-                this.vars[platformKey] ??= {}
+                this.scopedVars[platformKey] ??= {}
 
-                return this.vars[platformKey]
+                return this.scopedVars[platformKey]
             }
 
             if (this.declarationConfig.theme === null) {
@@ -73,9 +74,9 @@ export class ProcessorBuilder {
             }
 
             const themeKey = `__uniwind-theme-${this.declarationConfig.theme}`
-            this.vars[themeKey] ??= {}
+            this.scopedVars[themeKey] ??= {}
 
-            return this.vars[themeKey]
+            return this.scopedVars[themeKey]
         })()
 
         if (!isVar) {

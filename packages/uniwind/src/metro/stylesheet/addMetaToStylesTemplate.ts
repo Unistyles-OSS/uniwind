@@ -15,6 +15,18 @@ const simpleSerialize = (value: any): string => {
     return JSON.stringify(value)
 }
 
+const extractVarsFromString = (value: string) => {
+    const thisIndexes = [...value.matchAll(/this\[/g)].map(m => m.index)
+
+    return thisIndexes.map(index => {
+        const afterIndex = value.slice(index + 5)
+        const closingIndex = afterIndex.indexOf(']')
+        const varName = afterIndex.slice(0, closingIndex)
+
+        return varName.replace(/[`"\\]/g, '')
+    })
+}
+
 export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlatform: Platform) => {
     const stylesheetsEntries = Object.entries(Processor.stylesheets as StyleSheetTemplate)
         .map(([className, stylesPerMediaQuery]) => {
@@ -50,8 +62,16 @@ export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlat
 
                 const dependencies: Array<StyleDependency> = []
                 const stringifiedEntries = JSON.stringify(entries)
+                const usedVars = extractVarsFromString(stringifiedEntries)
+                const isUsingThemedVar = usedVars.some(usedVarName => {
+                    return Object.values(Processor.scopedVars).some(scopedVars => {
+                        const scopedVarsNames = Object.keys(scopedVars)
 
-                if (theme !== null || stringifiedEntries.includes('--color') || stringifiedEntries.includes('rt.lightDark')) {
+                        return scopedVarsNames.includes(usedVarName)
+                    })
+                })
+
+                if (theme !== null || isUsingThemedVar || stringifiedEntries.includes('rt.lightDark')) {
                     dependencies.push(StyleDependency.Theme)
                 }
 

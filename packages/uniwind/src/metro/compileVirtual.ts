@@ -33,15 +33,11 @@ export const compileVirtual = async ({ candidates, css, cssPath, platform, theme
         (key, value) => `"${key}": ${value}`,
     )
     const vars = serializeJS(
-        Object.fromEntries(
-            Object.entries(Processor.vars)
-                .filter(([key]) => !key.startsWith(`__uniwind-`)),
-        ),
+        Processor.vars,
         (key, value) => `get "${key}"() { return ${value} }`,
     )
     const scopedVars = Object.fromEntries(
-        Object.entries(Processor.vars)
-            .filter(([scopedVarsName]) => scopedVarsName.startsWith(`__uniwind-`))
+        Object.entries(Processor.scopedVars)
             .map(([scopedVarsName, scopedVars]) => [
                 scopedVarsName,
                 serializeJS(scopedVars, (key, value) => `get "${key}"() { return ${value} }`),

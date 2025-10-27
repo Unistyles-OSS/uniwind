@@ -26,7 +26,7 @@ export const generateCSSForThemes = (themes: Array<string>, input: string) => {
                     const theme = firstPrelude.value.value
 
                     rule.value.block?.forEach(block => {
-                        if (block.type === 'dashed-ident' && block.value.startsWith('--color-')) {
+                        if (block.type === 'dashed-ident') {
                             themesVariables[theme]?.add(block.value)
                         }
                     })
