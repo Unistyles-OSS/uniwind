@@ -276,5 +276,13 @@ export class RN {
                 [wrapProperty('BottomLeft')]: value.bottomLeft,
             }
         }
+
+        if (properties.every(property => ['style', 'width', 'color'].includes(property))) {
+            return {
+                [wrapProperty('Style')]: value.style,
+                [wrapProperty('Width')]: value.width,
+                [wrapProperty('Color')]: value.color,
+            }
+        }
     }
 }

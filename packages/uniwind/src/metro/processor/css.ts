@@ -145,7 +145,7 @@ export class CSS {
 
                     this.logUnsupported(`Unsupported env value - ${JSON.stringify(declarationValue.value)}`)
 
-                    return ''
+                    return undefined
                 case 'time': {
                     const unit = declarationValue.value.type === 'milliseconds' ? 'ms' : 's'
 
@@ -182,7 +182,7 @@ export class CSS {
 
                     this.logUnsupported(`Unsupported keyword value - ${JSON.stringify(declarationValue)}`)
 
-                    return ''
+                    return undefined
                 case 'min-max':
                 case 'track-breadth':
                     return declarationValue.type
@@ -200,7 +200,7 @@ export class CSS {
                         ].join(', ')
                     }
 
-                    return ''
+                    return undefined
                 case 'color-stop':
                     return [
                         this.Processor.Color.processColor(declarationValue.color),
@@ -227,7 +227,9 @@ export class CSS {
                 case 'light-dark':
                     return `rt.lightDark( ${this.processValue(declarationValue.light)}, ${this.processValue(declarationValue.dark)} )`
                 case 'sticky':
-                    return ''
+                case 'fit-content':
+                case 'shape':
+                    return undefined
                 case 'weight':
                 case 'horizontal':
                 case 'vertical':
@@ -245,7 +247,7 @@ export class CSS {
 
                     this.logUnsupported(`Unsupported value type - ${JSON.stringify(declarationValue.type)}`)
 
-                    return ''
+                    return undefined
             }
         }
 
@@ -403,9 +405,19 @@ export class CSS {
                 : 'auto'
         }
 
+        if ('style' in declarationValue && 'width' in declarationValue) {
+            return {
+                style: this.processValue(declarationValue.style),
+                width: declarationValue.width.type === 'length'
+                    ? this.processValue(declarationValue.width.value)
+                    : undefined,
+                color: this.Processor.Color.processColor(declarationValue.color),
+            }
+        }
+
         this.logUnsupported(`Unsupported value - ${JSON.stringify(declarationValue)}`)
 
-        return ''
+        return undefined
     }
 
     private isDimension(value: any): value is { type: 'dimension' } {

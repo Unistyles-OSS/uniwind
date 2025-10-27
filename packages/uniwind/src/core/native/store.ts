@@ -195,6 +195,16 @@ class UniwindStoreBuilder {
             })
         }
 
+        if (
+            result.outlineStyle !== undefined && result.outlineColor === undefined
+        ) {
+            Object.defineProperty(result, 'outlineColor', {
+                value: '#000000',
+                configurable: true,
+                enumerable: true,
+            })
+        }
+
         if (result.fontVariant !== undefined) {
             Object.defineProperty(result, 'fontVariant', {
                 value: parseFontVariant(result.fontVariant),
