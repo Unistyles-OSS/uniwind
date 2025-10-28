@@ -1,4 +1,4 @@
-import { addMissingSpaces, isDefined, percentageToFloat, pipe, toCamelCase } from '../utils'
+import { addMissingSpaces, isDefined, pipe, toCamelCase } from '../utils'
 import type { ProcessorBuilder } from './processor'
 
 const cssToRNMap: Record<string, (value: any) => Record<string, any>> = {
@@ -28,21 +28,6 @@ const cssToRNMap: Record<string, (value: any) => Record<string, any>> = {
 
         return {
             overflow: value,
-        }
-    },
-    '--tw-scale-x': (value: string) => {
-        return {
-            '--tw-scale-x': percentageToFloat(value),
-        }
-    },
-    '--tw-scale-y': (value: string) => {
-        return {
-            '--tw-scale-y': percentageToFloat(value),
-        }
-    },
-    '--tw-scale-z': (value: string) => {
-        return {
-            '--tw-scale-z': percentageToFloat(value),
         }
     },
     backdropFilter: () => ({}),

@@ -15,6 +15,14 @@ const transforms = [
     'perspective',
 ]
 
+const processTransform = (transform: string, value: any) => {
+    if (transform.startsWith('scale') && typeof value === 'string') {
+        return parseFloat(value.replace('%', '')) / 100
+    }
+
+    return value
+}
+
 export const parseTransformsMutation = (styles: Record<string, any>) => {
     const transformTokens = typeof styles.transform === 'string'
         ? styles.transform
@@ -34,13 +42,13 @@ export const parseTransformsMutation = (styles: Record<string, any>) => {
 
                 const transformValue = token.slice(transform.length + 1, -1)
 
-                transformsResult.push({ [transform]: transformValue })
+                transformsResult.push({ [transform]: processTransform(transform, transformValue) })
             }
         }
 
         // Transforms outside of transform - { rotate: '45deg' }
         if (styles[transform] !== undefined) {
-            transformsResult.push({ [transform]: styles[transform] })
+            transformsResult.push({ [transform]: processTransform(transform, styles[transform]) })
             delete styles[transform]
         }
     }

@@ -1,8 +1,9 @@
 import { compile } from '@tailwindcss/node'
+import { addMetaToStylesTemplate } from './addMetaToStylesTemplate'
 import { polyfillWeb } from './polyfillWeb'
 import { ProcessorBuilder } from './processor'
-import { addMetaToStylesTemplate, serializeJS } from './stylesheet'
 import { Platform, Polyfills } from './types'
+import { serializeJSObject } from './utils'
 
 type CompileVirtualConfig = {
     cssPath: string
@@ -28,11 +29,11 @@ export const compileVirtual = async ({ candidates, css, cssPath, platform, theme
 
     Processor.transform(tailwindCSS)
 
-    const stylesheet = serializeJS(
+    const stylesheet = serializeJSObject(
         addMetaToStylesTemplate(Processor, platform),
         (key, value) => `"${key}": ${value}`,
     )
-    const vars = serializeJS(
+    const vars = serializeJSObject(
         Processor.vars,
         (key, value) => `get "${key}"() { return ${value} }`,
     )
@@ -40,7 +41,7 @@ export const compileVirtual = async ({ candidates, css, cssPath, platform, theme
         Object.entries(Processor.scopedVars)
             .map(([scopedVarsName, scopedVars]) => [
                 scopedVarsName,
-                serializeJS(scopedVars, (key, value) => `get "${key}"() { return ${value} }`),
+                serializeJSObject(scopedVars, (key, value) => `get "${key}"() { return ${value} }`),
             ]),
     )
     const serializedScopedVars = Object.entries(scopedVars)

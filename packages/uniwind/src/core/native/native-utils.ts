@@ -1,7 +1,9 @@
 import { formatHex, formatHex8, interpolate, parse } from 'culori'
 import type { UniwindRuntime } from '../types'
 
-export const colorMix = (color: string, mixColor: string, weight: number) => {
+export const colorMix = (color: string, mixColor: string, weight: number | string) => {
+    const parsedWeight = typeof weight === 'string' ? parseFloat(weight) / 100 : weight
+
     // Change alpha
     if (mixColor === '#00000000') {
         const parsedColor = parse(color)
@@ -12,11 +14,11 @@ export const colorMix = (color: string, mixColor: string, weight: number) => {
 
         return formatHex8({
             ...parsedColor,
-            alpha: weight,
+            alpha: parsedWeight * (parsedColor.alpha ?? 1),
         })
     }
 
-    return formatHex(interpolate([mixColor, color])(weight))
+    return formatHex(interpolate([mixColor, color])(parsedWeight))
 }
 
 export function lightDark(this: UniwindRuntime, light: string, dark: string) {

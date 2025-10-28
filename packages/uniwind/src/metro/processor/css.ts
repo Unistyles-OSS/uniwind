@@ -1,7 +1,7 @@
 import { OverflowKeyword } from 'lightningcss'
 import { Logger } from '../logger'
 import { DeclarationValues } from '../types'
-import { isDefined, pipe } from '../utils'
+import { isDefined, pipe, roundToPrecision, shouldBeSerialized } from '../utils'
 import type { ProcessorBuilder } from './processor'
 
 export class CSS {
@@ -10,6 +10,34 @@ export class CSS {
     constructor(private readonly Processor: ProcessorBuilder) {}
 
     processValue(declarationValue: DeclarationValues): any {
+        const processedValue = this.getProcessedValue(declarationValue)
+
+        if (typeof processedValue === 'string') {
+            return this.makeSafeForSerialization(processedValue)
+        }
+
+        if (typeof processedValue === 'object' && processedValue !== null) {
+            return Object.fromEntries(
+                Object.entries(processedValue).map(([key, value]) => {
+                    if (typeof value === 'string') {
+                        return [
+                            key,
+                            this.makeSafeForSerialization(value),
+                        ]
+                    }
+
+                    return [
+                        key,
+                        value,
+                    ]
+                }),
+            )
+        }
+
+        return processedValue
+    }
+
+    private getProcessedValue(declarationValue: DeclarationValues): any {
         if (typeof declarationValue !== 'object') {
             return declarationValue
         }
@@ -472,5 +500,17 @@ export class CSS {
                 this.Processor.meta.className !== undefined ? `for className ${this.Processor.meta.className}` : null,
             ].filter(Boolean).join(' '),
         )
+    }
+
+    private makeSafeForSerialization(value: string) {
+        if (shouldBeSerialized(value)) {
+            return value
+        }
+
+        if (value.endsWith('%')) {
+            return `"${roundToPrecision(parseFloat(value), 2)}%"`
+        }
+
+        return `"${value}"`
     }
 }

@@ -50,7 +50,7 @@ export type UniwindRuntime = {
     hairlineWidth: number
     pixelRatio: (value: number) => number
     fontScale: (value: number) => number
-    colorMix: (color: string, mixColor: string, weight: number) => string
+    colorMix: (color: string, mixColor: string, weight: number | string) => string
     cubicBezier: (x1: number, y1: number, x2: number, y2: number) => string
     lightDark: (light: string, dark: string) => string
 }

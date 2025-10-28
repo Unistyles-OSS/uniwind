@@ -40,10 +40,6 @@ export const smartSplit = (str: string, separator = ' ' as string | RegExp) => {
     )
 }
 
-export const percentageToFloat = (value: string) => {
-    return Number(value.replace('%', '')) / 100
-}
-
 export const addMissingSpaces = (str: string) =>
     pipe(str)(
         x => x.trim(),
@@ -53,3 +49,31 @@ export const addMissingSpaces = (str: string) =>
     )
 
 export const uniq = <T>(arr: Array<T>) => Array.from(new Set(arr))
+
+export const isValidJSValue = (jsValueString: string) => {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
+        new Function(`const test = ${jsValueString}`)
+
+        return true
+    } catch {
+        return false
+    }
+}
+
+export const shouldBeSerialized = (value: string) => {
+    if (value.includes('-')) {
+        return value.split('-').some(shouldBeSerialized)
+    }
+
+    return [
+        isNumber(value),
+        value.startsWith('this['),
+        value.startsWith('rt.'),
+        /[*/+-]/.test(value),
+        value.includes('"'),
+        value.includes(' '),
+    ].some(Boolean)
+}
+
+export const roundToPrecision = (value: number, precision: number) => parseFloat(value.toFixed(precision))

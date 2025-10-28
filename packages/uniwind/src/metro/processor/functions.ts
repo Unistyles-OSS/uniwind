@@ -1,6 +1,6 @@
 import { CalcFor_DimensionPercentageFor_LengthValue, CalcFor_Length, CssColor, Function as FunctionType } from 'lightningcss'
 import { Logger } from '../logger'
-import { percentageToFloat, pipe } from '../utils'
+import { pipe } from '../utils'
 import type { ProcessorBuilder } from './processor'
 
 export class Functions {
@@ -54,7 +54,7 @@ export class Functions {
         }
 
         if (fn.name === 'max') {
-            return `Math.max( ${this.Processor.CSS.processValue(fn.arguments)} )`
+            return `Math.max(${this.Processor.CSS.processValue(fn.arguments)})`
         }
 
         if (fn.name === 'linear-gradient') {
@@ -110,11 +110,11 @@ export class Functions {
         }
 
         if (fn.name === 'pixelRatio') {
-            return `rt.pixelRatio( ${this.Processor.CSS.processValue(fn.arguments)} )`
+            return `rt.pixelRatio(${this.Processor.CSS.processValue(fn.arguments)})`
         }
 
         if (fn.name === 'fontScale') {
-            return `rt.fontScale( ${this.Processor.CSS.processValue(fn.arguments)} )`
+            return `rt.fontScale(${this.Processor.CSS.processValue(fn.arguments)})`
         }
 
         this.logger.error(`Unsupported function - ${fn.name}`)
@@ -131,12 +131,12 @@ export class Functions {
             | CalcFor_Length,
     ) {
         if (!Array.isArray(value)) {
-            return `Math.${name} ( ${this.processCalc(value)} )`
+            return `Math.${name}(${this.processCalc(value)})`
         }
 
         const values = value.map(x => this.processCalc(x)).join(' , ')
 
-        return `Math.${name}( ${values} )`
+        return `Math.${name}(${values})`
     }
 
     private tryEval(value: string) {
@@ -168,25 +168,19 @@ export class Functions {
     }
 
     private processColorMix(fn: FunctionType) {
-        const tokens = pipe(this.Processor.CSS.processValue(fn.arguments))(
-            String,
-            x => x.replace(/\](?!\s*[+-/*])(?!\s)/g, '] '),
-            x => x.replace(/,/g, ''),
-            x => x.split(' '),
-        )
-
-        const color = tokens.find(token => token.startsWith('#') || token.startsWith('this[`--color-'))
-        const percentage = percentageToFloat(tokens.find(token => token.endsWith('%')) ?? '50%')
-        const mixColor = tokens.reverse().find(token => token.startsWith('#') || token.startsWith('this[`--color-'))
+        const tokens: Array<string> = fn.arguments.map(arg => this.Processor.CSS.processValue(arg)).reverse()
+        const color = tokens.at(3)
+        const alpha = tokens.at(2)
+        const mixColor = tokens.at(0)
 
         return [
-            'rt.colorMix( ',
+            'rt.colorMix(',
             color,
             ', ',
             mixColor,
             ', ',
-            percentage,
-            ' )',
+            alpha,
+            ')',
         ].join('')
     }
 }
