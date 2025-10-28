@@ -15,6 +15,18 @@ const extractVarsFromString = (value: string) => {
     })
 }
 
+const makeSafeForSerialization = (value: any) => {
+    if (value === null) {
+        return null
+    }
+
+    if (typeof value === 'string') {
+        return `"${value}"`
+    }
+
+    return value
+}
+
 export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlatform: Platform) => {
     const stylesheetsEntries = Object.entries(Processor.stylesheets as StyleSheetTemplate)
         .map(([className, stylesPerMediaQuery]) => {
@@ -91,18 +103,20 @@ export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlat
                     entries,
                     minWidth,
                     maxWidth,
-                    theme,
-                    orientation,
+                    theme: makeSafeForSerialization(theme),
+                    orientation: makeSafeForSerialization(orientation),
                     rtl,
-                    colorScheme,
+                    colorScheme: makeSafeForSerialization(colorScheme),
                     native: platform !== null,
                     dependencies,
                     index,
-                    className: `"${className}"`,
+                    className: makeSafeForSerialization(className),
                     active,
                     focus,
                     disabled,
-                    importantProperties: importantProperties?.map(property => property.startsWith('--') ? property : toCamelCase) ?? [],
+                    importantProperties: importantProperties
+                        ?.map(property => property.startsWith('--') ? property : toCamelCase)
+                        .map(makeSafeForSerialization) ?? [],
                     complexity: [
                         minWidth !== 0,
                         theme !== null,

@@ -102,7 +102,7 @@ export class Functions {
         }
 
         if (['skewX', 'skewY'].includes(fn.name)) {
-            return `${fn.name}(${this.Processor.CSS.processValue(fn.arguments)})`
+            return `"${fn.name}(${this.Processor.CSS.processValue(fn.arguments)})"`
         }
 
         if (fn.name === 'hairlineWidth') {
@@ -141,7 +141,7 @@ export class Functions {
 
     private tryEval(value: string) {
         // Match units like %, deg, rad, grad, turn that are not preceded by letters or hyphens
-        const units = Array.from(value.match(/(?<![A-Za-z-])(?:%|deg|rad|grad|turn)(?=\s|$)/g) ?? [])
+        const units = Array.from(value.replace(/"/g, '').match(/(?<![A-Za-z-])(?:%|deg|rad|grad|turn)(?=\s|$)/g) ?? [])
 
         if (units.length === 0) {
             return value
@@ -168,19 +168,16 @@ export class Functions {
     }
 
     private processColorMix(fn: FunctionType) {
-        const tokens: Array<string> = fn.arguments.map(arg => this.Processor.CSS.processValue(arg)).reverse()
-        const color = tokens.at(3)
-        const alpha = tokens.at(2)
-        const mixColor = tokens.at(0)
+        const tokens = fn.arguments
+            .map(arg =>
+                pipe(arg)(
+                    x => this.Processor.CSS.processValue(x),
+                    String,
+                    x => x.trim(),
+                )
+            )
+            .filter(token => !['', ',', 'in', 'srgb', 'rgb', 'hsl', 'hwb', 'lab', 'lch', 'oklab', 'oklch'].includes(token.replace(/"/g, '')))
 
-        return [
-            'rt.colorMix(',
-            color,
-            ', ',
-            mixColor,
-            ', ',
-            alpha,
-            ')',
-        ].join('')
+        return `rt.colorMix(${tokens.join(', ')})`
     }
 }
