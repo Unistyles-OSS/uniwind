@@ -2,7 +2,9 @@ import { formatHex, formatHex8, interpolate, parse } from 'culori'
 import type { UniwindRuntime } from '../types'
 
 export const colorMix = (color: string, weight: number | string, mixColor: string) => {
-    const parsedWeight = typeof weight === 'string' ? parseFloat(weight) / 100 : weight
+    const parsedWeight = typeof weight === 'string'
+        ? parseFloat(weight) / 100
+        : weight
 
     // Change alpha
     if (mixColor === '#00000000') {

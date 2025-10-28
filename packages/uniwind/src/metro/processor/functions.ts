@@ -141,7 +141,11 @@ export class Functions {
 
     private tryEval(value: string) {
         // Match units like %, deg, rad, grad, turn that are not preceded by letters or hyphens
-        const units = Array.from(value.replace(/"/g, '').match(/(?<![A-Za-z-])(?:%|deg|rad|grad|turn)(?=\s|$)/g) ?? [])
+        const units = Array.from(
+            value
+                .replace(/"/g, '')
+                .match(/(?<![A-Za-z-])(?:%|deg|rad|grad|turn)(?=\s|$)/g) ?? [],
+        )
 
         if (units.length === 0) {
             return value
@@ -156,7 +160,9 @@ export class Functions {
         const unit = units.at(0) ?? ''
 
         try {
-            const numericValue = value.replace(new RegExp(unit, 'g'), '')
+            const numericValue = value
+                .replace(/"/g, '')
+                .replace(new RegExp(unit, 'g'), '')
 
             // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
             return new Function(`return ${numericValue} + '${unit}'`)()
