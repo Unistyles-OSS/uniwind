@@ -1,4 +1,5 @@
 import { compile } from '@tailwindcss/node'
+import path from 'path'
 import { addMetaToStylesTemplate } from './addMetaToStylesTemplate'
 import { polyfillWeb } from './polyfillWeb'
 import { ProcessorBuilder } from './processor'
@@ -16,7 +17,7 @@ type CompileVirtualConfig = {
 
 export const compileVirtual = async ({ candidates, css, cssPath, platform, themes, polyfills }: CompileVirtualConfig) => {
     const compiler = await compile(css, {
-        base: cssPath,
+        base: path.dirname(cssPath),
         onDependency: () => void 0,
     })
     const tailwindCSS = compiler.build(candidates)
