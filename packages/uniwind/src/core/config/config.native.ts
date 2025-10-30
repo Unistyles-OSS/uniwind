@@ -1,11 +1,9 @@
 import { Appearance, Platform } from 'react-native'
-import { ColorScheme, UniwindConfig } from '../../types'
-import { CSSListener } from '../web'
+import { ColorScheme, StyleDependency, UniwindConfig } from '../../types'
+import { UniwindStore } from '../native'
 import { themeChange } from './themeChange'
 
-type UserThemes = UniwindConfig extends {
-    themes: infer T extends ReadonlyArray<string>
-} ? T
+type UserThemes = UniwindConfig extends { themes: infer T extends ReadonlyArray<string> } ? T
     : ReadonlyArray<string>
 
 export type ThemeName = UserThemes[number]
@@ -22,7 +20,7 @@ class UniwindConfigBuilder {
             this.emitThemeChange()
         }
 
-        Appearance.addChangeListener((event) => {
+        Appearance.addChangeListener(event => {
             const colorScheme = event.colorScheme ?? ColorScheme.Light
             const prevTheme = this.#currentTheme
 
@@ -54,10 +52,7 @@ class UniwindConfigBuilder {
             this.#hasAdaptiveThemes = true
             this.#currentTheme = this.#colorScheme
 
-            if (
-                prevTheme !== this.#currentTheme
-                || prevHasAdaptiveThemes !== this.#hasAdaptiveThemes
-            ) {
+            if (prevTheme !== this.#currentTheme || prevHasAdaptiveThemes !== this.#hasAdaptiveThemes) {
                 this.emitThemeChange()
             }
 
@@ -65,9 +60,7 @@ class UniwindConfigBuilder {
         }
 
         if (!this.themes.includes(theme)) {
-            throw new Error(
-                `Uniwind: You're trying to setTheme to '${theme}', but it was not registered.`,
-            )
+            throw new Error(`Uniwind: You're trying to setTheme to '${theme}', but it was not registered.`)
         }
 
         this.#hasAdaptiveThemes = false
@@ -79,16 +72,11 @@ class UniwindConfigBuilder {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-    setThemeVariables(theme: ThemeName, vars: Record<string, string>) {
-        // if tailwind compile to :root[data-theme="light"]
-        const root = document.documentElement
-        root.setAttribute('data-theme', theme)
-        Object.entries(vars).forEach(([key, value]) => {
-            root.style.setProperty(key, value)
-        })
-
+    setThemeVariables(theme: ThemeName, vars: Record<string, string | number>) {
+        UniwindStore.setThemeVariables(theme, vars)
         if (this.#currentTheme === theme) {
-            CSSListener.notifyThemeChange()
+            UniwindStore.reinit()
+            UniwindStore.notifyListeners([StyleDependency.Theme])
         }
     }
 
