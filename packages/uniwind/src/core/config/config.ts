@@ -11,8 +11,7 @@ const SYSTEM_THEME = 'system' as const
 
 class UniwindConfigBuilder {
     #hasAdaptiveThemes = true
-    #colorScheme = Appearance.getColorScheme() ?? ColorScheme.Light
-    #currentTheme = this.#colorScheme as ThemeName
+    #currentTheme = this.colorScheme as ThemeName
 
     constructor() {
         if (Platform.OS === 'web') {
@@ -42,6 +41,10 @@ class UniwindConfigBuilder {
         return globalThis.__uniwindThemes__ ?? ['light', 'dark']
     }
 
+    private get colorScheme() {
+        return Appearance.getColorScheme() ?? ColorScheme.Light
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     setTheme(theme: ThemeName | typeof SYSTEM_THEME) {
         const prevTheme = this.#currentTheme
@@ -49,7 +52,7 @@ class UniwindConfigBuilder {
 
         if (theme === SYSTEM_THEME) {
             this.#hasAdaptiveThemes = true
-            this.#currentTheme = this.#colorScheme
+            this.#currentTheme = this.colorScheme
 
             if (prevTheme !== this.#currentTheme || prevHasAdaptiveThemes !== this.#hasAdaptiveThemes) {
                 this.emitThemeChange()
@@ -65,7 +68,7 @@ class UniwindConfigBuilder {
         this.#hasAdaptiveThemes = false
         this.#currentTheme = theme
 
-        if (prevTheme !== this.#currentTheme) {
+        if (prevTheme !== this.#currentTheme || prevHasAdaptiveThemes !== this.#hasAdaptiveThemes) {
             this.emitThemeChange()
         }
     }
