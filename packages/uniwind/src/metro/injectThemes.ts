@@ -36,7 +36,7 @@ const buildDtsFile = (dtsPath: string, stringifiedThemes: string) => {
     )
 }
 
-export const injectThemes = ({
+export const injectThemes = async ({
     themes,
     dtsPath = 'uniwind-types.d.ts',
     input,
@@ -44,7 +44,7 @@ export const injectThemes = ({
     const stringifiedThemes = `[${themes.map(theme => `'${theme}'`).join(', ')}]`
 
     buildDtsFile(dtsPath, stringifiedThemes)
-    buildCSS(themes, input)
+    await buildCSS(themes, input)
 
     // js generation
     return `globalThis.__uniwindThemes__ = ${stringifiedThemes};`

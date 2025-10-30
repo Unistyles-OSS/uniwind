@@ -29,7 +29,7 @@ export const transform = async (
 
     if (filePath.endsWith('/components/web/metro-injected.js')) {
         const cssPath = path.join(process.cwd(), config.uniwind.cssEntryFile)
-        const injectedThemesCode = injectThemes({
+        const injectedThemesCode = await injectThemes({
             input: cssPath,
             themes: config.uniwind.themes,
             dtsPath: config.uniwind.dtsFile,
@@ -43,7 +43,7 @@ export const transform = async (
     }
 
     const cssPath = path.join(process.cwd(), config.uniwind.cssEntryFile)
-    const injectedThemesCode = injectThemes({
+    const injectedThemesCode = await injectThemes({
         input: cssPath,
         themes: config.uniwind.themes,
         dtsPath: config.uniwind.dtsFile,
