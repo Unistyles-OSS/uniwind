@@ -92,6 +92,38 @@ class UniwindStoreBuilder {
         }
     }
 
+    getThemeVariables = (theme: string) => {
+        const config = this.generateStyleSheetCallbackResult
+        if (!config) {
+            return
+        }
+
+        const themeVars = config.scopedVars[`__uniwind-theme-${theme}`]
+        console.log(themeVars)
+        console.log(this.vars)
+        return themeVars as Record<string, string | number> | undefined
+    }
+
+    getThemeVariable = (
+        theme: string,
+        varName: string,
+    ): string | number | undefined => {
+        return this.getThemeVariables(theme)?.[varName]
+    }
+
+    setThemeVariables = (
+        theme: string,
+        vars: Record<string, string | number>,
+    ) => {
+        const themeVars = this.getThemeVariables(theme)
+        if (themeVars) {
+            Object.defineProperties(
+                themeVars,
+                Object.getOwnPropertyDescriptors(vars),
+            )
+        }
+    }
+
     notifyListeners = (dependencies: Array<StyleDependency>) => {
         dependencies.forEach(dep => this.listeners[dep].forEach(listener => listener()))
     }
