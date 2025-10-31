@@ -99,8 +99,6 @@ class UniwindStoreBuilder {
         }
 
         const themeVars = config.scopedVars[`__uniwind-theme-${theme}`]
-        console.log(themeVars)
-        console.log(this.vars)
         return themeVars as Record<string, string | number> | undefined
     }
 
