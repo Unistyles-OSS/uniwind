@@ -9,13 +9,13 @@
     "repository": "https://github.com/Unistyles-OSS/uniwind",
     "scripts": {
         "precommit": "bun lint",
-        "build": "unbuild && bun build:css",
+        "build": "unbuild",
         "check:typescript": "tsc --noEmit",
-        "lint": "eslint src && dprint check",
+        "lint": "eslint src",
         "lint:fix": "eslint src --fix",
         "format": "dprint fmt",
         "prepublishOnly": "bun run build",
-        "circular:check": "dpdm --no-warning --no-tree -T --exit-code circular:1 src/**/*.ts",
+        "circular:check": "dpdm --no-warning --no-tree -T --exit-code circular:1 'src/**/*.ts' 'src/**/*.tsx'",
         "build:css": "bun run src/css/index.ts",
         "test": "bun test"
     },
@@ -68,8 +68,8 @@
         "readme.md"
     ],
     "dependencies": {
-        "@tailwindcss/node": "4.1.14",
-        "@tailwindcss/oxide": "4.1.14",
+        "@tailwindcss/node": "4.1.16",
+        "@tailwindcss/oxide": "4.1.16",
         "chokidar": "4.0.3",
         "culori": "4.0.2"
     },
@@ -82,15 +82,11 @@
         "lightningcss": ">=1.30.0"
     },
     "devDependencies": {
-        "@types/bun": "1.3.0",
-        "@types/postcss-js": "4.0.4",
+        "@types/bun": "catalog:",
         "@types/culori": "4.0.1",
-        "@types/react": "19.2.2",
-        "typescript": "5.9.3",
-        "metro-config": "0.83.3",
+        "@types/react": "catalog:",
+        "typescript": "catalog:",
         "metro": "0.83.3",
-        "@babel/core": "7.28.4",
-        "@babel/types": "7.28.4",
         "dpdm": "3.14.0",
         "unbuild": "3.6.1",
         "lightningcss": "1.30.2"

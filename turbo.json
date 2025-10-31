@@ -5,16 +5,7 @@
         "build": {
             "cache": false
         },
-        "ios": {
-            "cache": false
-        },
-        "android": {
-            "cache": false
-        },
-        "web": {
-            "cache": false
-        },
-        "start": {
+        "dev": {
             "cache": false,
             "interactive": true
         },

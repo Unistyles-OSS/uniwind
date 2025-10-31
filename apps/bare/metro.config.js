@@ -20,7 +20,6 @@ const config = {
         nodeModulesPaths: [
             path.join(projectRoot, 'node_modules'),
             path.join(workspaceRoot, 'node_modules'),
-            path.join(workspaceRoot, 'packages/uniwind/node_modules'),
         ],
         unstable_enableSymlinks: true,
         unstable_enablePackageExports: true,

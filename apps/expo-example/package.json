@@ -1,30 +1,31 @@
 {
-  "name": "uniwind-expo-example",
-  "version": "1.0.0",
-  "main": "index.ts",
-  "scripts": {
-    "start": "expo start -c",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web"
-  },
-  "dependencies": {
-    "@expo/metro-runtime": "6.1.2",
-    "uniwind": "workspace:*",
-    "expo": "54.0.20",
-    "expo-status-bar": "3.0.8",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "react-native": "0.81.4",
-    "react-native-web": "0.21.0",
-    "tailwindcss": "4.1.12"
-  },
-  "devDependencies": {
-    "@babel/core": "7.28.3",
-    "@types/react": "19.1.10",
-    "babel-plugin-module-resolver": "5.0.2",
-    "tailwindcss": "4.1.12",
-    "typescript": "5.9.2"
-  },
-  "private": true
+    "name": "uniwind-expo-example",
+    "version": "1.0.0",
+    "main": "index.ts",
+    "scripts": {
+        "start": "expo start -c",
+        "dev": "expo start -c",
+        "android": "expo start --android",
+        "ios": "expo start --ios",
+        "web": "expo start --web"
+    },
+    "dependencies": {
+        "@expo/metro-runtime": "6.1.2",
+        "uniwind": "workspace:*",
+        "expo": "catalog:",
+        "expo-status-bar": "3.0.8",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+        "react-native": "catalog:",
+        "react-native-web": "catalog:",
+        "tailwindcss": "catalog:"
+    },
+    "devDependencies": {
+        "@babel/core": "7.28.5",
+        "@types/react": "catalog:",
+        "babel-plugin-module-resolver": "5.0.2",
+        "tailwindcss": "catalog:",
+        "typescript": "catalog:"
+    },
+    "private": true
 }
