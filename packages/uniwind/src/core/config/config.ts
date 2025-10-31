@@ -1,7 +1,7 @@
 import { Appearance, Platform } from 'react-native'
 import { ColorScheme, UniwindConfig } from '../../types'
-import { CSSListener } from '../web'
 import { themeChange } from './themeChange'
+import { themeVariables } from './themeVariables'
 
 type UserThemes = UniwindConfig extends {
     themes: infer T extends ReadonlyArray<string>
@@ -80,16 +80,7 @@ class UniwindConfigBuilder {
 
     // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     setThemeVariables(theme: ThemeName, vars: Record<string, string>) {
-        // if tailwind compile to :root[data-theme="light"]
-        const root = document.documentElement
-        root.setAttribute('data-theme', theme)
-        Object.entries(vars).forEach(([key, value]) => {
-            root.style.setProperty(key, value)
-        })
-
-        if (this.#currentTheme === theme) {
-            CSSListener.notifyThemeChange()
-        }
+        themeVariables(theme, vars)
     }
 
     private emitThemeChange() {
