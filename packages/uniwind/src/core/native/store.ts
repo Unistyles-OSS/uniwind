@@ -92,7 +92,7 @@ class UniwindStoreBuilder {
         }
     }
 
-    getThemeVariables = (theme: string) => {
+    private getThemeVariables = (theme: string) => {
         const config = this.generateStyleSheetCallbackResult
         if (!config) {
             return
@@ -100,13 +100,6 @@ class UniwindStoreBuilder {
 
         const themeVars = config.scopedVars[`__uniwind-theme-${theme}`]
         return themeVars as Record<string, string | number> | undefined
-    }
-
-    getThemeVariable = (
-        theme: string,
-        varName: string,
-    ): string | number | undefined => {
-        return this.getThemeVariables(theme)?.[varName]
     }
 
     setThemeVariables = (
