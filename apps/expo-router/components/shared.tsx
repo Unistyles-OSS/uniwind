@@ -47,7 +47,7 @@ export const SectionScreen = ({
 
     return (
         <ScrollView
-            className="flex-1"
+            className="flex-1 bg-background"
             contentContainerClassName={cn('p-4 gap-4', className)}
             contentContainerStyle={{
                 paddingTop: Platform.select({

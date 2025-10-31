@@ -40,7 +40,7 @@ export default function ThemeSelectorSheet() {
 
     return (
         <View
-            className="w-full flex-1 px-4 pt-1"
+            className="w-full flex-1 px-4 pt-1 bg-background"
             style={{
                 paddingTop: headerHeight,
                 marginBottom: -headerHeight,

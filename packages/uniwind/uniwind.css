@@ -255,3 +255,27 @@
 
 @custom-variant light (&:where(.light, .light *));
 @custom-variant dark (&:where(.dark, .dark *));
+@custom-variant sepia (&:where(.sepia, .sepia *));
+@custom-variant bubblegum (&:where(.bubblegum, .bubblegum *));
+
+@theme {
+    --color-background: unset;
+    --color-foreground: unset;
+    --color-card: unset;
+    --color-card-foreground: unset;
+    --color-popover: unset;
+    --color-popover-foreground: unset;
+    --color-primary: unset;
+    --color-primary-foreground: unset;
+    --color-secondary: unset;
+    --color-secondary-foreground: unset;
+    --color-muted: unset;
+    --color-muted-foreground: unset;
+    --color-accent: unset;
+    --color-accent-foreground: unset;
+    --color-destructive: unset;
+    --color-destructive-foreground: unset;
+    --color-border: unset;
+    --color-input: unset;
+    --color-ring: unset;
+}

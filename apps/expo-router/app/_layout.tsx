@@ -39,84 +39,84 @@ const sections = [
 export default function RootLayout() {
     const { theme } = useUniwind()
     const navigationTheme = getNavigationTheme(theme)
-
-    return (
-        <ThemeProvider value={navigationTheme}>
-            <Stack
-                screenOptions={{
-                    headerBackButtonDisplayMode: 'minimal',
-                    headerTransparent: Platform.select({
-                        ios: true,
-                        android: false,
+    return (<>
+        <Stack
+            screenOptions={{
+                headerBackButtonDisplayMode: 'minimal',
+                headerTransparent: Platform.select({
+                    ios: true,
+                    android: false,
+                }),
+                headerStyle: {
+                    backgroundColor: navigationTheme.colors.background
+                },
+                headerTintColor: navigationTheme.colors.text,
+                headerTitleStyle: { color: navigationTheme.colors.text },
+                sheetGrabberVisible: true,
+                headerRight: () => <ThemeSwitchButton />,
+            }}
+        >
+            <Stack.Screen name="index" options={{ title: 'Expo + Uniwind' }} />
+            <Stack.Screen
+                name="theme-selector"
+                options={{
+                    title: 'Theme',
+                    presentation: Platform.select({
+                        ios: 'formSheet',
+                        android: 'modal',
                     }),
-                    sheetGrabberVisible: true,
-                    headerRight: () => <ThemeSwitchButton />,
+
+
+                    sheetAllowedDetents: 'fitToContents',
+
                 }}
-            >
-                <Stack.Screen name="index" options={{ title: 'Expo + Uniwind' }} />
-                <Stack.Screen
-                    name="theme-selector"
-                    options={{
-                        title: 'Theme',
-                        presentation: Platform.select({
-                            ios: 'formSheet',
-                            android: 'modal',
+            />
+            <Stack.Screen
+                name="formSheets/scrollView"
+                options={{
+                    title: 'FormSheet with ScrollView',
+                    presentation: Platform.select({
+                        ios: 'formSheet',
+                        android: 'modal',
+                    }),
+                    sheetAllowedDetents: [0.5, 1],
+                    headerRight: () => undefined,
+
+                    contentStyle: {
+
+                        backgroundColor: Platform.select({
+                            ios: isLiquidGlassAvailable() ? 'transparent' : navigationTheme.colors.background,
+                            android: navigationTheme.colors.background,
                         }),
-                        sheetAllowedDetents: 'fitToContents',
-                        headerRight: () => undefined,
-                        contentStyle: {
-                            backgroundColor: Platform.select({
-                                ios: isLiquidGlassAvailable() ? 'transparent' : navigationTheme.colors.background,
-                                android: navigationTheme.colors.background,
-                            }),
-                        },
-                    }}
-                />
-                <Stack.Screen
-                    name="formSheets/scrollView"
-                    options={{
-                        title: 'FormSheet with ScrollView',
-                        presentation: Platform.select({
-                            ios: 'formSheet',
-                            android: 'modal',
+                    },
+                }}
+            />
+            <Stack.Screen
+                name="formSheets/scrollViewWithFitToContents"
+                options={{
+                    title: 'FormSheet+ScrollView (FitToContents)',
+                    presentation: Platform.select({
+                        ios: 'formSheet',
+                        android: 'modal',
+                    }),
+                    sheetAllowedDetents: 'fitToContents',
+                    headerRight: () => undefined,
+                    contentStyle: {
+                        backgroundColor: Platform.select({
+                            ios: isLiquidGlassAvailable() ? 'transparent' : navigationTheme.colors.background,
+                            android: navigationTheme.colors.background,
                         }),
-                        sheetAllowedDetents: [0.5, 1],
-                        headerRight: () => undefined,
-                        contentStyle: {
-                            backgroundColor: Platform.select({
-                                ios: isLiquidGlassAvailable() ? 'transparent' : navigationTheme.colors.background,
-                                android: navigationTheme.colors.background,
-                            }),
-                        },
-                    }}
-                />
+                    },
+                }}
+            />
+            {sections.map((section) => (
                 <Stack.Screen
-                    name="formSheets/scrollViewWithFitToContents"
-                    options={{
-                        title: 'FormSheet+ScrollView (FitToContents)',
-                        presentation: Platform.select({
-                            ios: 'formSheet',
-                            android: 'modal',
-                        }),
-                        sheetAllowedDetents: 'fitToContents',
-                        headerRight: () => undefined,
-                        contentStyle: {
-                            backgroundColor: Platform.select({
-                                ios: isLiquidGlassAvailable() ? 'transparent' : navigationTheme.colors.background,
-                                android: navigationTheme.colors.background,
-                            }),
-                        },
-                    }}
+                    key={section.path}
+                    name={section.path}
+                    options={{ title: section.name }}
                 />
-                {sections.map((section) => (
-                    <Stack.Screen
-                        key={section.path}
-                        name={section.path}
-                        options={{ title: section.name }}
-                    />
-                ))}
-            </Stack>
-            <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
-        </ThemeProvider>
+            ))}
+        </Stack>
+        <StatusBar style={theme === 'dark' ? 'light' : 'dark'} /></>
     )
 }
