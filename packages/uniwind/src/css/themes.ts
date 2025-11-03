@@ -72,7 +72,7 @@ export const generateCSSForThemes = async (themes: Array<string>, input: string)
                     return false
                 }
 
-                return isExcludedDependency(dependency.url)
+                return !isExcludedDependency(dependency.url)
             })
             .map(dependency => `@import "${dependency.url}";`).join('\n')
 
