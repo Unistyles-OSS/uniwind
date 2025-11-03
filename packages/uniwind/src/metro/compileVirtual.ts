@@ -1,4 +1,5 @@
 import { compile } from '@tailwindcss/node'
+import { Scanner } from '@tailwindcss/oxide'
 import path from 'path'
 import { addMetaToStylesTemplate } from './addMetaToStylesTemplate'
 import { polyfillWeb } from './polyfillWeb'
@@ -9,18 +10,27 @@ import { serializeJSObject } from './utils'
 type CompileVirtualConfig = {
     cssPath: string
     css: string
-    candidates: Array<string>
     platform: Platform
     themes: Array<string>
     polyfills: Polyfills | undefined
 }
 
-export const compileVirtual = async ({ candidates, css, cssPath, platform, themes, polyfills }: CompileVirtualConfig) => {
+export const compileVirtual = async ({ css, cssPath, platform, themes, polyfills }: CompileVirtualConfig) => {
     const compiler = await compile(css, {
         base: path.dirname(cssPath),
         onDependency: () => void 0,
     })
-    const tailwindCSS = compiler.build(candidates)
+    const scanner = new Scanner({
+        sources: [
+            ...compiler.sources,
+            {
+                negated: false,
+                pattern: '**/*',
+                base: path.dirname(cssPath),
+            },
+        ],
+    })
+    const tailwindCSS = compiler.build(scanner.scan())
 
     if (platform === Platform.Web) {
         return polyfillWeb(tailwindCSS)

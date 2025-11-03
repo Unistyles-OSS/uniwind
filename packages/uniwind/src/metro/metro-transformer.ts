@@ -1,10 +1,8 @@
-import { Scanner } from '@tailwindcss/oxide'
 import fs from 'fs'
 import type { JsTransformerConfig, JsTransformOptions } from 'metro-transform-worker'
 import path from 'path'
 import { name } from '../../package.json'
 import { compileVirtual } from './compileVirtual'
-import { getSources } from './getSources'
 import { injectThemes } from './injectThemes'
 import { Platform, UniwindConfig } from './types'
 
@@ -25,7 +23,7 @@ export const transform = async (
     data: Buffer,
     options: JsTransformOptions,
 ) => {
-    const isCss = options.type !== 'asset' && filePath.endsWith('.css')
+    const isCss = options.type !== 'asset' && path.join(process.cwd(), config.uniwind.cssEntryFile) === path.join(process.cwd(), filePath)
 
     if (filePath.endsWith('/components/web/metro-injected.js')) {
         const cssPath = path.join(process.cwd(), config.uniwind.cssEntryFile)
@@ -49,15 +47,12 @@ export const transform = async (
         dtsPath: config.uniwind.dtsFile,
     })
     const css = fs.readFileSync(filePath, 'utf-8')
-    const sources = getSources(css, path.dirname(cssPath))
     const platform = options.platform as Platform
-    const candidates = new Scanner({ sources }).scan()
     const virtualCode = await compileVirtual({
         css,
         platform,
         themes: config.uniwind.themes,
         polyfills: config.uniwind.polyfills,
-        candidates,
         cssPath,
     })
     const isWeb = platform === Platform.Web
