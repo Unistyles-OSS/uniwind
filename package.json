@@ -36,7 +36,7 @@
         "eslint": "9.38.0",
         "eslint-config-codemask": "2.2.1",
         "husky": "9.1.7",
-        "turbo": "2.5.8"
+        "turbo": "2.6.0"
     },
     "packageManager": "bun@1.2.19",
     "trustedDependencies": [
