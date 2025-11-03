@@ -28,7 +28,7 @@ export default function ThemeSelectorSheet() {
             <TouchableOpacity
                 onPress={handlePress}
                 className={cn(
-                    'flex-1 items-center justify-center py-5 gap-1 rounded-3xl bg-card border-3  border-border',
+                    'flex-1 items-center justify-center py-5 gap-1 rounded-3xl bg-card border-3 border-border',
                     storedTheme === theme && 'border-zinc-800 dark:border-zinc-200',
                 )}
             >
@@ -40,7 +40,7 @@ export default function ThemeSelectorSheet() {
 
     return (
         <View
-            className="w-full flex-1 px-4 pt-1"
+            className="w-full flex-1 px-4 pt-1 bg-background"
             style={{
                 paddingTop: headerHeight,
                 marginBottom: -headerHeight,
