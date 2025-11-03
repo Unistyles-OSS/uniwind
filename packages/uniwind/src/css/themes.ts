@@ -40,8 +40,7 @@ export const generateCSSForThemes = async (themes: Array<string>, input: string)
                         const [firstPrelude] = rule.value.prelude
 
                         if (
-                            !firstPrelude
-                            || firstPrelude.type !== 'token'
+                            firstPrelude?.type !== 'token'
                             || firstPrelude.value.type !== 'ident'
                             || !themes.includes(firstPrelude.value.value)
                         ) {

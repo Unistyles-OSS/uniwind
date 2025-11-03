@@ -14,8 +14,8 @@ config.resolver.nodeModulesPaths = [
     path.join(workspaceRoot, 'node_modules'),
 ]
 
-module.exports = withUniwindConfig(config, { 
-    cssEntryFile: 'global.css', 
-    extraThemes: ['premium'], 
-    polyfills: { rem: 14 } 
+module.exports = withUniwindConfig(config, {
+    cssEntryFile: 'global.css',
+    extraThemes: ['premium'],
+    polyfills: { rem: 14 },
 })

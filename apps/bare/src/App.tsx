@@ -32,7 +32,6 @@ export function App() {
             <Button
                 title="Change theme"
                 onPress={() => {
-                    Uniwind.setAdaptiveThemes(false)
                     Uniwind.setTheme(theme === 'light' ? 'dark' : 'light')
                 }}
             />

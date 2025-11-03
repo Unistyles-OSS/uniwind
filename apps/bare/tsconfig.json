@@ -1,9 +1,5 @@
 {
     "extends": "@react-native/typescript-config",
-    "compilerOptions": {
-        "strict": true,
-        "paths": {
-            "uniwind": ["../../packages/uniwind/src/index"]
-        }
-    }
+    "include": ["**/*.ts", "**/*.tsx"],
+    "exclude": ["**/node_modules", "**/Pods"]
 }

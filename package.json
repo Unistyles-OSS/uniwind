@@ -5,28 +5,38 @@
         "prepare": "husky",
         "build": "turbo build",
         "check:typescript": "turbo check:typescript",
-        "ios": "turbo ios",
-        "android": "turbo android",
-        "web": "turbo web",
-        "start": "turbo start",
-        "lint": "turbo lint",
+        "dev": "turbo dev",
+        "lint": "turbo lint && dprint check",
         "precommit": "turbo precommit",
         "test": "turbo test",
         "format": "dprint fmt",
         "circular:check": "turbo circular:check",
         "postinstall": "git update-index --assume-unchanged packages/uniwind/uniwind.css"
     },
-    "workspaces": [
-        "packages/*",
-        "apps/*"
-    ],
+    "workspaces": {
+        "packages": [
+            "packages/*",
+            "apps/*"
+        ],
+        "catalog": {
+            "typescript": "5.9.3",
+            "@types/bun": "1.2.19",
+            "@types/react": "19.1.10",
+            "react": "19.1.0",
+            "react-dom": "19.1.0",
+            "expo": "54.0.21",
+            "react-native": "0.81.5",
+            "react-native-web": "0.21.2",
+            "tailwindcss": "4.1.16"
+        }
+    },
     "devDependencies": {
-        "typescript": "5.9.3",
+        "typescript": "catalog:",
         "dprint": "0.50.2",
-        "eslint": "9.37 .0",
+        "eslint": "9.38.0",
         "eslint-config-codemask": "2.2.1",
         "husky": "9.1.7",
-        "turbo": "2.5.8"
+        "turbo": "2.6.0"
     },
     "packageManager": "bun@1.2.19",
     "trustedDependencies": [

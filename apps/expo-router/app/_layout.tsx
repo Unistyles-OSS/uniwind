@@ -1,12 +1,10 @@
 import { ThemeSwitchButton } from '@/components/theme-switch-button'
 import '@/globals.css'
 import { getNativeColorScheme, getNavigationTheme, getStoredThemeSync } from '@/utils/theme'
-import {
-    ThemeProvider,
-} from '@react-navigation/native'
 import { isLiquidGlassAvailable } from 'expo-glass-effect'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
+import React from 'react'
 import { Appearance, Platform } from 'react-native'
 import { Uniwind, useUniwind } from 'uniwind'
 
@@ -41,7 +39,7 @@ export default function RootLayout() {
     const navigationTheme = getNavigationTheme(theme)
 
     return (
-        <ThemeProvider value={navigationTheme}>
+        <React.Fragment>
             <Stack
                 screenOptions={{
                     headerBackButtonDisplayMode: 'minimal',
@@ -49,6 +47,11 @@ export default function RootLayout() {
                         ios: true,
                         android: false,
                     }),
+                    headerStyle: {
+                        backgroundColor: navigationTheme.colors.background,
+                    },
+                    headerTintColor: navigationTheme.colors.text,
+                    headerTitleStyle: { color: navigationTheme.colors.text },
                     sheetGrabberVisible: true,
                     headerRight: () => <ThemeSwitchButton />,
                 }}
@@ -62,14 +65,8 @@ export default function RootLayout() {
                             ios: 'formSheet',
                             android: 'modal',
                         }),
+
                         sheetAllowedDetents: 'fitToContents',
-                        headerRight: () => undefined,
-                        contentStyle: {
-                            backgroundColor: Platform.select({
-                                ios: isLiquidGlassAvailable() ? 'transparent' : navigationTheme.colors.background,
-                                android: navigationTheme.colors.background,
-                            }),
-                        },
                     }}
                 />
                 <Stack.Screen
@@ -117,6 +114,6 @@ export default function RootLayout() {
                 ))}
             </Stack>
             <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
-        </ThemeProvider>
+        </React.Fragment>
     )
 }
