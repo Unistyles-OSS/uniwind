@@ -24,10 +24,15 @@ class UniwindStoreBuilder {
         [StyleDependency.FontScale]: new Set<() => void>(),
         [StyleDependency.Rtl]: new Set<() => void>(),
     }
+    private hotReloadListeners = new Set<() => void>()
     private cache = new Map<string, StylesResult>()
     private generateStyleSheetCallbackResult: ReturnType<GenerateStyleSheetsCallback> | null = null
 
     subscribe(onStoreChange: () => void, dependencies: Array<StyleDependency>) {
+        if (__DEV__) {
+            this.hotReloadListeners.add(onStoreChange)
+        }
+
         dependencies.forEach(dep => {
             this.listeners[dep].add(onStoreChange)
         })
@@ -36,6 +41,10 @@ class UniwindStoreBuilder {
             dependencies.forEach(dep => {
                 this.listeners[dep].delete(onStoreChange)
             })
+
+            if (__DEV__) {
+                this.hotReloadListeners.delete(onStoreChange)
+            }
         }
     }
 
@@ -89,6 +98,10 @@ class UniwindStoreBuilder {
 
         if (platformVars) {
             Object.defineProperties(this.vars, Object.getOwnPropertyDescriptors(platformVars))
+        }
+
+        if (__DEV__ && generateStyleSheetCallback) {
+            this.hotReloadListeners.forEach(listener => listener())
         }
     }
 

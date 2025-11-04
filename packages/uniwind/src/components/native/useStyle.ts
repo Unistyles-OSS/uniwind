@@ -14,7 +14,7 @@ export const useStyle = (className?: string, state?: ComponentState) => {
     )
 
     useEffect(() => {
-        if (styleState.dependencies.length > 0) {
+        if (__DEV__ || styleState.dependencies.length > 0) {
             const dispose = UniwindStore.subscribe(() => rerender(), styleState.dependencies)
 
             return dispose
