@@ -22,6 +22,7 @@ export type UniwindConfig = {
     extraThemes?: Array<string>
     dtsFile?: string
     polyfills?: Polyfills
+    debug?: boolean
 }
 
 export type MediaQueryResolver = {

@@ -2,6 +2,7 @@ import { compile } from '@tailwindcss/node'
 import { Scanner } from '@tailwindcss/oxide'
 import path from 'path'
 import { addMetaToStylesTemplate } from './addMetaToStylesTemplate'
+import { Logger } from './logger'
 import { polyfillWeb } from './polyfillWeb'
 import { ProcessorBuilder } from './processor'
 import { Platform, Polyfills } from './types'
@@ -13,9 +14,10 @@ type CompileVirtualConfig = {
     platform: Platform
     themes: Array<string>
     polyfills: Polyfills | undefined
+    debug: boolean | undefined
 }
 
-export const compileVirtual = async ({ css, cssPath, platform, themes, polyfills }: CompileVirtualConfig) => {
+export const compileVirtual = async ({ css, cssPath, platform, themes, polyfills, debug }: CompileVirtualConfig) => {
     const compiler = await compile(css, {
         base: path.dirname(cssPath),
         onDependency: () => void 0,
@@ -38,6 +40,7 @@ export const compileVirtual = async ({ css, cssPath, platform, themes, polyfills
 
     const Processor = new ProcessorBuilder(themes, polyfills)
 
+    Logger.debug = debug === true
     Processor.transform(tailwindCSS)
 
     const stylesheet = serializeJSObject(

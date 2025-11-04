@@ -9,6 +9,7 @@ type UniwindConfig = {
     extraThemes?: Array<string>
     dtsFile?: string
     polyfills?: Polyfills
+    debug?: boolean
 }
 
 export declare function withUniwindConfig(config: MetroConfig, options: UniwindConfig): MetroConfig

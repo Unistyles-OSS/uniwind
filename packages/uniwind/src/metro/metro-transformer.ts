@@ -54,6 +54,7 @@ export const transform = async (
         themes: config.uniwind.themes,
         polyfills: config.uniwind.polyfills,
         cssPath,
+        debug: config.uniwind.debug,
     })
     const isWeb = platform === Platform.Web
 
