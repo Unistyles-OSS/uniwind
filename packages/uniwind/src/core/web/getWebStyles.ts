@@ -61,11 +61,16 @@ export const getWebStyles = (className?: string): RNStyle => {
     const computedStyles = getObjectDifference(initialStyles, getComputedStyles())
 
     return Object.fromEntries(
-        Object.entries(computedStyles).map(([key, value]) => {
-            return [
-                key.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase()),
-                parseCSSValue(value),
-            ]
-        }),
+        Object.entries(computedStyles)
+            .map(([key, value]) => {
+                const parsedKey = key[0] === '-'
+                    ? key
+                    : key.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())
+
+                return [
+                    parsedKey,
+                    parseCSSValue(value),
+                ]
+            }),
     )
 }
