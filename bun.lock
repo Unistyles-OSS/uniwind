@@ -102,7 +102,7 @@
     },
     "packages/uniwind": {
       "name": "uniwind",
-      "version": "1.0.0-rc.7",
+      "version": "1.0.0",
       "dependencies": {
         "@tailwindcss/node": "4.1.16",
         "@tailwindcss/oxide": "4.1.16",
@@ -120,9 +120,7 @@
         "unbuild": "3.6.1",
       },
       "peerDependencies": {
-        "chalk": ">=2",
         "lightningcss": ">=1.30.0",
-        "postcss": ">=8",
         "react": ">=19.0.0",
         "react-native": ">=0.81.0",
         "tailwindcss": ">=4",

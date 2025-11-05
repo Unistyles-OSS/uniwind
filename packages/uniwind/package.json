@@ -77,8 +77,6 @@
         "react": ">=19.0.0",
         "react-native": ">=0.81.0",
         "tailwindcss": ">=4",
-        "postcss": ">=8",
-        "chalk": ">=2",
         "lightningcss": ">=1.30.0"
     },
     "devDependencies": {

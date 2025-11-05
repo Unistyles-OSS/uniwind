@@ -9,7 +9,13 @@ import { Platform, UniwindConfig } from './types'
 let worker: typeof import('metro-transform-worker')
 
 try {
-    worker = require('@expo/metro-config/build/transform-worker/transform-worker.js')
+    try {
+        const { unstable_transformerPath } = require('@expo/metro-config') as typeof import('@expo/metro-config')
+
+        worker = require(unstable_transformerPath)
+    } catch {
+        worker = require('@expo/metro-config/build/transform-worker/transform-worker.js')
+    }
 } catch {
     worker = require('metro-transform-worker')
 }

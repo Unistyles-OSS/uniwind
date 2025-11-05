@@ -1,6 +1,10 @@
-import chalk from 'chalk'
-
 /* eslint-disable no-console */
+
+const red = '\x1b[91m'
+const yellow = '\x1b[33m'
+const blue = '\x1b[36m'
+const reset = '\x1b[0m'
+
 export class Logger {
     static debug = false
 
@@ -11,7 +15,7 @@ export class Logger {
             return
         }
 
-        console.log(chalk.cyan(`\nUniwind ${meta}- ${message}`))
+        console.log(`${blue}Uniwind ${meta}- ${message}${reset}`)
     }
 
     static error(message: string, meta = '') {
@@ -19,7 +23,7 @@ export class Logger {
             return
         }
 
-        console.log(chalk.red(`\nUniwind Error ${meta}- ${message}`))
+        console.log(`${red}Uniwind Error ${meta}- ${message}${reset}`)
     }
 
     static warn(message: string, meta = '') {
@@ -27,7 +31,7 @@ export class Logger {
             return
         }
 
-        console.log(chalk.yellow(`\nUniwind Warning ${meta}- ${message}`))
+        console.log(`${yellow}Uniwind Warning ${meta}- ${message}${reset}`)
     }
 
     log(message: string) {
