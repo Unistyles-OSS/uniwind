@@ -68,16 +68,15 @@
         "readme.md"
     ],
     "dependencies": {
-        "@tailwindcss/node": "4.1.16",
-        "@tailwindcss/oxide": "4.1.16",
-        "chokidar": "4.0.3",
-        "culori": "4.0.2"
+        "@tailwindcss/node": "4.1.17",
+        "@tailwindcss/oxide": "4.1.17",
+        "culori": "4.0.2",
+        "lightningcss": "1.30.2"
     },
     "peerDependencies": {
         "react": ">=19.0.0",
         "react-native": ">=0.81.0",
-        "tailwindcss": ">=4",
-        "lightningcss": ">=1.30.0"
+        "tailwindcss": ">=4"
     },
     "devDependencies": {
         "@types/bun": "catalog:",
@@ -86,7 +85,6 @@
         "typescript": "catalog:",
         "metro": "0.83.3",
         "dpdm": "3.14.0",
-        "unbuild": "3.6.1",
-        "lightningcss": "1.30.2"
+        "unbuild": "3.6.1"
     }
 }
