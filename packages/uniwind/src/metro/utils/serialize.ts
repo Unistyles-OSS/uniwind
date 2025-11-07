@@ -80,8 +80,9 @@ export const serialize = (value: any): string => {
                 }).join(', '),
                 '}',
             ].join('')
-        case 'function':
         case 'undefined':
+            return 'undefined'
+        case 'function':
             return ''
         default:
             typeOfValue satisfies never
