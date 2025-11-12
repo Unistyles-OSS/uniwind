@@ -59,7 +59,9 @@ class UniwindConfigBuilder {
                 this.emitThemeChange()
             }
 
-            Appearance.setColorScheme(undefined)
+            if (Platform.OS !== 'web') {
+                Appearance.setColorScheme(undefined)
+            }
 
             return
         }
@@ -75,7 +77,9 @@ class UniwindConfigBuilder {
             this.emitThemeChange()
         }
 
-        Appearance.setColorScheme(isAdaptiveTheme ? this.#currentTheme as ColorScheme : undefined)
+        if (Platform.OS !== 'web') {
+            Appearance.setColorScheme(isAdaptiveTheme ? this.#currentTheme as ColorScheme : undefined)
+        }
     }
 
     private emitThemeChange() {

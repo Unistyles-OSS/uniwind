@@ -43,7 +43,12 @@ class CSSListenerBuilder {
             disposables.push(() => listeners?.delete(listener))
         })
 
-        return () => disposables.forEach(disposable => disposable())
+        const disposeThemeListener = this.addThemeListener(listener)
+
+        return () => {
+            disposables.forEach(disposable => disposable())
+            disposeThemeListener()
+        }
     }
 
     addThemeListener(listener: VoidFunction) {
