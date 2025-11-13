@@ -7,6 +7,7 @@ const transforms = [
     'rotateX',
     'rotateY',
     'rotateZ',
+    'scale',
     'scaleX',
     'scaleY',
     'scaleZ',

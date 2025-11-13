@@ -16,6 +16,16 @@ export class CSS {
             return this.makeSafeForSerialization(processedValue)
         }
 
+        if (Array.isArray(processedValue)) {
+            return processedValue.map(value => {
+                if (typeof value === 'string') {
+                    return this.makeSafeForSerialization(value)
+                }
+
+                return value
+            })
+        }
+
         if (typeof processedValue === 'object' && processedValue !== null) {
             return Object.fromEntries(
                 Object.entries(processedValue).map(([key, value]) => {
@@ -445,6 +455,20 @@ export class CSS {
                     : undefined,
                 color: this.Processor.Color.processColor(declarationValue.color),
             }
+        }
+
+        if ('duration' in declarationValue) {
+            return [
+                this.processValue(declarationValue.name),
+                this.processValue(declarationValue.duration),
+                this.processValue(declarationValue.timingFunction),
+                this.processValue(declarationValue.delay),
+                this.processValue(declarationValue.iterationCount),
+                declarationValue.direction,
+                declarationValue.fillMode,
+                declarationValue.playState,
+                this.processValue(declarationValue.timeline),
+            ].filter(Boolean).join(' ')
         }
 
         this.logUnsupported(`Unsupported value - ${JSON.stringify(declarationValue)}`)

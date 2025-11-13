@@ -89,7 +89,7 @@ const cssToRNMap: Record<string, (value: any) => Record<string, any>> = {
         return {}
     },
     transform: value => {
-        if (typeof value === 'string') {
+        if (typeof value === 'string' || Array.isArray(value)) {
             return {
                 transform: value,
             }
