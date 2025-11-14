@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react'
 import { ThemeName, Uniwind } from '../core'
-import { CSSListener } from '../core/web'
+
+type UniwindWithListener = {
+    addListener: typeof Uniwind['addListener']
+}
 
 export const useUniwind = () => {
     const [theme, setTheme] = useState(Uniwind.currentTheme)
     const [hasAdaptiveThemes, setHasAdaptiveThemes] = useState(Uniwind.hasAdaptiveThemes)
 
     useEffect(() => {
-        const dispose = CSSListener.addThemeListener(() => {
-            setTheme(Uniwind.currentTheme)
-            setHasAdaptiveThemes(Uniwind.hasAdaptiveThemes)
+        const dispose = (Uniwind as unknown as UniwindWithListener).addListener(change => {
+            setTheme(change.currentTheme)
+            setHasAdaptiveThemes(change.hasAdaptiveThemes)
         })
 
         return () => {

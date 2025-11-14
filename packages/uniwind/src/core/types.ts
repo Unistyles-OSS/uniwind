@@ -88,3 +88,8 @@ export type ComponentState = {
     isDisabled?: boolean
     isFocused?: boolean
 }
+
+export type UniwindConfigChange = {
+    currentTheme: ThemeName
+    hasAdaptiveThemes: boolean
+}
