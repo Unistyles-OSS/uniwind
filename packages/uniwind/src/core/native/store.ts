@@ -1,6 +1,8 @@
 /* eslint-disable max-depth */
 import { Dimensions, Platform } from 'react-native'
 import { Orientation, StyleDependency } from '../../types'
+import { Uniwind } from '../config'
+import { UniwindListener } from '../listener'
 import { ComponentState, GenerateStyleSheetsCallback, RNStyle, Style, StyleSheets } from '../types'
 import { cloneWithAccessors } from './native-utils'
 import { parseBoxShadow, parseFontVariant, parseTransformsMutation, resolveGradient } from './parsers'
@@ -12,41 +14,12 @@ type StylesResult = {
 }
 
 class UniwindStoreBuilder {
+    initialized = false
     runtime = UniwindRuntime
     vars = {} as Record<string, unknown>
     private stylesheet = {} as StyleSheets
-    private listeners = {
-        [StyleDependency.ColorScheme]: new Set<() => void>(),
-        [StyleDependency.Theme]: new Set<() => void>(),
-        [StyleDependency.Dimensions]: new Set<() => void>(),
-        [StyleDependency.Orientation]: new Set<() => void>(),
-        [StyleDependency.Insets]: new Set<() => void>(),
-        [StyleDependency.FontScale]: new Set<() => void>(),
-        [StyleDependency.Rtl]: new Set<() => void>(),
-    }
-    private hotReloadListeners = new Set<() => void>()
     private cache = new Map<string, StylesResult>()
     private generateStyleSheetCallbackResult: ReturnType<GenerateStyleSheetsCallback> | null = null
-
-    subscribe(onStoreChange: () => void, dependencies: Array<StyleDependency>) {
-        if (__DEV__) {
-            this.hotReloadListeners.add(onStoreChange)
-        }
-
-        dependencies.forEach(dep => {
-            this.listeners[dep].add(onStoreChange)
-        })
-
-        return () => {
-            dependencies.forEach(dep => {
-                this.listeners[dep].delete(onStoreChange)
-            })
-
-            if (__DEV__) {
-                this.hotReloadListeners.delete(onStoreChange)
-            }
-        }
-    }
 
     getStyles(className?: string, state?: ComponentState): StylesResult {
         if (className === undefined || className === '') {
@@ -65,13 +38,11 @@ class UniwindStoreBuilder {
         const result = this.resolveStyles(className, state)
 
         this.cache.set(cacheKey, result)
-
-        const cacheReset = () => {
-            this.cache.delete(cacheKey)
-            result.dependencies.forEach(dep => this.listeners[dep].delete(cacheReset))
-        }
-
-        this.subscribe(cacheReset, result.dependencies)
+        UniwindListener.subscribe(
+            () => this.cache.delete(cacheKey),
+            result.dependencies,
+            { once: true },
+        )
 
         return result
     }
@@ -101,12 +72,19 @@ class UniwindStoreBuilder {
         }
 
         if (__DEV__ && generateStyleSheetCallback) {
-            this.hotReloadListeners.forEach(listener => listener())
+            UniwindListener.notifyAll()
         }
-    }
 
-    notifyListeners = (dependencies: Array<StyleDependency>) => {
-        dependencies.forEach(dep => this.listeners[dep].forEach(listener => listener()))
+        if (!this.initialized) {
+            UniwindListener.subscribe(
+                () => {
+                    UniwindStore.reinit()
+                    UniwindRuntime.currentThemeName = Uniwind.currentTheme
+                },
+                [StyleDependency.Theme],
+            )
+            this.initialized = true
+        }
     }
 
     private resolveStyles(classNames: string, state?: ComponentState) {
@@ -254,7 +232,7 @@ Dimensions.addEventListener('change', ({ window }) => {
         height: window.height,
     }
     UniwindStore.runtime.orientation = newOrientation
-    UniwindStore.notifyListeners([
+    UniwindListener.notify([
         ...orientationChanged ? [StyleDependency.Orientation] : [],
         StyleDependency.Dimensions,
     ])

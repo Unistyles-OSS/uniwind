@@ -17,7 +17,7 @@ export const useResolveClassNames = (className: string) => {
 
         recreate()
 
-        const dispose = CSSListener.addListener(className, recreate)
+        const dispose = CSSListener.subscribeToClassName(className, recreate)
 
         return dispose
     }, [className])

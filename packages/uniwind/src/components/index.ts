@@ -1,5 +1,3 @@
-import '../core/config'
-
 module.exports = {
     get ActivityIndicator() {
         return require('./native/ActivityIndicator').ActivityIndicator

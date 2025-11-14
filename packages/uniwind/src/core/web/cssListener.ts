@@ -1,8 +1,10 @@
+import { StyleDependency } from '../../types'
+import { UniwindListener } from '../listener'
+
 class CSSListenerBuilder {
     private classNameMediaQueryListeners = new Map<string, MediaQueryList>()
     private listeners = new Map<MediaQueryList, Set<VoidFunction>>()
     private registeredRules = new Map<string, MediaQueryList>()
-    private themeListeners = new Set<VoidFunction>()
 
     constructor() {
         if (typeof document === 'undefined') {
@@ -26,7 +28,7 @@ class CSSListenerBuilder {
         })
     }
 
-    addListener(classNames: string, listener: VoidFunction) {
+    subscribeToClassName(classNames: string, listener: VoidFunction) {
         const disposables = [] as Array<VoidFunction>
 
         classNames.split(' ').forEach(className => {
@@ -43,22 +45,12 @@ class CSSListenerBuilder {
             disposables.push(() => listeners?.delete(listener))
         })
 
-        const disposeThemeListener = this.addThemeListener(listener)
+        const disposeThemeListener = UniwindListener.subscribe(listener, [StyleDependency.Theme])
 
         return () => {
             disposables.forEach(disposable => disposable())
             disposeThemeListener()
         }
-    }
-
-    addThemeListener(listener: VoidFunction) {
-        this.themeListeners.add(listener)
-
-        return () => this.themeListeners.delete(listener)
-    }
-
-    notifyThemeChange() {
-        this.themeListeners.forEach(listener => listener())
     }
 
     private initialize() {

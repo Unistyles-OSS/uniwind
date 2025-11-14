@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { useEffect, useMemo, useReducer } from 'react'
+import { UniwindListener } from '../../core/listener'
 import { UniwindStore } from '../../core/native'
 import { ComponentState, RNStyle } from '../../core/types'
 import { StyleDependency } from '../../types'
@@ -15,7 +16,7 @@ export const useStyle = (className?: string, state?: ComponentState) => {
 
     useEffect(() => {
         if (__DEV__ || styleState.dependencies.length > 0) {
-            const dispose = UniwindStore.subscribe(() => rerender(), styleState.dependencies)
+            const dispose = UniwindListener.subscribe(rerender, styleState.dependencies)
 
             return dispose
         }

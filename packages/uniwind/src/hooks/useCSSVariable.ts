@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
+import { UniwindListener } from '../core/listener'
 import { CSSListener, parseCSSValue } from '../core/web'
+import { StyleDependency } from '../types'
 
 const documentStyles = typeof document !== 'undefined'
     ? window.getComputedStyle(document.documentElement)
@@ -31,8 +33,8 @@ export const useCSSVariable = (name: string): string | number | undefined => {
 
     useEffect(() => {
         const updateValue = () => setValue(getVariableValue(name))
-        const themeListenerDispose = CSSListener.addThemeListener(updateValue)
-        const classListenerDispose = CSSListener.addListener(':root', updateValue)
+        const themeListenerDispose = UniwindListener.subscribe(updateValue, [StyleDependency.Theme])
+        const classListenerDispose = CSSListener.subscribeToClassName(':root', updateValue)
 
         updateValue()
 

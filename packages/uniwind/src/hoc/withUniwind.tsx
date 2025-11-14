@@ -55,7 +55,7 @@ const withAutoUniwind = (Component: Component<AnyObject>) => (props: AnyObject) 
     const [, rerender] = useReducer(() => ({}), {})
 
     useEffect(() => {
-        const dispose = CSSListener.addListener(classNames, rerender)
+        const dispose = CSSListener.subscribeToClassName(classNames, rerender)
 
         return dispose
     }, [classNames])
@@ -101,7 +101,7 @@ const withManualUniwind = (Component: Component<AnyObject>, options: Record<Prop
     const [, rerender] = useReducer(() => ({}), {})
 
     useEffect(() => {
-        const dispose = CSSListener.addListener(classNames, rerender)
+        const dispose = CSSListener.subscribeToClassName(classNames, rerender)
 
         return dispose
     }, [classNames])

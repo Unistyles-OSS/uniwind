@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { UniwindListener } from '../core/listener'
 import { UniwindStore } from '../core/native'
 import { StyleDependency } from '../types'
 
@@ -13,7 +14,7 @@ export const useCSSVariable = (name: string) => {
 
     useEffect(() => {
         const updateValue = () => setValue(getVariableValue(name))
-        const dispose = UniwindStore.subscribe(
+        const dispose = UniwindListener.subscribe(
             updateValue,
             [StyleDependency.Theme],
         )

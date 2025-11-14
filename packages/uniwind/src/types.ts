@@ -6,6 +6,7 @@ export enum StyleDependency {
     Insets = 5,
     FontScale = 6,
     Rtl = 7,
+    AdaptiveThemes = 8,
 }
 
 export const enum Orientation {

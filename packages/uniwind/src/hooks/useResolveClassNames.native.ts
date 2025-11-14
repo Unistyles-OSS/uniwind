@@ -1,4 +1,5 @@
 import { useEffect, useReducer } from 'react'
+import { UniwindListener } from '../core/listener'
 import { UniwindStore } from '../core/native'
 import { ComponentState, RNStyle } from '../core/types'
 
@@ -18,7 +19,7 @@ export const useResolveClassNames = (className: string, state?: ComponentState) 
 
     useEffect(() => {
         if (uniwindState.dependencies.length > 0) {
-            const dispose = UniwindStore.subscribe(recreate, uniwindState.dependencies)
+            const dispose = UniwindListener.subscribe(recreate, uniwindState.dependencies)
 
             return dispose
         }
