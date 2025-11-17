@@ -102,7 +102,7 @@ export class Functions {
         }
 
         if (['skewX', 'skewY'].includes(fn.name)) {
-            return `"${fn.name}(${this.Processor.CSS.processValue(fn.arguments)})"`
+            return `"${fn.name}(${this.Processor.CSS.processValue(fn.arguments).replace(/"/g, '')})"`
         }
 
         if (fn.name === 'hairlineWidth') {
