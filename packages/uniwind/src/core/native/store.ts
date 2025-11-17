@@ -78,8 +78,8 @@ class UniwindStoreBuilder {
         if (!this.initialized) {
             UniwindListener.subscribe(
                 () => {
-                    UniwindStore.reinit()
                     UniwindRuntime.currentThemeName = Uniwind.currentTheme
+                    UniwindStore.reinit()
                 },
                 [StyleDependency.Theme],
             )
