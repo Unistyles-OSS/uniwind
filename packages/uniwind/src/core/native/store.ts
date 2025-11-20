@@ -4,7 +4,6 @@ import { Orientation, StyleDependency } from '../../types'
 import { Uniwind } from '../config/config'
 import { UniwindListener } from '../listener'
 import { ComponentState, GenerateStyleSheetsCallback, RNStyle, Style, StyleSheets } from '../types'
-import { cloneWithAccessors } from './native-utils'
 import { parseBoxShadow, parseFontVariant, parseTransformsMutation, resolveGradient } from './parsers'
 import { UniwindRuntime } from './runtime'
 
@@ -16,7 +15,7 @@ type StylesResult = {
 class UniwindStoreBuilder {
     initialized = false
     runtime = UniwindRuntime
-    vars = {} as Record<string, unknown>
+    vars = {} as Record<string, () => unknown>
     private stylesheet = {} as StyleSheets
     private cache = new Map<string, StylesResult>()
     private generateStyleSheetCallbackResult: ReturnType<GenerateStyleSheetsCallback> | null = null
@@ -64,11 +63,11 @@ class UniwindStoreBuilder {
         const platformVars = scopedVars[`__uniwind-platform-${Platform.OS}`]
 
         if (themeVars) {
-            Object.defineProperties(this.vars, Object.getOwnPropertyDescriptors(themeVars))
+            Object.assign(this.vars, themeVars)
         }
 
         if (platformVars) {
-            Object.defineProperties(this.vars, Object.getOwnPropertyDescriptors(platformVars))
+            Object.assign(this.vars, platformVars)
         }
 
         if (__DEV__ && generateStyleSheetCallback) {
@@ -88,7 +87,7 @@ class UniwindStoreBuilder {
     }
 
     private resolveStyles(classNames: string, state?: ComponentState) {
-        const result = {} as Record<string, any>
+        const result = {} as Record<string, () => any>
         let vars = this.vars
         const dependencies = [] as Array<StyleDependency>
         const bestBreakpoints = new Map<string, Style>()
@@ -131,20 +130,12 @@ class UniwindStoreBuilder {
                     if (property[0] === '-') {
                         // Clone vars object if we are adding inline variables
                         if (vars === this.vars) {
-                            vars = cloneWithAccessors(this.vars)
+                            vars = { ...this.vars }
                         }
 
-                        Object.defineProperty(vars, property, {
-                            configurable: true,
-                            enumerable: true,
-                            get: valueGetter,
-                        })
+                        vars[property] = valueGetter
                     } else {
-                        Object.defineProperty(result, property, {
-                            configurable: true,
-                            enumerable: true,
-                            get: () => valueGetter.call(vars),
-                        })
+                        result[property] = valueGetter
                     }
 
                     bestBreakpoints.set(property, style)
@@ -152,70 +143,58 @@ class UniwindStoreBuilder {
             }
         }
 
-        if (result.lineHeight !== undefined && result.lineHeight < 6) {
-            Object.defineProperty(result, 'lineHeight', {
-                value: result.fontSize * result.lineHeight,
-                configurable: true,
-                enumerable: true,
-            })
+        if (result.lineHeight !== undefined && result.fontSize) {
+            const originalLineHeight = result.lineHeight.call(vars)
+
+            if (originalLineHeight < 6) {
+                const originalFontSize = result.fontSize.call(vars)
+
+                result.lineHeight = () => originalLineHeight * originalFontSize
+            }
         }
 
         if (result.boxShadow !== undefined) {
-            Object.defineProperty(result, 'boxShadow', {
-                value: parseBoxShadow(result.boxShadow),
-                configurable: true,
-                enumerable: true,
-            })
+            const originalBoxShadow = result.boxShadow.call(vars)
+
+            result.boxShadow = () => parseBoxShadow(originalBoxShadow)
         }
 
-        if (result.visibility === 'hidden') {
-            Object.defineProperty(result, 'display', {
-                value: 'none',
-                configurable: true,
-                enumerable: true,
-            })
+        if (result.visibility !== undefined && result.visibility.call(vars) === 'hidden') {
+            result.display = () => 'none'
         }
 
         if (
             result.borderStyle !== undefined && result.borderColor === undefined
         ) {
-            Object.defineProperty(result, 'borderColor', {
-                value: '#000000',
-                configurable: true,
-                enumerable: true,
-            })
+            result.borderColor = () => '#000000'
         }
 
         if (
             result.outlineStyle !== undefined && result.outlineColor === undefined
         ) {
-            Object.defineProperty(result, 'outlineColor', {
-                value: '#000000',
-                configurable: true,
-                enumerable: true,
-            })
+            result.outlineColor = () => '#000000'
         }
 
         if (result.fontVariant !== undefined) {
-            Object.defineProperty(result, 'fontVariant', {
-                value: parseFontVariant(result.fontVariant),
-                configurable: true,
-                enumerable: true,
-            })
+            const originalFontVariant = result.fontVariant.call(vars)
+
+            result.fontVariant = () => parseFontVariant(originalFontVariant)
         }
 
-        parseTransformsMutation(result)
+        parseTransformsMutation(result, vars)
 
         if (result.experimental_backgroundImage !== undefined) {
-            Object.defineProperty(result, 'experimental_backgroundImage', {
-                value: resolveGradient(result.experimental_backgroundImage),
-                configurable: true,
-                enumerable: true,
-            })
+            const originalBackgroundImage = result.experimental_backgroundImage.call(vars)
+
+            result.experimental_backgroundImage = () => resolveGradient(originalBackgroundImage)
         }
 
         return {
-            styles: { ...result } as RNStyle,
+            styles: Object.fromEntries(
+                (Object.entries(result)).map(([property, valueGetter]) => {
+                    return [property, valueGetter.call(vars)]
+                }),
+            ) as RNStyle,
             dependencies: Array.from(new Set(dependencies)),
         }
     }

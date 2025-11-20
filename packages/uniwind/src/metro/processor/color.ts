@@ -27,7 +27,7 @@ export class Color {
 
         try {
             if (color.type === 'currentcolor') {
-                return 'this["currentColor"]'
+                return 'this["currentColor"]()'
             }
 
             if (color.type === 'rgb' || color.type === 'srgb') {

@@ -24,14 +24,14 @@ const processTransform = (transform: string, value: any) => {
     return value
 }
 
-export const parseTransformsMutation = (styles: Record<string, any>) => {
-    const transformTokens = typeof styles.transform === 'string'
-        ? styles.transform
+export const parseTransformsMutation = (styles: Record<string, any>, vars: Record<string, () => unknown>) => {
+    const transformTokens = typeof styles.transform === 'function'
+        ? (styles.transform.call(vars) as string)
             .split(' ')
             .filter(token => token === 'undefined')
         : []
 
-    const transformsResult = []
+    const transformsResult: Array<Record<string, unknown>> = []
 
     for (const transform of transforms) {
         if (transformTokens.length > 0) {
@@ -49,16 +49,12 @@ export const parseTransformsMutation = (styles: Record<string, any>) => {
 
         // Transforms outside of transform - { rotate: '45deg' }
         if (styles[transform] !== undefined) {
-            transformsResult.push({ [transform]: processTransform(transform, styles[transform]) })
+            transformsResult.push({ [transform]: processTransform(transform, styles[transform].call(vars)) })
             delete styles[transform]
         }
     }
 
     if (transformsResult.length > 0) {
-        Object.defineProperty(styles, 'transform', {
-            configurable: true,
-            enumerable: true,
-            value: transformsResult,
-        })
+        styles.transform = () => transformsResult
     }
 }
