@@ -31,6 +31,10 @@ type UniwindWithThemes = {
 }
 
 const addClassNameToRoot = () => {
+    if (typeof document === 'undefined') {
+        return
+    }
+
     const root = document.documentElement
     ;(Uniwind as unknown as UniwindWithThemes).themes.forEach(theme => root.classList.remove(theme))
     root.classList.add(Uniwind.currentTheme)
