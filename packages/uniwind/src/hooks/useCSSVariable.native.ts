@@ -4,7 +4,7 @@ import { UniwindStore } from '../core/native'
 import { StyleDependency } from '../types'
 
 const getVariableValue = (name: string) => {
-    return UniwindStore.vars[name]
+    return UniwindStore.vars[name]?.()
 }
 
 let warned = false
