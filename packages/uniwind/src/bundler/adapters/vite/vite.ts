@@ -80,15 +80,6 @@ const vite8Resolve = {
     alias: [{
         find: /^react-native$/,
         replacement: componentPath,
-        customResolver: {
-            resolveId(this: PluginContext, _: string, importer: string | undefined) {
-                if (importer !== undefined && normalizePath(importer).includes('uniwind/dist')) {
-                    return this.resolve('react-native-web', importer, { skipSelf: true })
-                }
-
-                return componentPath
-            },
-        },
     }],
 }
 
@@ -115,8 +106,21 @@ export const uniwind = (config: UniwindConfig): Plugin => {
     return {
         name: 'uniwind',
         enforce: 'pre',
-        resolveId: (source, importer) => {
-            return resolveOrderedCSSStyleSheet(source, importer)
+        resolveId(source, importer) {
+            const resolvedStyleSheet = resolveOrderedCSSStyleSheet(source, importer)
+
+            if (resolvedStyleSheet !== undefined) {
+                return resolvedStyleSheet
+            }
+
+            if (
+                isVite8
+                && normalizePath(source) === normalizePath(componentPath)
+                && importer !== undefined
+                && normalizePath(importer).includes('uniwind/dist')
+            ) {
+                return this.resolve('react-native-web', importer, { skipSelf: true })
+            }
         },
         config: () =>
             ({
