@@ -295,6 +295,8 @@ export class ProcessorBuilder {
                         rule.value.declarations?.declarations?.forEach(declaration => this.addDeclaration(declaration))
                         rule.value.declarations?.importantDeclarations?.forEach(declaration => this.addDeclaration(declaration, true))
                         rule.value.rules?.forEach(rule => this.parseRuleRec(rule))
+
+                        this.declarationConfig.root = false
                     }
                 })
             })
@@ -310,13 +312,18 @@ export class ProcessorBuilder {
         }
 
         if (rule.type === 'media') {
-            const { mediaQueries } = rule.value.query
+            // Tailwind < 4.3.3 nests the query under each class, Tailwind >= 4.3.3 hoists it and
+            // groups every class that uses it into one block. Each child parses against the
+            // enclosing config plus this query, so `.a { @media ios {} }` still resolves `.a` and
+            // `@media ios { .a {} .b {} }` gives `.b` the platform too, without `.a` leaking into it.
+            const enclosingConfig = this.declarationConfig
+            const mediaQueries = [...enclosingConfig.mediaQueries, ...rule.value.query.mediaQueries]
 
-            this.declarationConfig.mediaQueries.push(...mediaQueries)
             rule.value.rules.forEach(rule => {
+                this.declarationConfig = { ...enclosingConfig, mediaQueries }
                 this.parseRuleRec(rule)
-                this.declarationConfig = this.getDeclarationConfig()
             })
+            this.declarationConfig = enclosingConfig
 
             return
         }
