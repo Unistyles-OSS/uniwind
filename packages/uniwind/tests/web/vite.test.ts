@@ -1,5 +1,5 @@
 import path from 'node:path'
-import type { Plugin, UserConfig } from 'vite'
+import { createServer, type Plugin, type UserConfig } from 'vite'
 import { describe, expect, test, vi } from 'vitest'
 
 import { uniwind } from '@/bundler/adapters/vite/vite'
@@ -81,6 +81,29 @@ describe('Vite adapter', () => {
 
         await expect(runResolveId(plugin, { resolve }, source, importer)).resolves.toBe(resolved)
         expect(resolve).toHaveBeenCalledWith('react-native-web', importer, { skipSelf: true })
+    })
+
+    test('resolves an internal React Native import through the Vite plugin pipeline', async () => {
+        const plugin = uniwind(config)
+
+        plugin.buildStart = undefined
+        plugin.generateBundle = undefined
+
+        const server = await createServer({
+            configFile: false,
+            logLevel: 'silent',
+            plugins: [plugin],
+            server: { middlewareMode: true },
+        })
+
+        try {
+            const importer = path.resolve('node_modules/uniwind/dist/module/components/web/View.js')
+            const resolved = await server.pluginContainer.resolveId('react-native', importer)
+
+            expect(resolved?.id).toContain('react-native-web')
+        } finally {
+            await server.close()
+        }
     })
 
     test('leaves application React Native imports on the Uniwind component alias', async () => {
