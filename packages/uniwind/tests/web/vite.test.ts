@@ -99,8 +99,10 @@ describe('Vite adapter', () => {
         try {
             const importer = path.resolve('node_modules/uniwind/dist/module/components/web/View.js')
             const resolved = await server.pluginContainer.resolveId('react-native', importer)
+            const expected = await server.pluginContainer.resolveId('react-native-web', importer)
 
-            expect(resolved?.id).toContain('react-native-web')
+            expect(expected?.id).toBeDefined()
+            expect(resolved?.id).toBe(expected?.id)
         } finally {
             await server.close()
         }
