@@ -16,6 +16,8 @@ import type {
 export type MediaQueryResolver = {
     maxWidth: any
     minWidth: any
+    minWidthExclusive: boolean
+    maxWidthExclusive: boolean
     platform: Platform | null
     rtl: boolean | null
     important: boolean

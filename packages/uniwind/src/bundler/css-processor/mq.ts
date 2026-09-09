@@ -50,10 +50,12 @@ export class MQ {
 
         if (operator === 'greater-than-equal' || operator === 'greater-than') {
             mq.minWidth = result
+            mq.minWidthExclusive = operator === 'greater-than'
         }
 
         if (operator === 'less-than-equal' || operator === 'less-than') {
             mq.maxWidth = result
+            mq.maxWidthExclusive = operator === 'less-than'
         }
     }
 
@@ -77,7 +79,9 @@ export class MQ {
     private getInitialMediaQueryResolver(): MediaQueryResolver {
         return {
             minWidth: 0,
+            minWidthExclusive: false,
             maxWidth: Number.MAX_VALUE,
+            maxWidthExclusive: false,
             platform: null,
             rtl: null,
             important: false,
