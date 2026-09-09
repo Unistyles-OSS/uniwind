@@ -64,6 +64,8 @@ export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlat
                     orientation,
                     minWidth,
                     maxWidth,
+                    minWidthExclusive,
+                    maxWidthExclusive,
                     colorScheme,
                     important: _,
                     importantProperties,
@@ -113,7 +115,9 @@ export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlat
                 }
 
                 if (
-                    Number(minWidth) !== 0
+                    minWidthExclusive
+                    || maxWidthExclusive
+                    || Number(minWidth) !== 0
                     || Number(maxWidth) !== Number.MAX_VALUE
                     || stringifiedEntries.includes('rt.screen')
                 ) {
@@ -132,6 +136,8 @@ export const addMetaToStylesTemplate = (Processor: ProcessorBuilder, currentPlat
                     entries,
                     minWidth,
                     maxWidth,
+                    minWidthExclusive,
+                    maxWidthExclusive,
                     theme: makeSafeForSerialization(theme),
                     orientation: makeSafeForSerialization(orientation),
                     rtl,
